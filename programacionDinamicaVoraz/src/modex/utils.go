@@ -14,7 +14,7 @@ import (
 	"math"
 )
 
-// extremism calculates the extremism of the network. It returns a float32 value.
+// extremism calculates the extremism of the network. It returns a float64 value.
 func extremism(network *Network) float64 {
 	var sumOpinions float64
 
@@ -42,7 +42,7 @@ func moderation(network Network, strategy []byte) Network {
 	return networkPrime
 }
 
-// effort calculates the effort of the network after applying the strategy. It returns a float32 value.
+// effort calculates the effort of the network after applying the strategy. It returns a float64 value.
 func effort(network *Network, strategy []byte) float64 {
 	n := len(network.Agents)
 	networkPrime := moderation(*network, strategy)

@@ -37,7 +37,7 @@ type Network struct {
 //   - strategy: A byte slice representing the strategy used to moderate the opinions.
 //   - effort: A float32 value representing the minimum effort required.
 //   - extremism: A float32 value representing the total extremism in the network.
-func ModexFB(network *Network) ([]byte, float32, float32) {
+func ModexFB(network *Network) ([]byte, float64, float64) {
 	return []byte("FB1"), 0.0, 0.0
 }
 
@@ -51,7 +51,7 @@ func ModexFB(network *Network) ([]byte, float32, float32) {
 //   - strategy: A byte slice representing the strategy used to moderate the opinions.
 //   - effort: A float32 value representing the minimum effort required.
 //   - extremism: A float32 value representing the total extremism in the network.
-func ModexPD(network *Network) ([]byte, float32, float32) {
+func ModexPD(network *Network) ([]byte, float64, float64) {
 	return []byte("PD1"), 0.0, 0.0
 }
 
@@ -65,6 +65,6 @@ func ModexPD(network *Network) ([]byte, float32, float32) {
 //   - strategy: A byte slice representing the strategy used to moderate the opinions.
 //   - effort: A float32 value representing the minimum effort required.
 //   - extremism: A float32 value representing the total extremism in the network.
-func ModexV(network *Network) ([]byte, float32, float32) {
+func ModexV(network *Network) ([]byte, float64, float64) {
 	return []byte("V1"), 0.0, 0.0
 }
