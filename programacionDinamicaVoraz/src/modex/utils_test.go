@@ -36,7 +36,7 @@ var strategies = [][]byte{
 }
 
 // Moderations to test
-var moderations = []Network{
+var moderations = []*Network{
   moderation(&networks[0], strategies[0]),
   moderation(&networks[0], strategies[1]),
   moderation(&networks[1], strategies[3]),
@@ -57,9 +57,9 @@ var tableExtremism = []struct {
   extremismObtained float64
   expected float64
 }{
-  {extremism(&moderations[0]), 47.14},
-  {extremism(&moderations[1]), 33.49},
-  {extremism(&moderations[2]), 13.33},
+  {extremism(moderations[0]), 47.14},
+  {extremism(moderations[1]), 33.49},
+  {extremism(moderations[2]), 13.33},
 }
 
 func TestEffort(t *testing.T) {
