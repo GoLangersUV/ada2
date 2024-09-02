@@ -52,6 +52,8 @@
 *.synctex(busy)
 *.run.xml
 
+#Ignorear el pdf de latex
+programacionDinamicaVoraz/latex/Informe-grupo01-ADA2.pdf
 # Ignorar otros archivos temporales de LaTeX
 *.pdfsync
 *.pdf
