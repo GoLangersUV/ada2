@@ -3,11 +3,11 @@
 package modex
 
 import (
-	"fmt"
 	"math"
 	"testing"
 )
 
+// Networks to test
 var networks = []Network{
   {
     Agents: []Agent{
@@ -27,6 +27,7 @@ var networks = []Network{
   },
 }
 
+// Strategies to test
 var strategies = [][]byte{
   []byte{0, 0, 1},
   []byte{1, 0, 0},
@@ -34,10 +35,11 @@ var strategies = [][]byte{
   []byte{1, 0, 1},
 }
 
+// Moderations to test
 var moderations = []Network{
-  moderation(networks[0], strategies[0]),
-  moderation(networks[0], strategies[1]),
-  moderation(networks[1], strategies[3]),
+  moderation(&networks[0], strategies[0]),
+  moderation(&networks[0], strategies[1]),
+  moderation(&networks[1], strategies[3]),
 }
 
 var tableEffort = []struct {
@@ -51,16 +53,6 @@ var tableEffort = []struct {
   {networks[1], strategies[3], 28},
 }
 
-func TestEffort(t *testing.T) {
-  fmt.Println("Effort Test")
-  for _, tt := range tableEffort {
-    result := effort(&tt.network, tt.strategy)
-    if result != tt.expected {
-      t.Errorf("Effort(%v, %v) => %v, want %v", tt.network, tt.strategy, result, tt.expected)
-    }
-  }
-}
-
 var tableExtremism = []struct {
   extremismObtained float64
   expected float64
@@ -70,8 +62,16 @@ var tableExtremism = []struct {
   {extremism(&moderations[2]), 13.33},
 }
 
+func TestEffort(t *testing.T) {
+  for _, tt := range tableEffort {
+    result := effort(&tt.network, tt.strategy)
+    if result != tt.expected {
+      t.Errorf("Effort(%v, %v) => %v, want %v", tt.network, tt.strategy, result, tt.expected)
+    }
+  }
+}
+
 func TestExtremism(t *testing.T) {
-  fmt.Println("Extremism Test")
   for _, tt := range tableExtremism {
     if (math.Trunc(tt.extremismObtained*100)/100) != tt.expected {
       t.Errorf("Extremism() => %v, want %v", tt.extremismObtained, tt.expected)
