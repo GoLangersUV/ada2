@@ -24,10 +24,12 @@
 package main
 
 import (
+  "github.com/Krud3/ada2/programacionDinamicaVoraz/src/modex"
   "fmt"
 )
 
 // TestMain tests the main function of the ModEx program.
 func main() {
-  fmt.Println("ModEx Program")
+  solution := modex.StrategyGenerator(4)
+  fmt.Println(solution)
 }
