@@ -27,13 +27,13 @@ func extremism(network *Network) float64 {
 
 // moderation applies the strategy to the network. It returns the network after applying the strategy.
 func moderation(network *Network, strategy []byte) *Network {
-  networkPrime := Network{
+	networkPrime := Network{
 		Agents:    make([]Agent, len(network.Agents)),
 		Resources: network.Resources,
 	}
 
 	for i, strategyValue := range strategy {
-    networkPrime.Agents[i].Opinion = network.Agents[i].Opinion - network.Agents[i].Opinion * int8(strategyValue)
+		networkPrime.Agents[i].Opinion = network.Agents[i].Opinion - network.Agents[i].Opinion*int8(strategyValue)
 	}
 
 	return &networkPrime
@@ -55,16 +55,27 @@ func effort(network *Network, strategy []byte) float64 {
 
 // strategyGenerator generates a slice of all posible strategies. It returns a slice of byte slices.
 func StrategyGenerator(n int) [][]byte {
-  total := 1 << n
-  combinations := make([][]byte, total)
-  
-  for i := 0; i < total; i++ {
-    combination := make([]byte, n)
-    for j := 0; j < n; j++ {
-      combination[n-j-1] = byte((i >> j) & 1)
-    }
-    combinations[i] = combination
-  }
+	total := 1 << n
+	combinations := make([][]byte, total)
 
-  return combinations
+	for i := 0; i < total; i++ {
+		combination := make([]byte, n)
+		for j := 0; j < n; j++ {
+			combination[n-j-1] = byte((i >> j) & 1)
+		}
+		combinations[i] = combination
+	}
+
+	return combinations
+}
+
+// partialExtremism calculates the partial extremism of an agent. It returns a float64 value.
+func partialExtremism(agent float64) float64 {
+	return math.Sqrt(agent)
+}
+
+// partialEffort calculates the partial effort required for modering an agent. It returns a float64 value.
+func partialEffort(agent Agent, prime_agent Agent) uint64 {
+	opinion_difference := float64(agent.Opinion - prime_agent.Opinion)
+	return uint64(math.Ceil(math.Abs(opinion_difference) * (1 - agent.Receptivity)))
 }
