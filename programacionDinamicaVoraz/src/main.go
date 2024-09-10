@@ -24,10 +24,15 @@
 package main
 
 import (
-  "fmt"
+	"fmt"
+	"net/http"
+	"github.com/a-h/templ"
+	"github.com/Krud3/ada2/programacionDinamicaVoraz/src/view/components"
 )
 
 // TestMain tests the main function of the ModEx program.
 func main() {
-  fmt.Println("ModEx Program")
+	fmt.Println("ModEx Program")
+	http.Handle("/", templ.Handler(components.Hello("Hi, Golangders")))
+	http.ListenAndServe(":8080", nil)
 }
