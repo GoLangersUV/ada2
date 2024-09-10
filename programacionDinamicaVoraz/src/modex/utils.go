@@ -27,17 +27,13 @@ func extremism(network *Network) float64 {
 
 // moderation applies the strategy to the network. It returns the network after applying the strategy.
 func moderation(network *Network, strategy []byte) *Network {
-  networkPrime := Network{
+	networkPrime := Network{
 		Agents:    make([]Agent, len(network.Agents)),
 		Resources: network.Resources,
 	}
 
 	for i, strategyValue := range strategy {
-		if strategyValue == 1 {
-			networkPrime.Agents[i].Opinion = 0
-		} else {
-      networkPrime.Agents[i].Opinion = network.Agents[i].Opinion
-    }
+		networkPrime.Agents[i].Opinion = network.Agents[i].Opinion - strategy[i]*network.Agents[i].Opinion
 	}
 
 	return &networkPrime
