@@ -106,7 +106,108 @@
 \newpage
 \section{Introducción}
 \label{sec:introduccion}
+El presente informe tiene como objetivo abordar el problema de moderar el extremismo de opiniones en una red social, aplicando diferentes estrategias de diseño como fuerza bruta, algoritmos voraces y programación dinámica.
 
+Se realizará una comparación entre estas estrategias basándose en su complejidad y optimalidad.
+
+Para la implementación del proyecto, se ha seleccionado el lenguaje de programación \href{https://go.dev/}{Golang}. Esperamos que este informe sea de su agrado y cumpla con las expectativas del curso.
+\section{Definición de estructuras y funciones útiles}
+A continuación se presentan las funciones auxiliares y tipos de datos utilizados para implementar las soluciones al problema de moderar el extremismo de opiniones en la red social.
+\subsection{Tipos de datos}
+A continuación, se muestran los tipos de datos definidos para representar la red social y los agentes en la misma.
+\subsubsection*{Red Social}
+\[
+  \mathcal{R} \mathcal{S}  = < AG, R\_max >
+\]
+\[
+  AG = < a_1, a_2, \ldots, a_n >
+\]
+\[
+  R\_max \in \mathbb{N}
+\]
+Donde $AG$ es un conjunto de agentes y $R\_max$ es la cantidad máxima de recursos disponibles.
+\subsubsection*{Agente}
+\begin{lstlisting}[caption={Definición de red social}, label={lst:r_s}]
+type Network struct {
+    Agents    []Agent
+    Resources uint64
+}
+\end{lstlisting}
+\subsection*{Agente}
+
+\begin{lstlisting}[caption={Definición de agente}, label={lst:agente}]
+type Agent struct {
+    Opinion     int8
+    Receptivity float64
+}
+\end{lstlisting}
+Donde un agente $a_i$ es una pareja: $<{o_i}{^{\mathcal{R} \mathcal{S}}}, {r_i}{^{\mathcal{R} \mathcal{S}}}>$.
+\newpage
+\subsubsection*{Extremismo de una red $\mathcal{R}\mathcal{S}$}
+\[
+  Ext(\mathcal{R}\mathcal{S}) = \frac{\sqrt{\sum_{i=0}^{n-1}{({o_i}{^{\mathcal{R} \mathcal{S}}})^2}}}{n}
+\]
+\begin{lstlisting}[caption={Implementación del extremismo}, label={lst:ext}]
+// extremism calculates the extremism of the network. It returns a float64 value.
+func extremism(network *Network) float64 {
+	var sumOpinions float64
+
+	for _, agent := range network.Agents {
+		sumOpinions += float64(agent.Opinion) * float64(agent.Opinion)
+	}
+
+	return math.Sqrt(sumOpinions) / float64(len(network.Agents))
+}
+\end{lstlisting}
+\subsubsection*{Aplicar una estrategia de moderación $Mod(\mathcal{R}\mathcal{S},E)$}
+\[
+  Mod(\mathcal{R}\mathcal{S}, E) = \mathcal{R}\mathcal{S}'
+\]
+donde,
+\[
+  o_i^{\mathcal{R}\mathcal{S}'} = 
+  \begin{cases} 
+        o_i^{\mathcal{R}\mathcal{S}'} & \text{si } e_i = 0 \\
+        0        & \text{si } e_i = 1 
+  \end{cases}
+\]
+\begin{lstlisting}[caption={Implementación del Mod}, label={lst:mod}]
+// moderation applies the strategy to the network. It returns the network after applying the strategy.
+func moderation(network *Network, strategy []byte) *Network {
+	networkPrime := Network{
+		Agents:    make([]Agent, len(network.Agents)),
+		Resources: network.Resources,
+	}
+
+	for i, strategyValue := range strategy {
+		networkPrime.Agents[i].Opinion = network.Agents[i].Opinion - network.Agents[i].Opinion*int8(strategyValue)
+	}
+
+	return &networkPrime
+}
+\end{lstlisting}
+\newpage
+\subsubsection*{Esfuerzo}
+El valor de esfuerzo a modelar la red $\mathcal{R}\mathcal{S}$.
+\[
+  Esfuerzo(\mathcal{R}\mathcal{S}, E) = \sum_{i=0}^{n-1} \left\lceil  |o_i^{\mathcal{R}\mathcal{S}} - o_i^{\mathcal{R}\mathcal{S}'}| \times (1 - r_i^{\mathcal{R}\mathcal{S}}) \right\rceil 
+\]
+Donde $E$ (estrategia) es una secuencia que indica qué opinión de qué agente se modera por medio de $E$.
+\begin{lstlisting}[caption={Implementación del esfuerzo}, label={lst:esfuerzo}]
+  // effort calculates the effort of the network after applying the strategy. It returns a float64 value.
+  func effort(network *Network, strategy []byte) float64 {
+    n := len(network.Agents)
+    networkPrime := moderation(network, strategy)
+  
+    var effortValue float64
+    for i := 0; i < n; i++ {
+      diff := float64(network.Agents[i].Opinion - networkPrime.Agents[i].Opinion)
+      effortValue += math.Ceil(math.Abs(diff) * (1 - network.Agents[i].Receptivity))
+    }
+  
+    return effortValue
+  }
+\end{lstlisting}
 \section{Solución con Fuerza Bruta}
 \label{sec:fuerza_bruta}
 "Entiende correctamente el algoritmo de fuerza bruta propuesto, calcula correctamente su complejidad y la justifica, analiza acertadamente si el algoritmo da siempre la respuesta correcta y lo justifica."
