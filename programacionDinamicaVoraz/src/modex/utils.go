@@ -33,11 +33,7 @@ func moderation(network *Network, strategy []byte) *Network {
 	}
 
 	for i, strategyValue := range strategy {
-		if strategyValue == 1 {
-			networkPrime.Agents[i].Opinion = 0
-		} else {
-      networkPrime.Agents[i].Opinion = network.Agents[i].Opinion
-    }
+    networkPrime.Agents[i].Opinion = network.Agents[i].Opinion - network.Agents[i].Opinion * int8(strategyValue)
 	}
 
 	return &networkPrime
