@@ -55,16 +55,15 @@ func effort(network *Network, strategy []byte) float64 {
 
 // strategyGenerator generates a slice of all posible strategies. It returns a slice of byte slices.
 func StrategyGenerator(n int) [][]byte {
-  var combinations [][]byte
-  total := int(math.Pow(2, float64(n)))
-
+  total := 1 << n
+  combinations := make([][]byte, total)
+  
   for i := 0; i < total; i++ {
-    var combination []byte
-    for j := n - 1; j >= 0; j-- {
-      bit := (i >> j) & 1
-      combination = append(combination, byte(bit))
+    combination := make([]byte, n)
+    for j := 0; j < n; j++ {
+      combination[n-j-1] = byte((i >> j) & 1)
     }
-    combinations = append(combinations, combination)
+    combinations[i] = combination
   }
 
   return combinations

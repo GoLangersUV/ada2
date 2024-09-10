@@ -30,6 +30,6 @@ import (
 
 // TestMain tests the main function of the ModEx program.
 func main() {
-  solution := modex.StrategyGenerator(4)
+  solution := modex.StrategyGenerator(25)
   fmt.Println(solution)
 }
