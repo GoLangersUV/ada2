@@ -16,15 +16,15 @@ package modex
 // Agent represents an individual in the social network, with an opinion on a
 // specific topic and a receptivity level.
 type Agent struct {
-	Opinion     int8
-	Receptivity float64
+	Opinion     int8 // -100 (disagreement) to 100 (agreement)
+	Receptivity float64 // 0 (closed-minded) to 1 (open-minded)
 }
 
 // Network represents a social network, composed of multiple agents and a total
 // amount of resources.
 type Network struct {
 	Agents    []Agent
-	Resources float64
+	Resources uint64
 }
 
 // ModexFB calculates the minimum effort required to moderate the opinions of all
