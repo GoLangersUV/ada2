@@ -27,6 +27,7 @@ import (
 	"fmt"
 	"net/http"
 	"time"
+	"log"
 	"github.com/Krud3/ada2/programacionDinamicaVoraz/src/view/pages"
 	"github.com/gorilla/websocket"
 )
@@ -36,6 +37,10 @@ var upgrader = websocket.Upgrader{}
 // TestMain tests the main function of the ModEx program.
 func main() {
 	fmt.Println("ModEx Program")
+	// Serve static files like styles.css and images
+	fs := http.FileServer(http.Dir("./static"))
+	http.Handle("/static/", http.StripPrefix("/static/", fs))
+
 	http.HandleFunc("/", homeHandler)
 	http.HandleFunc("/ws", wsHandler)
 
@@ -51,18 +56,27 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func wsHandler(w http.ResponseWriter, r *http.Request) {
+	log.Println("Received connection request from: " + r.RemoteAddr)
+	upgrader := websocket.Upgrader{
+    CheckOrigin: func(r *http.Request) bool {
+        return true // Allow all origins
+    },
+}
+
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		http.Error(w, "Could not open WebSocket connection", http.StatusBadRequest)
 		return
 	}
-	defer conn.Close()
-
+        log.Println("Connection established, before of calculatedStratgy")
 	go calculateStrategy(conn)
 }
 
 func calculateStrategy(conn *websocket.Conn) {
 	time.Sleep(10 * time.Second) // Simulating long-running task
-
+	log.Println("Task completed! After of 10 seconds")
+	log.Println(conn)
 	conn.WriteMessage(websocket.TextMessage, []byte("Task completed!"))
+	log.Println("Closing connection")
+	defer conn.Close()
 }
