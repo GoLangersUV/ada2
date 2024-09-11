@@ -16,7 +16,7 @@
 // higher levels of extremism. Additionally, each agent has a Receptivity level ranging
 // from 0 to 1, which determines how easily their Opinion can be moderated.
 //
-// The goal of the ModEx program is to reduce extremism in the network by moderating 
+// The goal of the ModEx program is to reduce extremism in the network by moderating
 // agents' opinions. This is achieved by investing an effort, calculated based on each
 // agent's Receptivity and extremism level. Given a maximum amount of availableresources,
 // the program must determine which agents to target to achieve the greatest possible
@@ -24,12 +24,22 @@
 package main
 
 import (
-  "github.com/Krud3/ada2/programacionDinamicaVoraz/src/modex"
+	"github.com/Krud3/ada2/programacionDinamicaVoraz/src/modex"
   "fmt"
 )
 
 // TestMain tests the main function of the ModEx program.
 func main() {
-  solution := modex.StrategyGenerator(25)
-  fmt.Println(solution)
+  network := modex.Network{
+    Agents: []modex.Agent{
+      {Opinion: 100, Receptivity: 0.5},
+    },
+    Resources: 55,
+  }
+
+  minStrategy, minEffort, minExtremism := modex.ModexFB(&network)
+
+  fmt.Println("Minimum Strategy:", minStrategy)
+  fmt.Println("Minimum Effort:", minEffort)
+  fmt.Println("Minimum Extremism:", minExtremism)
 }

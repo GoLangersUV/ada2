@@ -34,6 +34,7 @@ func moderation(network *Network, strategy []byte) *Network {
 
 	for i, strategyValue := range strategy {
     networkPrime.Agents[i].Opinion = network.Agents[i].Opinion - network.Agents[i].Opinion * int8(strategyValue)
+    networkPrime.Agents[i].Receptivity = network.Agents[i].Receptivity
 	}
 
 	return &networkPrime
@@ -54,7 +55,7 @@ func effort(network *Network, strategy []byte) float64 {
 }
 
 // strategyGenerator generates a slice of all posible strategies. It returns a slice of byte slices.
-func StrategyGenerator(n int) [][]byte {
+func strategyGenerator(n int) [][]byte {
   total := 1 << n
   combinations := make([][]byte, total)
   
@@ -65,6 +66,6 @@ func StrategyGenerator(n int) [][]byte {
     }
     combinations[i] = combination
   }
-
   return combinations
+
 }
