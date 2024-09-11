@@ -26,13 +26,21 @@ package main
 import (
 	"fmt"
 	"net/http"
-	"github.com/a-h/templ"
-	"github.com/Krud3/ada2/programacionDinamicaVoraz/src/view/components"
+	"github.com/Krud3/ada2/programacionDinamicaVoraz/src/view/pages"
 )
 
 // TestMain tests the main function of the ModEx program.
 func main() {
 	fmt.Println("ModEx Program")
-	http.Handle("/", templ.Handler(components.Hello("Hi, Golangders")))
+	http.HandleFunc("/", homeHandler)
+
 	http.ListenAndServe(":8080", nil)
+}
+
+func homeHandler(w http.ResponseWriter, r *http.Request) {
+    if r.URL.Path != "/" {
+        http.NotFound(w, r)
+        return
+    }
+    pages.Main().Render(r.Context(), w)
 }
