@@ -14,14 +14,14 @@
 package modex
 
 import (
+	"errors"
 	"math"
-  "errors"
 )
 
 // Agent represents an individual in the social network, with an opinion on a
 // specific topic and a receptivity level.
 type Agent struct {
-	Opinion     int8 // -100 (disagreement) to 100 (agreement)
+	Opinion     int8    // -100 (disagreement) to 100 (agreement)
 	Receptivity float64 // 0 (closed-minded) to 1 (open-minded)
 }
 
@@ -45,27 +45,30 @@ type Network struct {
 //   - extremism: A float64 value representing the total extremism in the network.
 //   - err: An error value, if any.
 func ModexFB(network *Network) (bestStrategy []byte, bestEffort float64, minExtremism float64, err error) {
-  numAgents := len(network.Agents)
-  
-  if numAgents > 25 {
-    return nil, 0, 0, errors.New("In ModexFB the number of agents must be less than or equal to 25")
-  }
+	numAgents := len(network.Agents)
 
-  var possibleStrategies [][]byte = strategyGenerator(numAgents)
-  minExtremism = math.Inf(1)
-  bestEffort = math.Inf(1)
-  
-  for _, strategy := range possibleStrategies {
-    effortValue, networkPrime := effort(network, strategy)
-    if effortValue <= float64(network.Resources) {
-      extremismValue := extremism(networkPrime)
-      if extremismValue < minExtremism {
-        minExtremism = extremismValue
-        bestEffort = effortValue
-        bestStrategy = strategy
-      }
-    }
-  }
+	if numAgents > 25 {
+		return nil, 0, 0, errors.New("In ModexFB the number of agents must be less than or equal to 25")
+	}
+
+	total := 1 << numAgents
+	minExtremism = math.Inf(1)
+
+	for i := 0; i < total; i++ {
+		strategy := make([]byte, numAgents)
+		for j := 0; j < numAgents; j++ {
+			strategy[numAgents-j-1] = byte((i >> j) & 1)
+		}
+		effortValue, networkPrime := effort(network, strategy)
+		if effortValue <= float64(network.Resources) {
+			extremismValue := extremism(networkPrime)
+			if extremismValue < minExtremism {
+				minExtremism = extremismValue
+				bestEffort = effortValue
+				bestStrategy = strategy
+			}
+		}
+	}
 
 	return bestStrategy, bestEffort, minExtremism, nil
 }
