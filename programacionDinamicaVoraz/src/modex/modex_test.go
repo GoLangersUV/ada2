@@ -57,10 +57,13 @@ func roundToThreeDecimals(value float64) float64 {
 	return math.Trunc(value*1000) / 1000
 }
 
-func TestModexFB(t *testing.T) {
-	startFile := 1
-	endFile := 6
+// Función para truncar un valor a tres decimales
+func truncateToThreeDecimals(value float64) float64 {
+	return math.Trunc(value*1000) / 1000
+}
 
+// Función para ejecutar pruebas comunes
+func runTestCases(t *testing.T, functionToTest func(*Network) (float64, error), startFile, endFile int) {
 	for _, testCase := range testCases {
 		var fileNumber int
 		_, err := fmt.Sscanf(testCase.FileName, "Prueba%d.txt", &fileNumber)
@@ -79,13 +82,13 @@ func TestModexFB(t *testing.T) {
 				t.Fatalf("Failed to parse file %s: %v", testCase.FileName, err)
 			}
 
-			_, _, minExtremism, err := ModexFB(&network)
+			minExtremism, err := functionToTest(&network)
 			if err != nil {
-				t.Fatalf("Error in ModexFB: %v", err)
+				t.Fatalf("Error in functionToTest: %v", err)
 			}
 
-			minExtremism = roundToThreeDecimals(minExtremism)
-			expectedValue := roundToThreeDecimals(testCase.ExpectedValue)
+			minExtremism = truncateToThreeDecimals(minExtremism)
+			expectedValue := truncateToThreeDecimals(testCase.ExpectedValue)
 
 			if minExtremism != expectedValue {
 				t.Errorf("For %s: expected minExtremism %.3f, got %.3f", testCase.FileName, expectedValue, minExtremism)
@@ -96,53 +99,68 @@ func TestModexFB(t *testing.T) {
 	}
 }
 
-
 // Función auxiliar para leer un archivo y crear la estructura Network
 func parseNetworkFromFile(filename string) (Network, error) {
-  file, err := os.Open(filename)
-  if err != nil {
-    return Network{}, err
-  }
-  defer file.Close()
+	file, err := os.Open(filename)
+	if err != nil {
+		return Network{}, err
+	}
+	defer file.Close()
 
-  scanner := bufio.NewScanner(file)
+	scanner := bufio.NewScanner(file)
 
-  scanner.Scan()
+	scanner.Scan()
 
-  var agents []Agent
-  for scanner.Scan() {
-    line := scanner.Text()
-    if len(line) == 0 {
-      continue
-    }
+	var agents []Agent
+	for scanner.Scan() {
+		line := scanner.Text()
+		if len(line) == 0 {
+			continue
+		}
 
-    if strings.Count(line, ",") == 0 {
-      resources, err := strconv.ParseUint(line, 10, 64)
-      if err != nil {
-        return Network{}, err
-      }
+		if strings.Count(line, ",") == 0 {
+			resources, err := strconv.ParseUint(line, 10, 64)
+			if err != nil {
+				return Network{}, err
+			}
 
-      return Network{Agents: agents, Resources: resources}, nil
-    }
+			return Network{Agents: agents, Resources: resources}, nil
+		}
 
-    parts := strings.Split(line, ",")
-    opinion, err := strconv.ParseInt(parts[0], 10, 8)
-    if err != nil {
-      return Network{}, err
-    }
-    receptivity, err := strconv.ParseFloat(parts[1], 64)
-    if err != nil {
-      return Network{}, err
-    }
+		parts := strings.Split(line, ",")
+		opinion, err := strconv.ParseInt(parts[0], 10, 8)
+		if err != nil {
+			return Network{}, err
+		}
+		receptivity, err := strconv.ParseFloat(parts[1], 64)
+		if err != nil {
+			return Network{}, err
+		}
 
-    agent := Agent{Opinion: int8(opinion), Receptivity: receptivity}
-    agents = append(agents, agent)
-  }
+		agent := Agent{Opinion: int8(opinion), Receptivity: receptivity}
+		agents = append(agents, agent)
+	}
 
-  if err := scanner.Err(); err != nil {
-    return Network{}, err
-  }
+	if err := scanner.Err(); err != nil {
+		return Network{}, err
+	}
 
-  return Network{}, errors.New("file parsing error: could not determine resources")
+	return Network{}, errors.New("file parsing error: could not determine resources")
 }
 
+
+// Prueba para ModexFB
+func TestModexFB(t *testing.T) {
+	runTestCases(t, func(network *Network) (float64, error) {
+		_, _, minExtremism, err := ModexFB(network)
+		return minExtremism, err
+	}, 1, 6)
+}
+
+// Prueba para ModexPD
+// func TestModexPD(t *testing.T) {
+// 	runTestCases(t, func(network *Network) (float64, error) {
+// 		_, _, minExtremism, err := ModexPD(network)
+// 		return minExtremism, err
+// 	}, 7, 15)  // Por ejemplo, para un rango diferente de archivos
+// }
