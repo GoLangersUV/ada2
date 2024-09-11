@@ -70,8 +70,8 @@ func StrategyGenerator(n int) [][]byte {
 }
 
 // partialExtremism calculates the partial extremism of an agent. It returns a float64 value.
-func partialExtremism(agent float64) float64 {
-	return math.Sqrt(agent)
+func partialExtremism(agent Agent) float64 {
+	return math.Sqrt(float64(agent.Opinion))
 }
 
 // partialEffort calculates the partial effort required for modering an agent. It returns a float64 value.
