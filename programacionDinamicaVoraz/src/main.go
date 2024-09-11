@@ -26,13 +26,18 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"time"
 	"github.com/Krud3/ada2/programacionDinamicaVoraz/src/view/pages"
+	"github.com/gorilla/websocket"
 )
+
+var upgrader = websocket.Upgrader{}
 
 // TestMain tests the main function of the ModEx program.
 func main() {
 	fmt.Println("ModEx Program")
 	http.HandleFunc("/", homeHandler)
+	http.HandleFunc("/ws", wsHandler)
 
 	http.ListenAndServe(":8080", nil)
 }
@@ -43,4 +48,21 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
         return
     }
     pages.Layout().Render(r.Context(), w)
+}
+
+func wsHandler(w http.ResponseWriter, r *http.Request) {
+	conn, err := upgrader.Upgrade(w, r, nil)
+	if err != nil {
+		http.Error(w, "Could not open WebSocket connection", http.StatusBadRequest)
+		return
+	}
+	defer conn.Close()
+
+	go calculateStrategy(conn)
+}
+
+func calculateStrategy(conn *websocket.Conn) {
+	time.Sleep(10 * time.Second) // Simulating long-running task
+
+	conn.WriteMessage(websocket.TextMessage, []byte("Task completed!"))
 }
