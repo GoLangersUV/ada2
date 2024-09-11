@@ -1,0 +1,26 @@
+package components
+
+
+templ FileUploader() {
+<div
+  id="file_upload" data-on-load="$$get"
+  data-store=""
+>
+  <div>
+    <div class="flex flex-col items-center justify-center my-8">
+    	 <label for="file-upload" class="cursor-pointer bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+    	 Buscar archivos
+  	 </label>
+  	 <input id="file-upload" type="file" data-model="files" multiple class="hidden">
+    </div>
+    <div class="flex justify-center container mx-auto">
+    <button
+      class="mx-auto border-solid border-2 border-indigo-600 mt-4"
+      data-fetch-url="'/examples/file_upload/upload'"
+      data-on-click="$$post">
+      Enviar
+    </button>
+   </div>
+</div>
+</div>
+}

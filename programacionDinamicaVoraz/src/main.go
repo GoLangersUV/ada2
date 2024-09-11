@@ -42,5 +42,5 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
         http.NotFound(w, r)
         return
     }
-    pages.Main().Render(r.Context(), w)
+    pages.Layout().Render(r.Context(), w)
 }
