@@ -113,7 +113,7 @@ Se realizará una comparación entre estas estrategias basándose en su compleji
 Para la implementación del proyecto, se ha seleccionado el lenguaje de programación \href{https://go.dev/}{Golang}. Esperamos que este informe sea de su agrado y cumpla con las expectativas del curso.
 \section{Definición de estructuras y funciones útiles}
 A continuación se presentan las funciones auxiliares y tipos de datos utilizados para implementar las soluciones al problema de moderar el extremismo de opiniones en la red social.
-\subsection{Tipos de datos}
+\subsection*{Tipos de datos}
 A continuación, se muestran los tipos de datos definidos para representar la red social y los agentes en la misma.
 \subsubsection*{Red Social}
 \[
@@ -126,14 +126,14 @@ A continuación, se muestran los tipos de datos definidos para representar la re
   R\_max \in \mathbb{N}
 \]
 Donde $AG$ es un conjunto de agentes y $R\_max$ es la cantidad máxima de recursos disponibles.
-\subsubsection*{Agente}
+
 \begin{lstlisting}[caption={Definición de red social}, label={lst:r_s}]
 type Network struct {
     Agents    []Agent
     Resources uint64
 }
 \end{lstlisting}
-\subsection*{Agente}
+\subsubsection*{Agente}
 
 \begin{lstlisting}[caption={Definición de agente}, label={lst:agente}]
 type Agent struct {
@@ -211,8 +211,27 @@ Donde $E$ (estrategia) es una secuencia que indica qué opinión de qué agente 
 \section{Solución con Fuerza Bruta}
 \label{sec:fuerza_bruta}
 "Entiende correctamente el algoritmo de fuerza bruta propuesto, calcula correctamente su complejidad y la justifica, analiza acertadamente si el algoritmo da siempre la respuesta correcta y lo justifica."
+\begin{lstlisting}[caption={Strategy Generator Code}, label={lst:strategy_generator}]
+  func StrategyGenerator(n int) [][]byte {
+  total := 1 << n
+  combinations := make([][]byte, total)
+  
+  for i := 0; i < total; i++ {
+    combination := make([]byte, n)
+    for j := 0; j < n; j++ {
+      combination[n-j-1] = byte((i >> j) & 1)
+    }
+    combinations[i] = combination
+  }
+
+  return combinations
+}
+\end{lstlisting}
 \subsection{Descripción del Algoritmo}
 \label{subsec:descripcion_fuerza_bruta}
+Para realizar el algoritmo que genera todas las soluciones posibles y entre ellas escoger la mejor, se debe plantear todas las posibilidades para $E$ (estrategias). Sabiendo que se tiene una lista de $AG \in \mathcal{R}\mathcal{S}$, donde $|AG| = n \rightarrow \exists  E=<e_0,e_1,\ldots,e_n>$ $\mid$  $Esfuerzo(\mathcal{R}\mathcal{S},E)\leqslant R\_max ~ \wedge ~ Min(Ext(Mod(\mathcal{R}\mathcal{S},E))) $.
+
+Para ello calculando todas las posibilidades para $E$ se tiene que $2^n$ es la representación de la cantidad de posibilidades para $E$.
 \subsection{Complejidad}
 \label{subsec:complejidad_fuerza_bruta}
 \subsection{Corrección}
