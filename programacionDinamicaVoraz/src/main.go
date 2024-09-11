@@ -24,10 +24,68 @@
 package main
 
 import (
+	"github.com/Krud3/ada2/programacionDinamicaVoraz/src/modex"
   "fmt"
 )
 
 // TestMain tests the main function of the ModEx program.
+/*
+34,0.5249591123887468
+-97,0.06662575262643888
+-96,0.9909023877685615
+-5,0.7095964332655594
+13,0.5730892184411239
+-77,0.3990264318559328
+11,0.9862096012203873
+65,0.41386829191945196
+-27,0.6627728079835299
+-45,0.37708482008389566
+92,0.12287758092115264
+-85,0.29319887852162296
+78,0.0033000534752198885
+-59,0.7607528856502521
+4,0.0647508445318502
+-47,0.5994834265364559
+97,0.7588520698928425
+85,0.2251905822498278
+2,0.2450440390223817
+-98,0.6804499082649875
+225
+*/
 func main() {
-  fmt.Println("ModEx Program")
+  network := modex.Network{
+    Agents: []modex.Agent{
+      {Opinion: 34, Receptivity: 0.5249591123887468},
+      {Opinion: -97, Receptivity: 0.06662575262643888},
+      {Opinion: -96, Receptivity: 0.9909023877685615},
+      {Opinion: -5, Receptivity: 0.7095964332655594},
+      {Opinion: 13, Receptivity: 0.5730892184411239},
+      {Opinion: -77, Receptivity: 0.3990264318559328},
+      {Opinion: 11, Receptivity: 0.9862096012203873},
+      {Opinion: 65, Receptivity: 0.41386829191945196},
+      {Opinion: -27, Receptivity: 0.6627728079835299},
+      {Opinion: -45, Receptivity: 0.37708482008389566},
+      {Opinion: 92, Receptivity: 0.12287758092115264},
+      {Opinion: -85, Receptivity: 0.29319887852162296},
+      {Opinion: 78, Receptivity: 0.0033000534752198885},
+      {Opinion: -59, Receptivity: 0.7607528856502521},
+      {Opinion: 4, Receptivity: 0.0647508445318502},
+      {Opinion: -47, Receptivity: 0.5994834265364559},
+      {Opinion: 97, Receptivity: 0.7588520698928425},
+      {Opinion: 85, Receptivity: 0.2251905822498278},
+      {Opinion: 2, Receptivity: 0.2450440390223817},
+      {Opinion: -98, Receptivity: 0.6804499082649875},
+    },
+    Resources: 225.0,
+  }
+
+  minStrategy, minEffort, minExtremism, err := modex.ModexFB(&network)
+  if err != nil {
+    fmt.Println("Error:", err)
+    return
+  }
+
+  fmt.Println("Minimum Strategy:", minStrategy)
+  fmt.Println("Minimum Effort:", minEffort)
+  fmt.Println("Minimum Extremism:", minExtremism)
 }

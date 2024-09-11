@@ -15,6 +15,7 @@ package modex
 
 import (
 	"math"
+  "errors"
 )
 
 // Agent represents an individual in the social network, with an opinion on a
@@ -41,8 +42,15 @@ type Network struct {
 //   - strategy: A byte slice representing the strategy used to moderate the opinions.
 //   - effort: A float64 value representing the minimum effort required.
 //   - extremism: A float64 value representing the total extremism in the network.
-func ModexFB(network *Network) (bestStrategy []byte, bestEffort float64, minExtremism float64) {
-  var possibleStrategies [][]byte = strategyGenerator(len(network.Agents))
+//   - err: An error value, if any.
+func ModexFB(network *Network) (bestStrategy []byte, bestEffort float64, minExtremism float64, err error) {
+  numAgents := len(network.Agents)
+  
+  if numAgents > 25 {
+    return nil, 0, 0, errors.New("In ModexFB the number of agents must be less than or equal to 25")
+  }
+
+  var possibleStrategies [][]byte = strategyGenerator(numAgents)
   minExtremism = math.Inf(1)
   bestEffort = math.Inf(1)
   
@@ -58,7 +66,7 @@ func ModexFB(network *Network) (bestStrategy []byte, bestEffort float64, minExtr
     }
   }
 
-	return bestStrategy, bestEffort, minExtremism
+	return bestStrategy, bestEffort, minExtremism, nil
 }
 
 // ModexPD calculates the minimum effort required to moderate the opinions of all
