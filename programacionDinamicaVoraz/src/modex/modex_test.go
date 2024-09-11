@@ -53,16 +53,10 @@ var testCases = []TestCase{
 	{"Prueba30.txt", 2500, 0.309, "Solución"},
 }
 
-func roundToThreeDecimals(value float64) float64 {
-	return math.Trunc(value*1000) / 1000
-}
-
-// Función para truncar un valor a tres decimales
 func truncateToThreeDecimals(value float64) float64 {
 	return math.Trunc(value*1000) / 1000
 }
 
-// Función para ejecutar pruebas comunes
 func runTestCases(t *testing.T, functionToTest func(*Network) (float64, error), startFile, endFile int) {
 	for _, testCase := range testCases {
 		var fileNumber int
@@ -99,7 +93,6 @@ func runTestCases(t *testing.T, functionToTest func(*Network) (float64, error), 
 	}
 }
 
-// Función auxiliar para leer un archivo y crear la estructura Network
 func parseNetworkFromFile(filename string) (Network, error) {
 	file, err := os.Open(filename)
 	if err != nil {
