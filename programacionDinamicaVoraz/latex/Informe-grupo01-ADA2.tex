@@ -211,8 +211,23 @@ Donde $E$ (estrategia) es una secuencia que indica qué opinión de qué agente 
 \section{Solución con Fuerza Bruta}
 \label{sec:fuerza_bruta}
 "Entiende correctamente el algoritmo de fuerza bruta propuesto, calcula correctamente su complejidad y la justifica, analiza acertadamente si el algoritmo da siempre la respuesta correcta y lo justifica."
-\begin{lstlisting}[caption={Strategy Generator Code}, label={lst:strategy_generator}]
-  func StrategyGenerator(n int) [][]byte {
+
+\subsection{Descripción del Algoritmo}
+\label{subsec:descripcion_fuerza_bruta}
+El enfoque de fuerza bruta para abordar el problema de moderar el extremismo se basa en generar todas las posibles estrategias de moderación \( E \) para una red social \( \mathcal{R}\mathcal{S} \) y seleccionar aquella estrategia que minimice el extremismo de la red social después de su aplicación, respetando la restricción de recursos \( R\_max \).
+
+Formalmente, esto se expresa como:
+
+\[
+ AG \in \mathcal{R}\mathcal{S} \rightarrow \exists E = \langle e_0, e_1, \ldots, e_n \rangle \mid Esfuerzo(\mathcal{R}\mathcal{S}, E) \leqslant R\_max ~ \wedge ~ \min(Ext(Mod(\mathcal{R}\mathcal{S}, E)))
+\]
+
+Donde \( E \) es la estrategia de moderación aplicada a los agentes de la red social \( \mathcal{R}\mathcal{S} \), y la solución óptima es aquella que minimiza el extremismo \( Ext \) sin exceder los recursos disponibles "$\min(Ext(Mod(\mathcal{R}\mathcal{S}, E)))$".
+
+\subsubsection*{Generación de Estrategias (StrategyGenerator)}
+El primer paso es generar todas las posibles estrategias de moderación para una red social con \( n \) agentes. Para ello, se utiliza la función \( StrategyGenerator \) que genera todas las combinaciones posibles de estrategias de moderación.
+\begin{lstlisting}[caption={Strategy Generator}, label={lst:strategy_generator}]
+func StrategyGenerator(n int) [][]byte {
   total := 1 << n
   combinations := make([][]byte, total)
   
@@ -227,11 +242,22 @@ Donde $E$ (estrategia) es una secuencia que indica qué opinión de qué agente 
   return combinations
 }
 \end{lstlisting}
-\subsection{Descripción del Algoritmo}
-\label{subsec:descripcion_fuerza_bruta}
-Para realizar el algoritmo que genera todas las soluciones posibles y entre ellas escoger la mejor, se debe plantear todas las posibilidades para $E$ (estrategias). Sabiendo que se tiene una lista de $AG \in \mathcal{R}\mathcal{S}$, donde $|AG| = n \rightarrow \exists  E=<e_0,e_1,\ldots,e_n>$ $\mid$  $Esfuerzo(\mathcal{R}\mathcal{S},E)\leqslant R\_max ~ \wedge ~ Min(Ext(Mod(\mathcal{R}\mathcal{S},E))) $.
+\textit{Esta función genera todas las posibles estrategias de moderación para una red social con \( n \) agentes. Cada estrategia es representada por una secuencia de \( n \) bits, donde el bit \( i \) indica si el agente \( i \) es moderado o no.
+}
+\\
 
-Para ello calculando todas las posibilidades para $E$ se tiene que $2^n$ es la representación de la cantidad de posibilidades para $E$.
+\textbf{Explicación del código:}
+\begin{itemize}
+  \item Se inicia la función con un parametro $n$ el cual indica la cantidad de agentes de la red social, luego en la linea 2 "\textit{total := 1 $<<$ n}".
+  \item Se crea un arreglo de arreglos de bytes llamado "\textit{combinations}" en la linea 3.
+  \item Se inicia un ciclo for que va desde 0 hasta el total de combinaciones posibles en la linea 6.
+  \item Se crea un arreglo de bytes llamado "\textit{combination}
+  \item Se inicia un ciclo for que va desde 0 hasta la cantidad de agentes de la red social en la linea 7.
+  \item Se asigna a la posición $n-j-1$ del arreglo de bytes "\textit{combination}" el valor de la operación $i >> j$ en la linea 8.
+  \item Se asigna el arreglo de bytes "\textit{combination}" a la posición $i$ del arreglo de arreglos de bytes "\textit{combinations}" en la linea 10.
+  \item Se retorna el arreglo de arreglos de bytes "\textit{combinations}" en la linea 13.
+\end{itemize}
+
 \subsection{Complejidad}
 \label{subsec:complejidad_fuerza_bruta}
 \subsection{Corrección}
