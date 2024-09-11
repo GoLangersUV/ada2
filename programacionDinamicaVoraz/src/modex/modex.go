@@ -5,7 +5,7 @@
  *          Juan Sebastián Molina......2224491
  *          Juan Camilo Narváez Tascón.2140112
  * Creation date: 09/01/2024
- * Last modification: 09/01/2024
+ * Last modification: 09/11/2024
  * License: GNU-GPL
  */
 
@@ -33,7 +33,8 @@ type Network struct {
 }
 
 // ModexFB calculates the minimum effort required to moderate the opinions of all
-// agents in the network, using a Brute Force algorithm.
+// agents in the network, using a Brute Force algorithm. The time complexity of
+// this algorithm is O(2^n), where n is the number of agents in the network.
 //
 // Input:
 //   - network: A Network struct representing the social network.
