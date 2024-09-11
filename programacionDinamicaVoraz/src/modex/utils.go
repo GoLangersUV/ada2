@@ -11,7 +11,6 @@
 package modex
 
 import (
-	"fmt"
 	"math"
 )
 
@@ -52,11 +51,10 @@ func effort(network *Network, strategy []byte) (float64, *Network) {
 		effortValue += math.Ceil(math.Abs(diff) * (1 - network.Agents[i].Receptivity))
 	}
 
-  fmt.Println("Effort:", effortValue, "Strategy:", strategy)
 	return effortValue, networkPrime
 }
 
-// strategyGenerator generates a slice of all posible strategies. It returns a slice of byte slices.
+// strategyGenerator generates a slice of all posible strategies for maximum 25 agents. It returns a slice of byte slices. 
 func strategyGenerator(n int) [][]byte {
   total := 1 << n
   combinations := make([][]byte, total)
@@ -68,6 +66,6 @@ func strategyGenerator(n int) [][]byte {
     }
     combinations[i] = combination
   }
-  return combinations
 
+  return combinations
 }

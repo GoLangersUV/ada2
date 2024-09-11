@@ -24,24 +24,10 @@
 package main
 
 import (
-	"github.com/Krud3/ada2/programacionDinamicaVoraz/src/modex"
   "fmt"
 )
 
 // TestMain tests the main function of the ModEx program.
 func main() {
-  network := modex.Network{
-    Agents: []modex.Agent{
-      {Opinion: 100, Receptivity: 0.5},
-      {Opinion: 100, Receptivity: 0.1},
-      {Opinion: -10, Receptivity: 0.1},
-    },
-    Resources: 55,
-  }
-
-  minStrategy, minEffort, minExtremism := modex.ModexFB(&network)
-
-  fmt.Println("Minimum Strategy:", minStrategy)
-  fmt.Println("Minimum Effort:", minEffort)
-  fmt.Println("Minimum Extremism:", minExtremism)
+  fmt.Println("ModEx Program")
 }

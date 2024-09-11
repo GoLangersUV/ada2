@@ -41,10 +41,10 @@ type Network struct {
 //   - strategy: A byte slice representing the strategy used to moderate the opinions.
 //   - effort: A float64 value representing the minimum effort required.
 //   - extremism: A float64 value representing the total extremism in the network.
-func ModexFB(network *Network) (minStrategy []byte, minEffort float64, minExtremism float64) {
-  possibleStrategies := strategyGenerator(len(network.Agents))
+func ModexFB(network *Network) (bestStrategy []byte, bestEffort float64, minExtremism float64) {
+  var possibleStrategies [][]byte = strategyGenerator(len(network.Agents))
   minExtremism = math.Inf(1)
-  minEffort = math.Inf(1)
+  bestEffort = math.Inf(1)
   
   for _, strategy := range possibleStrategies {
     effortValue, networkPrime := effort(network, strategy)
@@ -52,13 +52,13 @@ func ModexFB(network *Network) (minStrategy []byte, minEffort float64, minExtrem
       extremismValue := extremism(networkPrime)
       if extremismValue < minExtremism {
         minExtremism = extremismValue
-        minEffort = effortValue
-        minStrategy = strategy
+        bestEffort = effortValue
+        bestStrategy = strategy
       }
     }
   }
 
-	return minStrategy, minEffort, minExtremism
+	return bestStrategy, bestEffort, minExtremism
 }
 
 // ModexPD calculates the minimum effort required to moderate the opinions of all
