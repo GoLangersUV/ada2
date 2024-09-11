@@ -11,6 +11,7 @@
 package modex
 
 import (
+	"fmt"
 	"math"
 )
 
@@ -40,8 +41,8 @@ func moderation(network *Network, strategy []byte) *Network {
 	return &networkPrime
 }
 
-// effort calculates the effort of the network after applying the strategy. It returns a float64 value.
-func effort(network *Network, strategy []byte) float64 {
+// effort calculates the effort of the network after applying the strategy. It returns the float64 value of the effort and the network after applying the strategy.
+func effort(network *Network, strategy []byte) (float64, *Network) {
 	n := len(network.Agents)
 	networkPrime := moderation(network, strategy)
 
@@ -51,7 +52,8 @@ func effort(network *Network, strategy []byte) float64 {
 		effortValue += math.Ceil(math.Abs(diff) * (1 - network.Agents[i].Receptivity))
 	}
 
-	return effortValue
+  fmt.Println("Effort:", effortValue, "Strategy:", strategy)
+	return effortValue, networkPrime
 }
 
 // strategyGenerator generates a slice of all posible strategies. It returns a slice of byte slices.

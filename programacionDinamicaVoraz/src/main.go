@@ -33,6 +33,8 @@ func main() {
   network := modex.Network{
     Agents: []modex.Agent{
       {Opinion: 100, Receptivity: 0.5},
+      {Opinion: 100, Receptivity: 0.1},
+      {Opinion: -10, Receptivity: 0.1},
     },
     Resources: 55,
   }

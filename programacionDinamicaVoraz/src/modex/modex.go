@@ -14,7 +14,7 @@
 package modex
 
 import (
-  "math"
+	"math"
 )
 
 // Agent represents an individual in the social network, with an opinion on a
@@ -47,9 +47,7 @@ func ModexFB(network *Network) (minStrategy []byte, minEffort float64, minExtrem
   minEffort = math.Inf(1)
   
   for _, strategy := range possibleStrategies {
-    networkPrime := moderation(network, strategy)
-    // fmt.Printf("NetworkPrime: %v\nStrategy: %v\n", networkPrime, strategy)
-    effortValue := effort(networkPrime, strategy)
+    effortValue, networkPrime := effort(network, strategy)
     if effortValue <= float64(network.Resources) {
       extremismValue := extremism(networkPrime)
       if extremismValue < minExtremism {
@@ -58,7 +56,6 @@ func ModexFB(network *Network) (minStrategy []byte, minEffort float64, minExtrem
         minStrategy = strategy
       }
     }
-    // fmt.Printf("Min Strategy: %v\nMin Effort: %v\nMin Extremism: %v\n---------------------\n", minStrategy, minEffort, minExtremism)
   }
 
 	return minStrategy, minEffort, minExtremism
