@@ -87,9 +87,9 @@ func ModexPD(network *Network) ([]byte, float64, float64) {
 	n := len(agents)
 
 	// DP table (n+1 for agents, resources+1 for capacities)
-	svMatrix := make([][]float64, n)
+	svMatrix := make([][]int16, n)
 	for i := range svMatrix {
-		svMatrix[i] = make([]float64, resources)
+		svMatrix[i] = make([]int16, resources)
 		for j := range svMatrix[i] {
 			svMatrix[i][j] = 0 // Initialize to a large value (infinity)
 		}
@@ -99,55 +99,58 @@ func ModexPD(network *Network) ([]byte, float64, float64) {
 	agent0Effort := int(partialEffort(agents[0])) - 1
 	for w := 0; w <= int(resources)-1; w++ {
 		if w >= agent0Effort {
-			svMatrix[0][w] = partialExtremism(agents[0])
-		} else {
 			svMatrix[0][w] = 0
+		} else {
+			svMatrix[0][w] = partialExtremism(agents[0])
 		}
+		// fmt.Println(svMatrix[0][w])
 	}
 
 	// Fill the DP table, now ensuring 0-based indexing
 	for i := 1; i <= n-1; i++ {
 		agent := agents[i]
-		partial_effort := int(partialEffort(agent)) - 1
+		partial_effort := partialEffort(agent) - 1
 		partial_extremism := partialExtremism(agent)
+		// fmt.Println(partial_extremism)
 		for w := 0; w <= int(resources)-1; w++ {
 
 			if partial_effort <= w {
 				// Either take the current agent or leave it
-				svMatrix[i][w] = math.Min(svMatrix[i-1][w], svMatrix[i-1][w-partial_effort]+partial_extremism)
-				// fmt.Println(svMatrix[i][w])
+				svMatrix[i][w] = min(svMatrix[i-1][w]+partial_extremism, svMatrix[i-1][w-partial_effort])
+				fmt.Println(partial_effort, "<=", w)
 			} else {
 				// Can't take the current agent, so copy the value from the previous row
-				svMatrix[i][w] = svMatrix[i-1][w]
+				svMatrix[i][w] = partial_extremism
 			}
+			// fmt.Println(svMatrix[i][w])
 		}
 	}
 
 	// The final result is in svMatrix[n][resources]
 	// extremism := math.Sqrt(svMatrix[n-1][int(resources)-1]) / float64(n)
 
-	w := int(resources) - 1
-	fmt.Println(w)
+	w := int(resources - 1)
+	// fmt.Println(w)
 	strategy := make([]byte, n) // Create a strategy slice initialized to '0'
 	for i := n - 1; i >= 0; i-- {
 		agent := agents[i]
-		effort := int(partialEffort(agent)) - 1
+		effort := partialEffort(agent) - 1
 
 		// Check if the agent was moderated (compare current and previous row)
 		if i == 0 {
 			// Special case for the first agent (no previous row)
-			if w >= effort && svMatrix[0][w] != 0 {
+			if w >= effort && svMatrix[0][w] == 0 {
 				strategy[0] = 1
 			} else {
 				strategy[0] = 0
 			}
-		} else if w >= effort && svMatrix[i][w] != svMatrix[i-1][w] {
-			// Agent wasn't moderated, mark in strategy
+		} else if w >= effort && svMatrix[i][w] == svMatrix[i-1][w] {
+			// Agent was moderated, mark in strategy
 			strategy[i] = 1
 			// Deduct the resources spent on this agent
 			w -= effort
 		} else {
-			// Agent was moderated
+			// Agent wasn't moderated
 			strategy[i] = 0
 		}
 	}

@@ -60,11 +60,12 @@ func main() {
 		Resources: 73.0,
 	}
 
-	minStrategy, minEffort, minExtremism, err := modex.ModexFB(&network)
-	if err != nil {
-		fmt.Println("Error:", err)
-		return
-	}
+	// minStrategy, minEffort, minExtremism, err := modex.ModexFB(&network)
+	minStrategy, minEffort, minExtremism := modex.ModexPD(&network)
+	// if err != nil {
+	// 	fmt.Println("Error:", err)
+	// 	return
+	// }
 
 	fmt.Println("Minimum Strategy:", minStrategy)
 	fmt.Println("Minimum Effort:", minEffort)
