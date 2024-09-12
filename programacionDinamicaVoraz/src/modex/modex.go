@@ -5,7 +5,7 @@
  *          Juan Sebastián Molina......2224491
  *          Juan Camilo Narváez Tascón.2140112
  * Creation date: 09/01/2024
- * Last modification: 09/01/2024
+ * Last modification: 09/11/2024
  * License: GNU-GPL
  */
 
@@ -14,6 +14,7 @@
 package modex
 
 import (
+	"errors"
 	"fmt"
 	"math"
 )
@@ -33,7 +34,8 @@ type Network struct {
 }
 
 // ModexFB calculates the minimum effort required to moderate the opinions of all
-// agents in the network, using a Brute Force algorithm.
+// agents in the network, using a Brute Force algorithm. The time complexity of
+// this algorithm is O(2^n), where n is the number of agents in the network.
 //
 // Input:
 //   - network: A Network struct representing the social network.
@@ -42,8 +44,31 @@ type Network struct {
 //   - strategy: A byte slice representing the strategy used to moderate the opinions.
 //   - effort: A float64 value representing the minimum effort required.
 //   - extremism: A float64 value representing the total extremism in the network.
-func ModexFB(network *Network) ([]byte, float64, float64) {
-	return []byte("FB1"), 0.0, 0.0
+//   - err: An error value, if any.
+func ModexFB(network *Network) (bestStrategy []byte, bestEffort float64, minExtremism float64, err error) {
+	numAgents := len(network.Agents)
+
+	if numAgents > 25 {
+		return nil, 0, 0, errors.New("In ModexFB the number of agents must be less than or equal to 25")
+	}
+
+	var possibleStrategies [][]byte = strategyGenerator(numAgents)
+	minExtremism = math.Inf(1)
+	bestEffort = math.Inf(1)
+
+	for _, strategy := range possibleStrategies {
+		effortValue, networkPrime := effort(network, strategy)
+		if effortValue <= float64(network.Resources) {
+			extremismValue := extremism(networkPrime)
+			if extremismValue < minExtremism {
+				minExtremism = extremismValue
+				bestEffort = effortValue
+				bestStrategy = strategy
+			}
+		}
+	}
+
+	return bestStrategy, bestEffort, minExtremism, nil
 }
 
 // ModexPD calculates the minimum effort required to moderate the opinions of all
