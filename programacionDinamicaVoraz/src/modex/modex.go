@@ -90,18 +90,18 @@ func ModexPD(network *Network) ([]byte, float64, float64) {
 	svMatrix := make([][]int16, n)
 	for i := range svMatrix {
 		svMatrix[i] = make([]int16, resources)
-		for j := range svMatrix[i] {
-			svMatrix[i][j] = 0 // Initialize to a large value (infinity)
-		}
+		// for j := range svMatrix[i] {
+		// 	svMatrix[i][j] = 0 // Initialize to a large value (infinity)
+		// }
 	}
 
 	// Initialize first agent explicitly without considering 0 agents
 	agent0Effort := int(partialEffort(agents[0])) - 1
 	for w := 0; w <= int(resources)-1; w++ {
 		if w >= agent0Effort {
-			svMatrix[0][w] = 0
-		} else {
 			svMatrix[0][w] = partialExtremism(agents[0])
+		} else {
+			svMatrix[0][w] = 0
 		}
 		// fmt.Println(svMatrix[0][w])
 	}
@@ -116,18 +116,18 @@ func ModexPD(network *Network) ([]byte, float64, float64) {
 
 			if partial_effort <= w {
 				// Either take the current agent or leave it
-				svMatrix[i][w] = min(svMatrix[i-1][w]+partial_extremism, svMatrix[i-1][w-partial_effort])
-				fmt.Println(partial_effort, "<=", w)
+				svMatrix[i][w] = max(svMatrix[i-1][w], svMatrix[i-1][w-partial_effort]+partial_extremism)
+				// fmt.Println(partial_effort, "<=", w)
 			} else {
 				// Can't take the current agent, so copy the value from the previous row
-				svMatrix[i][w] = partial_extremism
+				svMatrix[i][w] = svMatrix[i-1][w]
 			}
-			// fmt.Println(svMatrix[i][w])
+			fmt.Println(svMatrix[i][w])
 		}
 	}
 
-	// The final result is in svMatrix[n][resources]
-	// extremism := math.Sqrt(svMatrix[n-1][int(resources)-1]) / float64(n)
+	// // The final result is in svMatrix[n][resources]
+	// extremism := math.Sqrt(float64(svMatrix[n-1][int(resources)-1])) / float64(n)
 
 	w := int(resources - 1)
 	// fmt.Println(w)
@@ -139,12 +139,12 @@ func ModexPD(network *Network) ([]byte, float64, float64) {
 		// Check if the agent was moderated (compare current and previous row)
 		if i == 0 {
 			// Special case for the first agent (no previous row)
-			if w >= effort && svMatrix[0][w] == 0 {
+			if w >= effort && svMatrix[0][w] != 0 {
 				strategy[0] = 1
 			} else {
 				strategy[0] = 0
 			}
-		} else if w >= effort && svMatrix[i][w] == svMatrix[i-1][w] {
+		} else if w >= effort && svMatrix[i][w] != svMatrix[i-1][w] {
 			// Agent was moderated, mark in strategy
 			strategy[i] = 1
 			// Deduct the resources spent on this agent

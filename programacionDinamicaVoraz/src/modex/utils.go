@@ -88,3 +88,11 @@ func min(a, b int16) int16 {
 	}
 	return b
 }
+
+// max calculates the maximum of two int16 values. It returns a int16 value.
+func max(a, b int16) int16 {
+	if a > b {
+		return a
+	}
+	return b
+}
