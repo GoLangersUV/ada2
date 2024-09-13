@@ -71,18 +71,18 @@ func strategyGenerator(n int) [][]byte {
 }
 
 // partialExtremism calculates the partial extremism of an agent. It returns a float64 value.
-func partialExtremism(agent Agent) int16 {
-	return int16(agent.Opinion) * int16(agent.Opinion)
+func partialExtremism(agent Agent) int64 {
+	return int64(agent.Opinion) * int64(agent.Opinion)
 }
 
 // partialEffort calculates the partial effort required for modering an agent. It returns a float64 value.
-func partialEffort(agent Agent) int {
+func partialEffort(agent Agent) float64 {
 	opinion_difference := float64(agent.Opinion - 0)
-	return int(math.Ceil(math.Abs(opinion_difference) * (1 - agent.Receptivity)))
+	return math.Ceil(math.Abs(opinion_difference) * (1 - agent.Receptivity))
 }
 
 // min calculates the minimum of two int16 values. It returns a int16 value.
-func min(a, b int16) int16 {
+func min(a, b int64) int64 {
 	if a < b {
 		return a
 	}
@@ -90,7 +90,7 @@ func min(a, b int16) int16 {
 }
 
 // max calculates the maximum of two int16 values. It returns a int16 value.
-func max(a, b int16) int16 {
+func max(a, b int64) int64 {
 	if a > b {
 		return a
 	}

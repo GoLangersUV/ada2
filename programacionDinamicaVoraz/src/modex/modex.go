@@ -15,7 +15,6 @@ package modex
 
 import (
 	"errors"
-	"fmt"
 	"math"
 )
 
@@ -71,70 +70,56 @@ func ModexFB(network *Network) (bestStrategy []byte, bestEffort float64, minExtr
 	return bestStrategy, bestEffort, minExtremism, nil
 }
 
-// ModexPD calculates the minimum effort required to moderate the opinions of all
-// agents in the network, using a Dynamic Programming algorithm.
-//
-// Input:
-//   - network: A Network struct representing the social network.
-//
-// Output:
-//   - strategy: A byte slice representing the strategy used to moderate the opinions.
-//   - effort: A float64 value representing the minimum effort required.
-//   - extremism: A float64 value representing the total extremism in the network.
-func ModexPD(network *Network) ([]byte, float64, float64) {
-	resources := network.Resources
+func ModexPD(network *Network) ([]byte, float64, float64, error) {
+	resources := int(network.Resources)
 	agents := network.Agents
 	n := len(agents)
 
 	// DP table (n+1 for agents, resources+1 for capacities)
-	svMatrix := make([][]int16, n)
+	svMatrix := make([][]int64, n)
 	for i := range svMatrix {
-		svMatrix[i] = make([]int16, resources)
-		// for j := range svMatrix[i] {
-		// 	svMatrix[i][j] = 0 // Initialize to a large value (infinity)
-		// }
+		svMatrix[i] = make([]int64, resources+1) // Include resources+1 to handle 0 resource case
 	}
 
-	// Initialize first agent explicitly without considering 0 agents
-	agent0Effort := int(partialEffort(agents[0])) - 1
-	for w := 0; w <= int(resources)-1; w++ {
+	// Initialize first row and column
+	// When resources = 0, no moderation can be done, so extremism is 0
+	for i := 0; i < n; i++ {
+		svMatrix[i][0] = 0
+	}
+
+	// Initialize for the first agent
+	agent0Effort := int(partialEffort(agents[0]))
+	for w := 1; w <= resources; w++ {
 		if w >= agent0Effort {
 			svMatrix[0][w] = partialExtremism(agents[0])
 		} else {
 			svMatrix[0][w] = 0
 		}
-		// fmt.Println(svMatrix[0][w])
 	}
 
-	// Fill the DP table, now ensuring 0-based indexing
-	for i := 1; i <= n-1; i++ {
+	// Fill the DP table (starting from agent 1 onwards)
+	for i := 1; i < n; i++ {
 		agent := agents[i]
-		partial_effort := partialEffort(agent) - 1
+		partial_effort := int(partialEffort(agent))
 		partial_extremism := partialExtremism(agent)
-		// fmt.Println(partial_extremism)
-		for w := 0; w <= int(resources)-1; w++ {
 
+		for w := 1; w <= resources; w++ {
 			if partial_effort <= w {
 				// Either take the current agent or leave it
 				svMatrix[i][w] = max(svMatrix[i-1][w], svMatrix[i-1][w-partial_effort]+partial_extremism)
-				// fmt.Println(partial_effort, "<=", w)
 			} else {
 				// Can't take the current agent, so copy the value from the previous row
 				svMatrix[i][w] = svMatrix[i-1][w]
 			}
-			fmt.Println(svMatrix[i][w])
 		}
 	}
 
-	// // The final result is in svMatrix[n][resources]
-	// extremism := math.Sqrt(float64(svMatrix[n-1][int(resources)-1])) / float64(n)
-
-	w := int(resources - 1)
-	// fmt.Println(w)
+	// Retrieve the strategy from the DP table
+	w := resources
 	strategy := make([]byte, n) // Create a strategy slice initialized to '0'
 	for i := n - 1; i >= 0; i-- {
 		agent := agents[i]
-		effort := partialEffort(agent) - 1
+		effort := int(partialEffort(agent))
 
 		// Check if the agent was moderated (compare current and previous row)
 		if i == 0 {
@@ -155,12 +140,11 @@ func ModexPD(network *Network) ([]byte, float64, float64) {
 		}
 	}
 
-	// Calculate the effort required
-	effort, networkPrime := effort(network, strategy)
+	// Calculate the effort and extremism after applying the strategy
+	effortValue, networkPrime := effort(network, strategy)
+	extremismValue := extremism(networkPrime)
 
-	extremism := extremism(networkPrime)
-
-	return strategy, effort, extremism
+	return strategy, effortValue, extremismValue, nil
 }
 
 // ModexV calculates the minimum effort required to moderate the opinions of all
