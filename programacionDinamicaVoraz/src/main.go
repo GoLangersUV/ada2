@@ -24,10 +24,12 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 
+	"github.com/Krud3/ada2/programacionDinamicaVoraz/src/models"
 	"github.com/Krud3/ada2/programacionDinamicaVoraz/src/modex"
 	"github.com/Krud3/ada2/programacionDinamicaVoraz/src/view/pages"
 	"github.com/gorilla/websocket"
@@ -74,7 +76,25 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func calculateStrategy(conn *websocket.Conn) {
-	launchModexOptimization()
+	bestStrategy, minEffort, minExtremism, _ := launchBruteForce()
+
+	result := models.BruteForceResult{
+		BestStrategy: bestStrategy,
+		BestEffort:   minEffort,
+		MinExtremism: minExtremism,
+		Error:        "",
+	}
+	resultJSON, jsonErr := json.Marshal(result)
+	if jsonErr != nil {
+		log.Println("Failed to serialize the result:", jsonErr)
+		return
+	}
+
+	// Send the result over WebSocket
+	if writeErr := conn.WriteMessage(websocket.TextMessage, resultJSON); writeErr != nil {
+		log.Println("Failed to send the result over WebSocket:", writeErr)
+	}
+
 	log.Println("Task completed!")
 	conn.WriteMessage(websocket.TextMessage, []byte("Task completed!"))
 	defer conn.Close()
@@ -94,7 +114,7 @@ func calculateStrategy(conn *websocket.Conn) {
 73
 */
 
-func launchModexOptimization() {
+func launchBruteForce() (bestStrategy []byte, bestEffort float64, minExtremism float64, err error) {
 	network := modex.Network{
 		Agents: []modex.Agent{
 			{Opinion: 42, Receptivity: 0.9128290988596333},
@@ -114,10 +134,8 @@ func launchModexOptimization() {
 	minStrategy, minEffort, minExtremism, err := modex.ModexFB(&network)
 	if err != nil {
 		fmt.Println("Error:", err)
-		return
+		return nil, 0, 0, err
 	}
 
-	fmt.Println("Minimum Strategy:", minStrategy)
-	fmt.Println("Minimum Effort:", minEffort)
-	fmt.Println("Minimum Extremism:", minExtremism)
+	return minStrategy, minEffort, minExtremism, nil
 }
