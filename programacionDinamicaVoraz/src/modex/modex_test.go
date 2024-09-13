@@ -161,5 +161,5 @@ func TestModexPD(t *testing.T) {
 	runTestCases(t, func(network *Network) (float64, error) {
 		_, _, minExtremism, err := ModexPD(network)
 		return minExtremism, err
-	}, 1, 15) // Por ejemplo, para un rango diferente de archivos
+	}, 1, 30) // Por ejemplo, para un rango diferente de archivos
 }

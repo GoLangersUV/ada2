@@ -70,24 +70,30 @@ func ModexFB(network *Network) (bestStrategy []byte, bestEffort float64, minExtr
 	return bestStrategy, bestEffort, minExtremism, nil
 }
 
+// ModexPD calculates the minimum effort required to moderate the opinions of all
+// agents in the network, using a Dynamic Programming algorithm.
+//
+// Input:
+//   - network: A Network struct representing the social network.
+//
+// Output:
+//   - strategy: A byte slice representing the strategy used to moderate the opinions.
+//   - effort: A float64 value representing the minimum effort required.
+//   - extremism: A float64 value representing the total extremism in the network.
 func ModexPD(network *Network) ([]byte, float64, float64, error) {
 	resources := int(network.Resources)
 	agents := network.Agents
 	n := len(agents)
 
-	// DP table (n+1 for agents, resources+1 for capacities)
 	svMatrix := make([][]int64, n)
 	for i := range svMatrix {
-		svMatrix[i] = make([]int64, resources+1) // Include resources+1 to handle 0 resource case
+		svMatrix[i] = make([]int64, resources+1)
 	}
 
-	// Initialize first row and column
-	// When resources = 0, no moderation can be done, so extremism is 0
 	for i := 0; i < n; i++ {
 		svMatrix[i][0] = 0
 	}
 
-	// Initialize for the first agent
 	agent0Effort := int(partialEffort(agents[0]))
 	for w := 1; w <= resources; w++ {
 		if w >= agent0Effort {
@@ -97,7 +103,6 @@ func ModexPD(network *Network) ([]byte, float64, float64, error) {
 		}
 	}
 
-	// Fill the DP table (starting from agent 1 onwards)
 	for i := 1; i < n; i++ {
 		agent := agents[i]
 		partial_effort := int(partialEffort(agent))
@@ -105,42 +110,33 @@ func ModexPD(network *Network) ([]byte, float64, float64, error) {
 
 		for w := 1; w <= resources; w++ {
 			if partial_effort <= w {
-				// Either take the current agent or leave it
 				svMatrix[i][w] = max(svMatrix[i-1][w], svMatrix[i-1][w-partial_effort]+partial_extremism)
 			} else {
-				// Can't take the current agent, so copy the value from the previous row
 				svMatrix[i][w] = svMatrix[i-1][w]
 			}
 		}
 	}
 
-	// Retrieve the strategy from the DP table
 	w := resources
-	strategy := make([]byte, n) // Create a strategy slice initialized to '0'
+	strategy := make([]byte, n)
 	for i := n - 1; i >= 0; i-- {
 		agent := agents[i]
 		effort := int(partialEffort(agent))
 
-		// Check if the agent was moderated (compare current and previous row)
 		if i == 0 {
-			// Special case for the first agent (no previous row)
 			if w >= effort && svMatrix[0][w] != 0 {
 				strategy[0] = 1
 			} else {
 				strategy[0] = 0
 			}
 		} else if w >= effort && svMatrix[i][w] != svMatrix[i-1][w] {
-			// Agent was moderated, mark in strategy
 			strategy[i] = 1
-			// Deduct the resources spent on this agent
 			w -= effort
 		} else {
-			// Agent wasn't moderated
 			strategy[i] = 0
 		}
 	}
 
-	// Calculate the effort and extremism after applying the strategy
 	effortValue, networkPrime := effort(network, strategy)
 	extremismValue := extremism(networkPrime)
 
