@@ -64,7 +64,7 @@ var tableExtremism = []struct {
 
 func TestEffort(t *testing.T) {
   for _, tt := range tableEffort {
-    result := effort(&tt.network, tt.strategy)
+    result, _ := effort(&tt.network, tt.strategy)
     if result != tt.expected {
       t.Errorf("Effort(%v, %v) => %v, want %v", tt.network, tt.strategy, result, tt.expected)
     }

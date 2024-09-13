@@ -5,7 +5,7 @@
  *          Juan Sebastián Molina......2224491
  *          Juan Camilo Narváez Tascón.2140112
  * Creation date: 09/01/2024
- * Last modification: 09/01/2024
+ * Last modification: 09/11/2024
  * License: GNU-GPL
  */
 package modex
@@ -27,20 +27,21 @@ func extremism(network *Network) float64 {
 
 // moderation applies the strategy to the network. It returns the network after applying the strategy.
 func moderation(network *Network, strategy []byte) *Network {
-	networkPrime := Network{
+  networkPrime := Network{
 		Agents:    make([]Agent, len(network.Agents)),
 		Resources: network.Resources,
 	}
 
 	for i, strategyValue := range strategy {
-		networkPrime.Agents[i].Opinion = network.Agents[i].Opinion - strategy[i]*network.Agents[i].Opinion
+    networkPrime.Agents[i].Opinion = network.Agents[i].Opinion - network.Agents[i].Opinion * int8(strategyValue)
+    networkPrime.Agents[i].Receptivity = network.Agents[i].Receptivity
 	}
 
 	return &networkPrime
 }
 
-// effort calculates the effort of the network after applying the strategy. It returns a float64 value.
-func effort(network *Network, strategy []byte) float64 {
+// effort calculates the effort of the network after applying the strategy. It returns the float64 value of the effort and the network after applying the strategy.
+func effort(network *Network, strategy []byte) (float64, *Network) {
 	n := len(network.Agents)
 	networkPrime := moderation(network, strategy)
 
@@ -50,5 +51,21 @@ func effort(network *Network, strategy []byte) float64 {
 		effortValue += math.Ceil(math.Abs(diff) * (1 - network.Agents[i].Receptivity))
 	}
 
-	return effortValue
+	return effortValue, networkPrime
+}
+
+// strategyGenerator generates a slice of all posible strategies for maximum 25 agents. It returns a slice of byte slices. 
+func strategyGenerator(n int) [][]byte {
+  total := 1 << n
+  combinations := make([][]byte, total)
+  
+  for i := 0; i < total; i++ {
+    combination := make([]byte, n)
+    for j := 0; j < n; j++ {
+      combination[n-j-1] = byte((i >> j) & 1)
+    }
+    combinations[i] = combination
+  }
+
+  return combinations
 }

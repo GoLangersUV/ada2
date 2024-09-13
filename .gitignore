@@ -1,0 +1,72 @@
+# .gitignore para un proyecto de Golang y LaTeX
+
+# Ignorar archivos ejecutables y binarios generados por Go
+/bin/
+/build/
+/out/
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Ignorar dependencias
+/vendor/
+
+# Ignorar módulos de Go y sumas de verificación
+/go.sum
+/go.mod
+
+# Ignorar directorios de caché de Go
+/pkg/
+**/*.test
+
+# Ignorar compilados de LaTeX
+*.aux
+*.bbl
+*.blg
+*.brf
+*.fls
+*.fdb_latexmk
+*.idx
+*.ilg
+*.ind
+*.lof
+*.log
+*.lot
+*.lol
+*.nav
+*.out
+*.snm
+*.synctex.gz
+*.toc
+*.acn
+*.acr
+*.alg
+*.glg
+*.glo
+*.gls
+*.ist
+*.maf
+*.mtc
+*.mtc1
+*.synctex(busy)
+*.run.xml
+
+#Ignorear el pdf de latex
+programacionDinamicaVoraz/latex/Informe-grupo01-ADA2.pdf
+# Ignorar otros archivos temporales de LaTeX
+*.pdfsync
+*.pdf
+*.dvi
+*.ps
+*.synctex.gz
+*.blx.bib
+*.vrb
+
+# Ignorar archivos de respaldo del editor y otros archivos temporales
+*~
+*.swp
+*.bak
+*.tmp
+.DS_Store
+Thumbs.db
