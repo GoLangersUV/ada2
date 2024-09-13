@@ -137,10 +137,10 @@ func ModexPD(network *Network) ([]byte, float64, float64, error) {
 		}
 	}
 
-	effortValue, networkPrime := effort(network, strategy)
-	extremismValue := extremism(networkPrime)
+	effort, networkPrime := effort(network, strategy)
+	extremism := extremism(networkPrime)
 
-	return strategy, effortValue, extremismValue, nil
+	return strategy, effort, extremism, nil
 }
 
 // ModexV calculates the minimum effort required to moderate the opinions of all
