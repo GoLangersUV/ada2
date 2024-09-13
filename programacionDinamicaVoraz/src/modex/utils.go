@@ -27,14 +27,14 @@ func extremism(network *Network) float64 {
 
 // moderation applies the strategy to the network. It returns the network after applying the strategy.
 func moderation(network *Network, strategy []byte) *Network {
-  networkPrime := Network{
+	networkPrime := Network{
 		Agents:    make([]Agent, len(network.Agents)),
 		Resources: network.Resources,
 	}
 
 	for i, strategyValue := range strategy {
-    networkPrime.Agents[i].Opinion = network.Agents[i].Opinion - network.Agents[i].Opinion * int8(strategyValue)
-    networkPrime.Agents[i].Receptivity = network.Agents[i].Receptivity
+		networkPrime.Agents[i].Opinion = network.Agents[i].Opinion - network.Agents[i].Opinion*int8(strategyValue)
+		networkPrime.Agents[i].Receptivity = network.Agents[i].Receptivity
 	}
 
 	return &networkPrime
@@ -54,18 +54,45 @@ func effort(network *Network, strategy []byte) (float64, *Network) {
 	return effortValue, networkPrime
 }
 
-// strategyGenerator generates a slice of all posible strategies for maximum 25 agents. It returns a slice of byte slices. 
+// strategyGenerator generates a slice of all posible strategies for maximum 25 agents. It returns a slice of byte slices.
 func strategyGenerator(n int) [][]byte {
-  total := 1 << n
-  combinations := make([][]byte, total)
-  
-  for i := 0; i < total; i++ {
-    combination := make([]byte, n)
-    for j := 0; j < n; j++ {
-      combination[n-j-1] = byte((i >> j) & 1)
-    }
-    combinations[i] = combination
-  }
+	total := 1 << n
+	combinations := make([][]byte, total)
 
-  return combinations
+	for i := 0; i < total; i++ {
+		combination := make([]byte, n)
+		for j := 0; j < n; j++ {
+			combination[n-j-1] = byte((i >> j) & 1)
+		}
+		combinations[i] = combination
+	}
+
+	return combinations
+}
+
+// partialExtremism calculates the partial extremism of an agent. It returns a float64 value.
+func partialExtremism(agent Agent) int64 {
+	return int64(agent.Opinion) * int64(agent.Opinion)
+}
+
+// partialEffort calculates the partial effort required for modering an agent. It returns a float64 value.
+func partialEffort(agent Agent) float64 {
+	opinion_difference := float64(agent.Opinion - 0)
+	return math.Ceil(math.Abs(opinion_difference) * (1 - agent.Receptivity))
+}
+
+// min calculates the minimum of two int16 values. It returns a int16 value.
+func min(a, b int64) int64 {
+	if a < b {
+		return a
+	}
+	return b
+}
+
+// max calculates the maximum of two int16 values. It returns a int16 value.
+func max(a, b int64) int64 {
+	if a > b {
+		return a
+	}
+	return b
 }
