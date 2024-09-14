@@ -28,25 +28,25 @@ func NetworkFromLoadedFiles(file models.UploadedFile, parsingChannel chan<- mode
 		if strings.Count(line, ",") == 0 {
 			resources, err := strconv.ParseUint(line, 10, 64)
 			if err != nil {
-				parsingChannel <- models.Network{}
+				parsingChannel <- models.Network{Resources: 100}
 			}
 			parsingChannel <- models.Network{Agents: agents, Resources: resources}
-		}
+		} else {
+			parts := strings.Split(line, ",")
+			opinion, err := strconv.ParseInt(parts[0], 10, 8)
+			if err != nil {
+				parsingChannel <- models.Network{Resources: 100}
+			}
+			receptivity, err := strconv.ParseFloat(parts[1], 64)
+			if err != nil {
+				parsingChannel <- models.Network{Resources: 100}
+			}
 
-		parts := strings.Split(line, ",")
-		opinion, err := strconv.ParseInt(parts[0], 10, 8)
-		if err != nil {
-			parsingChannel <- models.Network{}
+			agent := models.Agent{Opinion: int8(opinion), Receptivity: receptivity}
+			agents = append(agents, agent)
 		}
-		receptivity, err := strconv.ParseFloat(parts[1], 64)
-		if err != nil {
-			parsingChannel <- models.Network{}
-		}
-
-		agent := models.Agent{Opinion: int8(opinion), Receptivity: receptivity}
-		agents = append(agents, agent)
 	}
 	if err := scanner.Err(); err != nil {
-		parsingChannel <- models.Network{}
+		parsingChannel <- models.Network{Resources: 100}
 	}
 }

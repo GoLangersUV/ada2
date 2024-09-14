@@ -89,7 +89,7 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 			log.Println("Error reading file content:", err)
 			break
 		}
-		parsingFileChannel := make(chan models.Network)
+		parsingFileChannel := make(chan models.Network, 10)
 
 		go modex.NetworkFromLoadedFiles(
 			models.UploadedFile{Name: fileName,
