@@ -1,102 +1,107 @@
 package components
 
 templ FileUploader() {
-<div
-  id="file_upload" data-on-load="$$get"
-  data-store='{"files": [], "filesMimes": [], "filesNames": []}'
->
-<script>
-
+<div id="file_upload" data-on-load="$$get" data-store='{"files": [], "filesMimes": [], "filesNames": []}'>
+  <script>
     let selectedFiles = [];
     let socket;
 
     function startTask() {
       // Establish WebSocket connection
-       if (!socket) {
-            socket =new WebSocket('ws://localhost:8080/ws');
-        }
-   
-      
+      if (!socket) {
+        socket = new WebSocket('ws://localhost:8080/ws');
+      }
+
       socket.onmessage = function (event) {
-      		       console.log('Message from server ', event.data);
+        console.log('Message from server ', event.data);
+        const resultContainer = document.getElementById("result-container");
+        try {
+          if (event.data === "Task completed!") return;
+          const data = JSON.parse(event.data);
+          for (const key in data) {
+            if (data.hasOwnProperty(key)) {
+              const p = document.createElement('p');
+              p.style.width = 'fit-content';
+              p.style.marginInline = 'auto';
+              p.textContent = `${key}: ${data[key]}`;
+              resultContainer.appendChild(p);
+            }
+          }
+        } catch (error) {
+          console.log('Error parsing JSON:', error);
+        }
       };
 
       socket.onopen = function (event) {
-	       console.log("WebSocket is open now.");
-            // Send each file to the server
-            for (const file of selectedFiles) {
-                sendFile(file);
-            }
+        console.log("WebSocket is open now.");
+        // Send each file to the server
+        for (const file of selectedFiles) {
+          sendFile(file);
+        }
       };
 
       socket.onclose = function (event) {
-      console.log('Connection closed', event);
+        console.log('Connection closed', event);
       };
 
-socket.onerror = function (error) {
-  console.log('Connection error ', error);
-};
-
-      //fetch('/start')
-      //  .then(response => response.json())
-      //  .then(data => {
-      //    console.log(data.message); // Start WebSocket
-      //  });
+      socket.onerror = function (error) {
+        console.log('Connection error ', error);
+      };
     }
 
     function handleFiles(event) {
-            const files = event.target.files;
-            selectedFiles = files;
-            // Loop through the selected files
+      const files = event.target.files;
+      selectedFiles = files;
+      // Loop through the selected files
+      const filesList = document.getElementById("uploaded-files-list");
+      filesList.innerHTML = '';
 
-            const filesList = document.getElementById("uploaded-files-list");
-            filesList.innerHTML = ''; 
-            
-            for (const file of files) {
-                const li = document.createElement('li');
-                li.style.width = 'fit-content';
-                li.style.marginInline = 'auto';
-                li.textContent = `${file.name}`;
-                filesList.appendChild(li);
-            }
-        }
+      for (const file of files) {
+        const li = document.createElement('li');
+        li.style.width = 'fit-content';
+        li.style.marginInline = 'auto';
+        li.textContent = `${file.name}`;
+        filesList.appendChild(li);
+      }
+    }
 
-        function sendFile(file) {
-          const reader = new FileReader();
+    function sendFile(file) {
+      const reader = new FileReader();
 
-          // Read file as ArrayBuffer to send binary data over WebSocket
-          reader.onload = function (event) {
-              socket.send(file.name);
-              console.log("Enviando file name...");
-              socket.send(event.target.result);  // Send the file data
-              console.log(`File ${file.name} sent`);
-          };
+      // Read file as ArrayBuffer to send binary data over WebSocket
+      reader.onload = function (event) {
+        socket.send(file.name);
+        console.log("Enviando file name...");
+        socket.send(event.target.result);  // Send the file data
+        console.log(`File ${file.name} sent`);
+      };
 
-          reader.onerror = function (error) {
-              console.error(`Error reading file: ${file.name}`, error);
-          };
+      reader.onerror = function (error) {
+        console.error(`Error reading file: ${file.name}`, error);
+      };
 
-        // Read the file as ArrayBuffer
-        reader.readAsArrayBuffer(file);
+      // Read the file as ArrayBuffer
+      reader.readAsArrayBuffer(file);
     }
   </script>
-  <div>
-    <div class="flex flex-col items-center justify-center my-8">
-    	 <label for="file-upload" class="cursor-pointer bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-    	 Buscar archivos
-  	 </label>
-  	 <input id="file-upload" type="file" data-model="files" multiple class="hidden" onchange="handleFiles(event)">
-    </div>
-    <lu id="uploaded-files-list">
 
-    </lu>
-    <div class="flex justify-center container mx-auto">
-    <button
-      class="mx-auto rounded-full text-white my-4 bg-[#06b6d4] px-8 py-2"
-      onclick="startTask()">
+  <div class="flex flex-col items-center justify-center my-8">
+    <label for="file-upload" class="cursor-pointer bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+      Buscar archivos
+    </label>
+    <input id="file-upload" type="file" data-model="files" multiple class="hidden" onchange="handleFiles(event)">
+  </div>
+  
+  <ul id="uploaded-files-list"></ul>
+
+  <div class="flex justify-center container mx-auto">
+    <button class="mx-auto rounded-full text-white my-4 bg-[#06b6d4] px-8 py-2" onclick="startTask()">
       Enviar
     </button>
-   </div>
+  </div>
+
+  <!-- Result container to display messages from the server -->
+  <div id="result-container"></div>
 </div>
-</div>
+
 }
