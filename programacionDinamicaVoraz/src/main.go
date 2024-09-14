@@ -28,7 +28,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 
 	"github.com/Krud3/ada2/programacionDinamicaVoraz/src/models"
 	"github.com/Krud3/ada2/programacionDinamicaVoraz/src/modex"
@@ -90,13 +89,14 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 			log.Println("Error reading file content:", err)
 			break
 		}
+		parsingFileChannel := make(chan models.Network)
 
-		// Save the file
-		err = os.WriteFile(fileName+".txt", fileContent, os.ModePerm)
-		if err != nil {
-			log.Println("Error saving file:", err)
-		} else {
-			log.Printf("File '%s' saved successfully", fileName)
+		go modex.NetworkFromLoadedFiles(
+			models.UploadedFile{Name: fileName,
+				Content: fileContent}, parsingFileChannel)
+
+		for network := range parsingFileChannel {
+			log.Println("Network received: ", network)
 		}
 	}
 }
