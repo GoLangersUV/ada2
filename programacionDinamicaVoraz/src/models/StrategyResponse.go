@@ -17,7 +17,7 @@ func (r RawBinary) MarshalJSON() ([]byte, error) {
 	binaryStr := ""
 	for _, b := range r {
 		// Convert each byte to its binary representation (8-bit)
-		binaryStr += fmt.Sprintf("%08b", b)
+		binaryStr += fmt.Sprintf("%b", b)
 	}
 	return json.Marshal(binaryStr)
 }
