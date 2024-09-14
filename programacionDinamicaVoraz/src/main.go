@@ -104,15 +104,20 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 		go func() {
 			for network := range parsingFileChannel {
 				log.Println("Network received: ", network)
+				if len(network.Agents) > 0 {
+					bestEffortFB, minEffortFB, minExtremismFB, _ := launchBruteForce(network)
+					calculatedStrategy(conn, bestEffortFB, minEffortFB, minExtremismFB)
+					//bestEffortDP, minEffortDP, minExtremismDP, _ := launchDynamicProgramming(network)
+					//calculatedStrategy(conn, bestEffortDP, minEffortDP, minExtremismDP)
+					//defer conn.Close()
+				}
 			}
 		}()
 	}
 
 }
 
-func calculateStrategy(conn *websocket.Conn) {
-	bestStrategy, minEffort, minExtremism, _ := launchBruteForce()
-
+func calculatedStrategy(conn *websocket.Conn, bestStrategy []byte, minEffort float64, minExtremism float64) {
 	result := models.BruteForceResult{
 		BestStrategy: bestStrategy,
 		BestEffort:   minEffort,
@@ -132,7 +137,7 @@ func calculateStrategy(conn *websocket.Conn) {
 
 	log.Println("Task completed!")
 	conn.WriteMessage(websocket.TextMessage, []byte("Task completed!"))
-	defer conn.Close()
+	//defer conn.Close()
 }
 
 /*
@@ -149,22 +154,7 @@ func calculateStrategy(conn *websocket.Conn) {
 73
 */
 
-func launchBruteForce() (bestStrategy []byte, bestEffort float64, minExtremism float64, err error) {
-	network := models.Network{
-		Agents: []models.Agent{
-			{Opinion: 42, Receptivity: 0.9128290988596333},
-			{Opinion: 50, Receptivity: 0.6089488930676293},
-			{Opinion: 56, Receptivity: 0.7866686306091604},
-			{Opinion: 40, Receptivity: 0.30487602574052586},
-			{Opinion: -66, Receptivity: 0.6565268721665228},
-			{Opinion: 83, Receptivity: 0.6401715016422259},
-			{Opinion: 44, Receptivity: 0.4362664846714599},
-			{Opinion: 71, Receptivity: 0.7072171911236341},
-			{Opinion: -94, Receptivity: 0.1451081123931307},
-			{Opinion: 74, Receptivity: 0.33863701065570295},
-		},
-		Resources: 73.0,
-	}
+func launchBruteForce(network models.Network) (bestStrategy []byte, bestEffort float64, minExtremism float64, err error) {
 
 	minStrategy, minEffort, minExtremism, err := modex.ModexFB(&network)
 	if err != nil {
@@ -174,40 +164,17 @@ func launchBruteForce() (bestStrategy []byte, bestEffort float64, minExtremism f
 
 	return minStrategy, minEffort, minExtremism, nil
 }
-func launchDynammicProgrammming() {
-	network := models.Network{
-		Agents: []models.Agent{
-			{Opinion: 34, Receptivity: 0.5249591123887468},
-			{Opinion: -97, Receptivity: 0.06662575262643888},
-			{Opinion: -96, Receptivity: 0.9909023877685615},
-			{Opinion: -5, Receptivity: 0.7095964332655594},
-			{Opinion: 13, Receptivity: 0.5730892184411239},
-			{Opinion: -77, Receptivity: 0.3990264318559328},
-			{Opinion: 11, Receptivity: 0.9862096012203873},
-			{Opinion: 65, Receptivity: 0.41386829191945196},
-			{Opinion: -27, Receptivity: 0.6627728079835299},
-			{Opinion: -45, Receptivity: 0.37708482008389566},
-			{Opinion: 92, Receptivity: 0.12287758092115264},
-			{Opinion: -85, Receptivity: 0.29319887852162296},
-			{Opinion: 78, Receptivity: 0.0033000534752198885},
-			{Opinion: -59, Receptivity: 0.7607528856502521},
-			{Opinion: 4, Receptivity: 0.0647508445318502},
-			{Opinion: -47, Receptivity: 0.5994834265364559},
-			{Opinion: 97, Receptivity: 0.7588520698928425},
-			{Opinion: 85, Receptivity: 0.2251905822498278},
-			{Opinion: 2, Receptivity: 0.2450440390223817},
-			{Opinion: -98, Receptivity: 0.6804499082649875},
-		},
-		Resources: 225.0,
-	}
+func launchDynamicProgramming(network models.Network) (bestStrategy []byte, bestEffort float64, minExtremism float64, err error) {
 
 	minStrategy, minEffort, minExtremism, err := modex.ModexPD(&network)
 	if err != nil {
 		fmt.Println("Error:", err)
-		return
+		return nil, 0, 0, err
 	}
 
 	fmt.Println("Minimum Strategy:", minStrategy)
 	fmt.Println("Minimum Effort:", minEffort)
 	fmt.Println("Minimum Extremism:", minExtremism)
+
+	return minStrategy, minEffort, minExtremism, nil
 }
