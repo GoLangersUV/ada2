@@ -74,6 +74,7 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	log.Println("Connection established, before of calculatedStratgy")
 	//go calculateStrategy(conn)
+
 	for {
 		// Read the first message (assumed to be file metadata)
 		_, fileNameBytes, err := conn.ReadMessage()
@@ -81,7 +82,7 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 			log.Println("Error reading file name:", err)
 			break
 		}
-		fileName := string(fileNameBytes) // Interpret the byte slide as a string
+		fileName := string(fileNameBytes) // Interpret the byte slice as a string
 
 		// Read the second message (the file contents as binary)
 		_, fileContent, err := conn.ReadMessage()
@@ -89,16 +90,24 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 			log.Println("Error reading file content:", err)
 			break
 		}
-		parsingFileChannel := make(chan models.Network, 10)
 
-		go modex.NetworkFromLoadedFiles(
-			models.UploadedFile{Name: fileName,
-				Content: fileContent}, parsingFileChannel)
+		// Create a new channel for each file
+		parsingFileChannel := make(chan models.Network)
 
-		for network := range parsingFileChannel {
-			log.Println("Network received: ", network)
-		}
+		// Process the file in a separate goroutine
+		go func(fileName string, fileContent []byte) {
+			defer close(parsingFileChannel) // Close the channel when done
+			modex.NetworkFromLoadedFiles(models.UploadedFile{Name: fileName, Content: fileContent}, parsingFileChannel)
+		}(fileName, fileContent)
+
+		// Asynchronously handle results from the channel
+		go func() {
+			for network := range parsingFileChannel {
+				log.Println("Network received: ", network)
+			}
+		}()
 	}
+
 }
 
 func calculateStrategy(conn *websocket.Conn) {
