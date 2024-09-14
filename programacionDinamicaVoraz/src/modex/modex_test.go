@@ -10,6 +10,8 @@ import (
 	"strconv"
 	"strings"
 	"testing"
+
+	"github.com/Krud3/ada2/programacionDinamicaVoraz/src/models"
 )
 
 type TestCase struct {
@@ -57,7 +59,7 @@ func truncateToThreeDecimals(value float64) float64 {
 	return math.Trunc(value*1000) / 1000
 }
 
-func runTestCases(t *testing.T, functionToTest func(*Network) (float64, error), startFile, endFile int) {
+func runTestCases(t *testing.T, functionToTest func(*models.Network) (float64, error), startFile, endFile int) {
 	for _, testCase := range testCases {
 		var fileNumber int
 		_, err := fmt.Sscanf(testCase.FileName, "Prueba%d.txt", &fileNumber)
@@ -93,10 +95,10 @@ func runTestCases(t *testing.T, functionToTest func(*Network) (float64, error), 
 	}
 }
 
-func parseNetworkFromFile(filename string) (Network, error) {
+func parseNetworkFromFile(filename string) (models.Network, error) {
 	file, err := os.Open(filename)
 	if err != nil {
-		return Network{}, err
+		return models.Network{}, err
 	}
 	defer file.Close()
 
@@ -104,7 +106,7 @@ func parseNetworkFromFile(filename string) (Network, error) {
 
 	scanner.Scan()
 
-	var agents []Agent
+	var agents []models.Agent
 	for scanner.Scan() {
 		line := scanner.Text()
 		if len(line) == 0 {
@@ -114,36 +116,36 @@ func parseNetworkFromFile(filename string) (Network, error) {
 		if strings.Count(line, ",") == 0 {
 			resources, err := strconv.ParseUint(line, 10, 64)
 			if err != nil {
-				return Network{}, err
+				return models.Network{}, err
 			}
 
-			return Network{Agents: agents, Resources: resources}, nil
+			return models.Network{Agents: agents, Resources: resources}, nil
 		}
 
 		parts := strings.Split(line, ",")
 		opinion, err := strconv.ParseInt(parts[0], 10, 8)
 		if err != nil {
-			return Network{}, err
+			return models.Network{}, err
 		}
 		receptivity, err := strconv.ParseFloat(parts[1], 64)
 		if err != nil {
-			return Network{}, err
+			return models.Network{}, err
 		}
 
-		agent := Agent{Opinion: int8(opinion), Receptivity: receptivity}
+		agent := models.Agent{Opinion: int8(opinion), Receptivity: receptivity}
 		agents = append(agents, agent)
 	}
 
 	if err := scanner.Err(); err != nil {
-		return Network{}, err
+		return models.Network{}, err
 	}
 
-	return Network{}, errors.New("file parsing error: could not determine resources")
+	return models.Network{}, errors.New("file parsing error: could not determine resources")
 }
 
 // Prueba para ModexFB
 func TestModexFB(t *testing.T) {
-	runTestCases(t, func(network *Network) (float64, error) {
+	runTestCases(t, func(network *models.Network) (float64, error) {
 		_, _, minExtremism, err := ModexFB(network)
 		return minExtremism, err
 	}, 1, 6)
@@ -151,7 +153,7 @@ func TestModexFB(t *testing.T) {
 
 // Prueba para ModexPD
 func TestModexPD(t *testing.T) {
-	runTestCases(t, func(network *Network) (float64, error) {
+	runTestCases(t, func(network *models.Network) (float64, error) {
 		_, _, minExtremism, err := ModexPD(network)
 		return minExtremism, err
 	}, 1, 30) // Por ejemplo, para un rango diferente de archivos

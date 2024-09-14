@@ -28,6 +28,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/Krud3/ada2/programacionDinamicaVoraz/src/models"
 	"github.com/Krud3/ada2/programacionDinamicaVoraz/src/modex"
@@ -60,6 +61,7 @@ func homeHandler(w http.ResponseWriter, r *http.Request) {
 
 func wsHandler(w http.ResponseWriter, r *http.Request) {
 	log.Println("Received connection request from: " + r.RemoteAddr)
+
 	upgrader := websocket.Upgrader{
 		CheckOrigin: func(r *http.Request) bool {
 			return true // Allow all origins
@@ -72,7 +74,31 @@ func wsHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	log.Println("Connection established, before of calculatedStratgy")
-	go calculateStrategy(conn)
+	//go calculateStrategy(conn)
+	for {
+		// Read the first message (assumed to be file metadata)
+		_, fileNameBytes, err := conn.ReadMessage()
+		if err != nil {
+			log.Println("Error reading file name:", err)
+			break
+		}
+		fileName := string(fileNameBytes) // Interpret the byte slide as a string
+
+		// Read the second message (the file contents as binary)
+		_, fileContent, err := conn.ReadMessage()
+		if err != nil {
+			log.Println("Error reading file content:", err)
+			break
+		}
+
+		// Save the file
+		err = os.WriteFile(fileName+".txt", fileContent, os.ModePerm)
+		if err != nil {
+			log.Println("Error saving file:", err)
+		} else {
+			log.Printf("File '%s' saved successfully", fileName)
+		}
+	}
 }
 
 func calculateStrategy(conn *websocket.Conn) {
@@ -115,8 +141,8 @@ func calculateStrategy(conn *websocket.Conn) {
 */
 
 func launchBruteForce() (bestStrategy []byte, bestEffort float64, minExtremism float64, err error) {
-	network := modex.Network{
-		Agents: []modex.Agent{
+	network := models.Network{
+		Agents: []models.Agent{
 			{Opinion: 42, Receptivity: 0.9128290988596333},
 			{Opinion: 50, Receptivity: 0.6089488930676293},
 			{Opinion: 56, Receptivity: 0.7866686306091604},
@@ -140,8 +166,8 @@ func launchBruteForce() (bestStrategy []byte, bestEffort float64, minExtremism f
 	return minStrategy, minEffort, minExtremism, nil
 }
 func launchDynammicProgrammming() {
-	network := modex.Network{
-		Agents: []modex.Agent{
+	network := models.Network{
+		Agents: []models.Agent{
 			{Opinion: 34, Receptivity: 0.5249591123887468},
 			{Opinion: -97, Receptivity: 0.06662575262643888},
 			{Opinion: -96, Receptivity: 0.9909023877685615},

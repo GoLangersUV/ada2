@@ -5,12 +5,14 @@ package modex
 import (
 	"math"
 	"testing"
+
+	"github.com/Krud3/ada2/programacionDinamicaVoraz/src/models"
 )
 
 // Networks to test
-var networks = []Network{
+var networks = []models.Network{
 	{
-		Agents: []Agent{
+		Agents: []models.Agent{
 			{Opinion: 100, Receptivity: 0.5},
 			{Opinion: 100, Receptivity: 0.1},
 			{Opinion: -10, Receptivity: 0.1},
@@ -18,7 +20,7 @@ var networks = []Network{
 		Resources: 55.0,
 	},
 	{
-		Agents: []Agent{
+		Agents: []models.Agent{
 			{Opinion: -30, Receptivity: 0.9},
 			{Opinion: 40, Receptivity: 0.1},
 			{Opinion: 50, Receptivity: 0.5},
@@ -36,14 +38,14 @@ var strategies = [][]byte{
 }
 
 // Moderations to test
-var moderations = []*Network{
+var moderations = []*models.Network{
 	moderation(&networks[0], strategies[0]),
 	moderation(&networks[0], strategies[1]),
 	moderation(&networks[1], strategies[3]),
 }
 
 var tableEffort = []struct {
-	network  Network
+	network  models.Network
 	strategy []byte
 	expected float64
 }{

@@ -16,21 +16,9 @@ package modex
 import (
 	"errors"
 	"math"
+
+	"github.com/Krud3/ada2/programacionDinamicaVoraz/src/models"
 )
-
-// Agent represents an individual in the social network, with an opinion on a
-// specific topic and a receptivity level.
-type Agent struct {
-	Opinion     int8    // -100 (disagreement) to 100 (agreement)
-	Receptivity float64 // 0 (closed-minded) to 1 (open-minded)
-}
-
-// Network represents a social network, composed of multiple agents and a total
-// amount of resources.
-type Network struct {
-	Agents    []Agent
-	Resources uint64
-}
 
 // ModexFB calculates the minimum effort required to moderate the opinions of all
 // agents in the network, using a Brute Force algorithm. The time complexity of
@@ -44,7 +32,7 @@ type Network struct {
 //   - effort: A float64 value representing the minimum effort required.
 //   - extremism: A float64 value representing the total extremism in the network.
 //   - err: An error value, if any.
-func ModexFB(network *Network) (bestStrategy []byte, bestEffort float64, minExtremism float64, err error) {
+func ModexFB(network *models.Network) (bestStrategy []byte, bestEffort float64, minExtremism float64, err error) {
 	numAgents := len(network.Agents)
 
 	if numAgents > 25 {
@@ -80,7 +68,7 @@ func ModexFB(network *Network) (bestStrategy []byte, bestEffort float64, minExtr
 //   - strategy: A byte slice representing the strategy used to moderate the opinions.
 //   - effort: A float64 value representing the minimum effort required.
 //   - extremism: A float64 value representing the total extremism in the network.
-func ModexPD(network *Network) ([]byte, float64, float64, error) {
+func ModexPD(network *models.Network) ([]byte, float64, float64, error) {
 	resources := int(network.Resources)
 	agents := network.Agents
 	n := len(agents)
@@ -153,6 +141,6 @@ func ModexPD(network *Network) ([]byte, float64, float64, error) {
 //   - strategy: A byte slice representing the strategy used to moderate the opinions.
 //   - effort: A float64 value representing the minimum effort required.
 //   - extremism: A float64 value representing the total extremism in the network.
-func ModexV(network *Network) ([]byte, float64, float64) {
+func ModexV(network *models.Network) ([]byte, float64, float64) {
 	return []byte("V1"), 0.0, 0.0
 }

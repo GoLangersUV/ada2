@@ -12,10 +12,12 @@ package modex
 
 import (
 	"math"
+
+	"github.com/Krud3/ada2/programacionDinamicaVoraz/src/models"
 )
 
 // extremism calculates the extremism of the network. It returns a float64 value.
-func extremism(network *Network) float64 {
+func extremism(network *models.Network) float64 {
 	var sumOpinions float64
 
 	for _, agent := range network.Agents {
@@ -26,9 +28,9 @@ func extremism(network *Network) float64 {
 }
 
 // moderation applies the strategy to the network. It returns the network after applying the strategy.
-func moderation(network *Network, strategy []byte) *Network {
-	networkPrime := Network{
-		Agents:    make([]Agent, len(network.Agents)),
+func moderation(network *models.Network, strategy []byte) *models.Network {
+	networkPrime := models.Network{
+		Agents:    make([]models.Agent, len(network.Agents)),
 		Resources: network.Resources,
 	}
 
@@ -41,7 +43,7 @@ func moderation(network *Network, strategy []byte) *Network {
 }
 
 // effort calculates the effort of the network after applying the strategy. It returns the float64 value of the effort and the network after applying the strategy.
-func effort(network *Network, strategy []byte) (float64, *Network) {
+func effort(network *models.Network, strategy []byte) (float64, *models.Network) {
 	n := len(network.Agents)
 	networkPrime := moderation(network, strategy)
 
@@ -71,12 +73,12 @@ func strategyGenerator(n int) [][]byte {
 }
 
 // partialExtremism calculates the partial extremism of an agent. It returns a float64 value.
-func partialExtremism(agent Agent) int64 {
+func partialExtremism(agent models.Agent) int64 {
 	return int64(agent.Opinion) * int64(agent.Opinion)
 }
 
 // partialEffort calculates the partial effort required for modering an agent. It returns a float64 value.
-func partialEffort(agent Agent) float64 {
+func partialEffort(agent models.Agent) float64 {
 	opinion_difference := float64(agent.Opinion - 0)
 	return math.Ceil(math.Abs(opinion_difference) * (1 - agent.Receptivity))
 }
