@@ -77,7 +77,7 @@ func partialExtremism(agent Agent) int64 {
 
 // partialEffort calculates the partial effort required for modering an agent. It returns a float64 value.
 func partialEffort(agent Agent) float64 {
-	opinion_difference := float64(agent.Opinion - 0)
+	opinion_difference := float64(agent.Opinion)
 	return math.Ceil(math.Abs(opinion_difference) * (1 - agent.Receptivity))
 }
 

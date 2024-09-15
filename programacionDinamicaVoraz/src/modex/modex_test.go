@@ -34,7 +34,7 @@ var testCases = []TestCase{
 	{"Prueba11.txt", 100, 5.65, "Óptimo"},
 	{"Prueba12.txt", 125, 4.037, "Óptimo"},
 	{"Prueba13.txt", 125, 4.455, "Óptimo"},
-	{"Prueba14.txt", 150, 4.24, "Óptimo"},
+	{"Prueba14.txt", 150, 4.242, "Óptimo"},
 	{"Prueba15.txt", 200, 1.319, "Óptimo"},
 	{"Prueba16.txt", 200, 1.727, "Óptimo"},
 	{"Prueba17.txt", 300, 1.406, "Óptimo"},
