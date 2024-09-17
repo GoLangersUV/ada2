@@ -77,9 +77,11 @@ func main() {
 		return
 	}
 
+  fmt.Println("ModexPD------------------------------------")
 	fmt.Println("Minimum Strategy:", minStrategy)
 	fmt.Println("Minimum Effort:", minEffort)
 	fmt.Println("Minimum Extremism:", minExtremism)
+  fmt.Println("ModexFB------------------------------------")
 	fmt.Println("Minimum Strategy:", minStrategy2)
 	fmt.Println("Minimum Effort:", minEffort2)
 	fmt.Println("Minimum Extremism:", minExtremism2)

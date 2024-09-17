@@ -80,60 +80,54 @@ func ModexFB(network *Network) (bestStrategy []byte, bestEffort float64, minExtr
 //   - strategy: A byte slice representing the strategy used to moderate the opinions.
 //   - effort: A float64 value representing the minimum effort required.
 //   - extremism: A float64 value representing the total extremism in the network.
+//   - err: An error value, if any.
 func ModexPD(network *Network) ([]byte, float64, float64, error) {
 	resources := int(network.Resources)
 	agents := network.Agents
-	n := len(agents)
+	numAgents := len(agents)
 
-	svMatrix := make([][]int64, n)
+  // Allocate space for the subproblem matrix
+	svMatrix := make([][]int64, numAgents)
 	for i := range svMatrix {
 		svMatrix[i] = make([]int64, resources+1)
 	}
 
-	for i := 0; i < n; i++ {
-		svMatrix[i][0] = 0
-	}
-
+  // Initialize the first row of the matrix (base case)
 	agent0Effort := int(partialEffort(agents[0]))
-	for w := 1; w <= resources; w++ {
-		if w >= agent0Effort {
-			svMatrix[0][w] = partialExtremism(agents[0])
-		} else {
-			svMatrix[0][w] = 0
+	for resource_i := 1; resource_i <= resources; resource_i++ {
+		if resource_i >= agent0Effort {
+			svMatrix[0][resource_i] = partialExtremism(agents[0])
 		}
 	}
 
-	for i := 1; i < n; i++ {
-		agent := agents[i]
+  // Fill the matrix with the subproblem solutions
+	for agent_i := 1; agent_i < numAgents; agent_i++ {
+		agent := agents[agent_i]
 		partial_effort := int(partialEffort(agent))
 		partial_extremism := partialExtremism(agent)
 
-		for w := 1; w <= resources; w++ {
-			if partial_effort <= w {
-				svMatrix[i][w] = max(svMatrix[i-1][w], svMatrix[i-1][w-partial_effort]+partial_extremism)
+		for resource_i := 1; resource_i <= resources; resource_i++ {
+			if partial_effort <= resource_i {
+				svMatrix[agent_i][resource_i] = max(svMatrix[agent_i-1][resource_i], svMatrix[agent_i-1][resource_i-partial_effort]+partial_extremism)
 			} else {
-				svMatrix[i][w] = svMatrix[i-1][w]
+				svMatrix[agent_i][resource_i] = svMatrix[agent_i-1][resource_i]
 			}
 		}
 	}
 
-	w := resources
-	strategy := make([]byte, n)
-	for i := n - 1; i >= 0; i-- {
-		agent := agents[i]
+  // Reconstruct the strategy from the matrix
+	strategy := make([]byte, numAgents)
+	for agent_i := numAgents - 1; agent_i >= 0; agent_i-- {
+		agent := agents[agent_i]
 		effort := int(partialEffort(agent))
 
-		if i == 0 {
-			if w >= effort && svMatrix[0][w] != 0 {
+		if agent_i == 0 {
+			if resources >= effort && svMatrix[0][resources] != 0 {
 				strategy[0] = 1
-			} else {
-				strategy[0] = 0
-			}
-		} else if w >= effort && svMatrix[i][w] != svMatrix[i-1][w] {
-			strategy[i] = 1
-			w -= effort
-		} else {
-			strategy[i] = 0
+			} 
+		} else if resources >= effort && svMatrix[agent_i][resources] != svMatrix[agent_i-1][resources] {
+			strategy[agent_i] = 1
+			resources -= effort
 		}
 	}
 
