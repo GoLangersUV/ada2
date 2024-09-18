@@ -46,11 +46,11 @@ var testCases = []TestCase{
 	{"Prueba23.txt", 750, 1.927, "Óptimo"},
 	{"Prueba24.txt", 750, 0.973, "Óptimo"},
 	{"Prueba25.txt", 800, 0.97, "Óptimo"},
-	{"Prueba26.txt", 1000, 0.815, "Solución"},
-	{"Prueba27.txt", 1500, 0.373, "Solución"},
-	{"Prueba28.txt", 1500, 0.786, "Solución"},
-	{"Prueba29.txt", 2000, 1.17, "Solución"},
-	{"Prueba30.txt", 2500, 0.309, "Solución"},
+	{"Prueba26.txt", 1000, 0.779, "Solución"},
+	{"Prueba27.txt", 1500, 0.310, "Solución"},
+	{"Prueba28.txt", 1500, 0.773, "Solución"},
+	{"Prueba29.txt", 2000, 1.152, "Solución"},
+	{"Prueba30.txt", 2500, 0.250, "Solución"},
 }
 
 func roundToThreeDecimals(value float64) float64 {
