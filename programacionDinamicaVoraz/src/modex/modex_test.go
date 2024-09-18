@@ -46,11 +46,26 @@ var testCases = []TestCase{
 	{"Prueba23.txt", 750, 1.927, "Óptimo"},
 	{"Prueba24.txt", 750, 0.973, "Óptimo"},
 	{"Prueba25.txt", 800, 0.97, "Óptimo"},
-	{"Prueba26.txt", 1000, 0.779, "Solución"},
-	{"Prueba27.txt", 1500, 0.310, "Solución"},
-	{"Prueba28.txt", 1500, 0.773, "Solución"},
-	{"Prueba29.txt", 2000, 1.152, "Solución"},
-	{"Prueba30.txt", 2500, 0.250, "Solución"},
+	{"Prueba26.txt", 1000, 0.779, "Óptimo"},
+	{"Prueba27.txt", 1500, 0.310, "Óptimo"},
+	{"Prueba28.txt", 1500, 0.773, "Óptimo"},
+	{"Prueba29.txt", 2000, 1.152, "Óptimo"},
+	{"Prueba30.txt", 2500, 0.250, "Óptimo"},
+	{"Prueba31.txt", 0.0, 1.352, "Óptimo"},
+	{"Prueba32.txt", 0.0, 0.872, "Óptimo"},
+	{"Prueba33.txt", 0.0, 1.207, "Óptimo"},
+	{"Prueba34.txt", 0.0, 0.561, "Óptimo"},
+	{"Prueba35.txt", 0.0, 0.449, "Óptimo"},
+	{"Prueba36.txt", 0.0, 0.607, "Óptimo"},
+	{"Prueba37.txt", 0.0, 0.253, "Óptimo"},
+	{"Prueba38.txt", 0.0, 0.228, "Solución"},
+	{"Prueba39.txt", 0.0, 0.224, "Solución"},
+	{"Prueba40.txt", 0.0, 0.127, "Solución"},
+	{"Prueba41.txt", 0.0, 0.0, "Solución"},
+	{"Prueba42.txt", 0.0, 0.0, "Solución"},
+	{"Prueba43.txt", 0.0, 0.0, "Solución"},
+	{"Prueba44.txt", 0.0, 0.0, "Solución"},
+	{"Prueba45.txt", 0.0, 0.0, "Solución"},
 }
 
 func roundToThreeDecimals(value float64) float64 {
@@ -159,15 +174,19 @@ func TestModexFB(t *testing.T) {
 // Prueba para ModexPD
 func TestModexPD(t *testing.T) {
 	runTestCases(t, func(network *Network) (float64, error) {
-		_, _, minExtremism, err := ModexPD(network)
+		strategy, effort, minExtremism, err := ModexPD(network)
+		fmt.Printf("Strategy: %d\n", strategy)
+		fmt.Printf("Effort: %.3f\n", effort)
 		return minExtremism, err
-	}, 1, 30) // Por ejemplo, para un rango diferente de archivos
+	}, 1, 37) // Por ejemplo, para un rango diferente de archivos
 }
 
 // Prueba para ModexV
 func TestModexV(t *testing.T) {
 	runTestCases(t, func(network *Network) (float64, error) {
-		_, _, minExtremism, err := ModexV(network)
+		strategy, effort, minExtremism, err := ModexV(network)
+		fmt.Printf("Strategy: %d\n", strategy)
+		fmt.Printf("Effort: %.3f\n", effort)
 		return minExtremism, err
-	}, 1, 30) // Por ejemplo, para un rango diferente de archivos
+	}, 1, 45) // Por ejemplo, para un rango diferente de archivos
 }
