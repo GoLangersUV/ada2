@@ -86,13 +86,13 @@ func ModexPD(network *Network) ([]byte, float64, float64, error) {
 	agents := network.Agents
 	numAgents := len(agents)
 
-  // Allocate space for the subproblem matrix
+	// Allocate space for the subproblem matrix
 	svMatrix := make([][]int64, numAgents)
 	for i := range svMatrix {
 		svMatrix[i] = make([]int64, resources+1)
 	}
 
-  // Initialize the first row of the matrix (base case)
+	// Initialize the first row of the matrix (base case)
 	agent0Effort := int(partialEffort(agents[0]))
 	for resource_i := 1; resource_i <= resources; resource_i++ {
 		if resource_i >= agent0Effort {
@@ -100,7 +100,7 @@ func ModexPD(network *Network) ([]byte, float64, float64, error) {
 		}
 	}
 
-  // Fill the matrix with the subproblem solutions
+	// Fill the matrix with the subproblem solutions
 	for agent_i := 1; agent_i < numAgents; agent_i++ {
 		agent := agents[agent_i]
 		partial_effort := int(partialEffort(agent))
@@ -115,7 +115,7 @@ func ModexPD(network *Network) ([]byte, float64, float64, error) {
 		}
 	}
 
-  // Reconstruct the strategy from the matrix
+	// Reconstruct the strategy from the matrix
 	strategy := make([]byte, numAgents)
 	for agent_i := numAgents - 1; agent_i >= 0; agent_i-- {
 		agent := agents[agent_i]
@@ -124,7 +124,7 @@ func ModexPD(network *Network) ([]byte, float64, float64, error) {
 		if agent_i == 0 {
 			if resources >= effort && svMatrix[0][resources] != 0 {
 				strategy[0] = 1
-			} 
+			}
 		} else if resources >= effort && svMatrix[agent_i][resources] != svMatrix[agent_i-1][resources] {
 			strategy[agent_i] = 1
 			resources -= effort
@@ -147,6 +147,24 @@ func ModexPD(network *Network) ([]byte, float64, float64, error) {
 //   - strategy: A byte slice representing the strategy used to moderate the opinions.
 //   - effort: A float64 value representing the minimum effort required.
 //   - extremism: A float64 value representing the total extremism in the network.
-func ModexV(network *Network) ([]byte, float64, float64) {
-	return []byte("V1"), 0.0, 0.0
+func ModexV(network *Network) ([]byte, float64, float64, error) {
+	if network == nil || len(network.Agents) == 0 {
+		return nil, 0, 0, errors.New("network is nil or has no agents")
+	}
+
+	// Generate the greedy strategy.
+	strategy := greedyStrategy(network)
+
+	// Calculate the total effort and the moderated network.
+	totalEffort, moderatedNetwork := effort(network, strategy)
+
+	// Check if the total effort exceeds the available resources.
+	if uint64(totalEffort) > network.Resources {
+		return nil, 0, 0, errors.New("insufficient resources to apply the strategy")
+	}
+
+	// Calculate the new extremism after applying the strategy.
+	newExtremism := extremism(moderatedNetwork)
+
+	return strategy, totalEffort, newExtremism, nil
 }

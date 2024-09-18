@@ -12,7 +12,16 @@ package modex
 
 import (
 	"math"
+	"sort"
 )
+
+// AgentRatio holds the agent index along with its benefit-to-cost ratio.
+type AgentRatio struct {
+	Index   int     // Index of the agent in the network.
+	Ratio   float64 // Benefit-to-cost ratio.
+	Effort  float64 // Effort required to moderate the agent.
+	Benefit float64 // Benefit of moderating the agent.
+}
 
 // extremism calculates the extremism of the network. It returns a float64 value.
 func extremism(network *Network) float64 {
@@ -95,4 +104,56 @@ func max(a, b int64) int64 {
 		return a
 	}
 	return b
+}
+
+// Function to generate the greedy strategy based on available resources.
+func greedyStrategy(network *Network) []byte {
+	resources := network.Resources
+	strategy := make([]byte, len(network.Agents))
+	totalEffort := 0.0
+
+	rankedAgents := rankAgents(network)
+
+	for _, agentInfo := range rankedAgents {
+		if uint64(totalEffort+agentInfo.Effort) <= resources {
+			// Moderate the agent.
+			strategy[agentInfo.Index] = 1
+			totalEffort += agentInfo.Effort
+		} else {
+			// Do not moderate the agent.
+			strategy[agentInfo.Index] = 0
+		}
+	}
+
+	return strategy
+}
+
+// Function to rank agents based on their benefit-to-cost ratio.
+func rankAgents(network *Network) []AgentRatio {
+	agentRatios := make([]AgentRatio, len(network.Agents))
+
+	for i, agent := range network.Agents {
+		benefit := float64(agent.Opinion) * float64(agent.Opinion)
+		effort := partialEffort(agent)
+		var ratio float64
+		if effort == 0 {
+			ratio = math.Inf(1) // Assign infinite ratio to agents with zero effort.
+		} else {
+			ratio = benefit / effort
+		}
+
+		agentRatios[i] = AgentRatio{
+			Index:   i,
+			Ratio:   ratio,
+			Effort:  effort,
+			Benefit: benefit,
+		}
+	}
+
+	// Sort agents by descending ratio.
+	sort.Slice(agentRatios, func(i, j int) bool {
+		return agentRatios[i].Ratio > agentRatios[j].Ratio
+	})
+
+	return agentRatios
 }
