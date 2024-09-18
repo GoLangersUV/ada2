@@ -106,51 +106,29 @@ func max(a, b int64) int64 {
 	return b
 }
 
-// Function to generate the greedy strategy based on available resources.
-func greedyStrategy(network *Network) []byte {
-	resources := network.Resources
-	strategy := make([]byte, len(network.Agents))
-	totalEffort := 0.0
-
-	rankedAgents := rankAgents(network)
-
-	for _, agentInfo := range rankedAgents {
-		if uint64(totalEffort+agentInfo.Effort) <= resources {
-			// Moderate the agent.
-			strategy[agentInfo.Index] = 1
-			totalEffort += agentInfo.Effort
-		} else {
-			// Do not moderate the agent.
-			strategy[agentInfo.Index] = 0
-		}
-	}
-
-	return strategy
-}
-
 // Function to rank agents based on their benefit-to-cost ratio.
 func rankAgents(network *Network) []AgentRatio {
 	agentRatios := make([]AgentRatio, len(network.Agents))
 
 	for i, agent := range network.Agents {
-		benefit := float64(agent.Opinion) * float64(agent.Opinion)
+		extremism := float64(partialExtremism(agent))
 		effort := partialEffort(agent)
 		var ratio float64
 		if effort == 0 {
 			ratio = math.Inf(1) // Assign infinite ratio to agents with zero effort.
 		} else {
-			ratio = benefit / effort
+			ratio = extremism / effort
 		}
 
 		agentRatios[i] = AgentRatio{
 			Index:   i,
 			Ratio:   ratio,
 			Effort:  effort,
-			Benefit: benefit,
+			Benefit: extremism,
 		}
 	}
 
-	// Sort agents by descending ratio.
+	// Sort agents by descending ratio. Check complexity.
 	sort.Slice(agentRatios, func(i, j int) bool {
 		return agentRatios[i].Ratio > agentRatios[j].Ratio
 	})

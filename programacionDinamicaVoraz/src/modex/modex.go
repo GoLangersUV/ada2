@@ -153,7 +153,22 @@ func ModexV(network *Network) ([]byte, float64, float64, error) {
 	}
 
 	// Generate the greedy strategy.
-	strategy := greedyStrategy(network)
+	resources := network.Resources
+	strategy := make([]byte, len(network.Agents))
+	totalEffort := 0.0
+
+	rankedAgents := rankAgents(network)
+
+	for _, agentInfo := range rankedAgents {
+		if uint64(totalEffort+agentInfo.Effort) <= resources {
+			// Moderate the agent.
+			strategy[agentInfo.Index] = 1
+			totalEffort += agentInfo.Effort
+		} else {
+			// Do not moderate the agent.
+			strategy[agentInfo.Index] = 0
+		}
+	}
 
 	// Calculate the total effort and the moderated network.
 	totalEffort, moderatedNetwork := effort(network, strategy)
