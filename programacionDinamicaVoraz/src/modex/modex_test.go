@@ -61,11 +61,11 @@ var testCases = []TestCase{
 	{"Prueba38.txt", 0.0, 0.228, "Solución"},
 	{"Prueba39.txt", 0.0, 0.224, "Solución"},
 	{"Prueba40.txt", 0.0, 0.127, "Solución"},
-	{"Prueba41.txt", 0.0, 0.0, "Solución"},
-	{"Prueba42.txt", 0.0, 0.0, "Solución"},
-	{"Prueba43.txt", 0.0, 0.0, "Solución"},
-	{"Prueba44.txt", 0.0, 0.0, "Solución"},
-	{"Prueba45.txt", 0.0, 0.0, "Solución"},
+	{"Prueba41.txt", 0.0, 0.0, "Óptimo"},
+	{"Prueba42.txt", 0.0, 0.0, "Óptimo"},
+	{"Prueba43.txt", 0.0, 0.0, "Óptimo"},
+	{"Prueba44.txt", 0.0, 0.0, "Óptimo"},
+	{"Prueba45.txt", 0.0, 0.0, "Óptimo"},
 }
 
 func roundToThreeDecimals(value float64) float64 {
@@ -174,9 +174,9 @@ func TestModexFB(t *testing.T) {
 // Prueba para ModexPD
 func TestModexPD(t *testing.T) {
 	runTestCases(t, func(network *Network) (float64, error) {
-		strategy, effort, minExtremism, err := ModexPD(network)
-		fmt.Printf("Strategy: %d\n", strategy)
-		fmt.Printf("Effort: %.3f\n", effort)
+		_, _, minExtremism, err := ModexPD(network)
+		// fmt.Printf("Strategy: %d\n", strategy)
+		// fmt.Printf("Effort: %.3f\n", effort)
 		return minExtremism, err
 	}, 1, 37) // Por ejemplo, para un rango diferente de archivos
 }
@@ -184,9 +184,9 @@ func TestModexPD(t *testing.T) {
 // Prueba para ModexV
 func TestModexV(t *testing.T) {
 	runTestCases(t, func(network *Network) (float64, error) {
-		strategy, effort, minExtremism, err := ModexV(network)
-		fmt.Printf("Strategy: %d\n", strategy)
-		fmt.Printf("Effort: %.3f\n", effort)
+		_, _, minExtremism, err := ModexV(network)
+		// fmt.Printf("Strategy: %d\n", strategy)
+		// fmt.Printf("Effort: %.3f\n", effort)
 		return minExtremism, err
 	}, 1, 45) // Por ejemplo, para un rango diferente de archivos
 }
