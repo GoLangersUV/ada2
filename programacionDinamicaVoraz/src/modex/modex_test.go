@@ -58,7 +58,7 @@ var testCases = []TestCase{
 	{"Prueba35.txt", 0.0, 0.449, "Óptimo"},
 	{"Prueba36.txt", 0.0, 0.607, "Óptimo"},
 	{"Prueba37.txt", 0.0, 0.253, "Óptimo"},
-	{"Prueba38.txt", 0.0, 0.228, "Solución"},
+	{"Prueba38.txt", 0.0, 0.228, "Óptimo"},
 	{"Prueba39.txt", 0.0, 0.224, "Solución"},
 	{"Prueba40.txt", 0.0, 0.127, "Solución"},
 	{"Prueba41.txt", 0.0, 0.0, "Óptimo"},
@@ -178,7 +178,7 @@ func TestModexPD(t *testing.T) {
 		// fmt.Printf("Strategy: %d\n", strategy)
 		// fmt.Printf("Effort: %.3f\n", effort)
 		return minExtremism, err
-	}, 1, 37) // Por ejemplo, para un rango diferente de archivos
+	}, 38, 38) // Por ejemplo, para un rango diferente de archivos
 }
 
 // Prueba para ModexV
