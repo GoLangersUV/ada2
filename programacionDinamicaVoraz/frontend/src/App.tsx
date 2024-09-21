@@ -20,12 +20,13 @@ import {
 } from "@/components/ui/table";
 import Header from "@/components/Header";
 import type { ChartConfig } from "@/components/ui/chart"
-import MainSection from "@/components/MainSection";
+import Section from "@/components/Section";
 import CustomBarChart from "@/components/BarChart";
 import CustomRadarChart from "@/components/RadarChart";
 import SubSection from "@/components/SubSection";
 import Matrix from "@/components/Matrix";
 import { ThemeProvider } from "@/components/theme-provider";
+import Footer from '@/components/Footer';
 
 const strategyFB = [0];
 
@@ -118,7 +119,6 @@ function App() {
         setFbEffort(dataFB.effort);
       } else {
         console.log("Fuerza Bruta no se ejecuta para más de 25 agentes.");
-        // Limpia los datos de ModexFB si no se deben calcular
         setStrategyFBData([]);
         setFbComputationTime(null);
         setFbExtremism(null);
@@ -136,7 +136,7 @@ function App() {
 
         {selectedFile && networkData ? (
         <main className="max-w-3xl m-auto rounded-md shadow-2xl overflow-hidden">
-          <MainSection sectionTitle="Información general">
+          <Section sectionTitle="Información general">
             <div className="flex flex-col gap-4">
               <ul className="list-none list-inside space-y-2 properties-list">
                 <li>Número de agentes: <span className="property-value">{networkData ? networkData.agents.length : 'n'}</span></li>
@@ -213,10 +213,10 @@ function App() {
                 </ul>
               </SubSection>
             </div>
-          </MainSection>
-          {networkData?.agents.length <= 25 ? (
+          </Section>
 
-          <MainSection sectionTitle="Fuerza Bruta">
+          {networkData?.agents.length <= 25 ? (
+          <Section sectionTitle="Fuerza Bruta" output={fbExtremism !== null && fbEffort !== null ? { extremism: fbExtremism, effort: fbEffort, strategy: strategyFBData } : undefined}>
             <div className="flex flex-col gap-4">
               <ul className="list-none list-inside space-y-2 properties-list">
                 <li>Tiempo de cómputo: <span className="property-value">{fbComputationTime !== null ? `${fbComputationTime.toFixed(4)} s` : 't'}</span></li>
@@ -253,9 +253,9 @@ function App() {
                 />
               </SubSection>
             </div>
-          </MainSection>) : null}
+          </Section>) : null}
 
-          <MainSection sectionTitle="Programación dinámica">
+          <Section sectionTitle="Programación dinámica" output={PDExtremism !== null && PDEffort !== null ? { extremism: PDExtremism, effort: PDEffort, strategy: strategyPDData } : undefined}>
             <div className="flex flex-col gap-4">
               <ul className="list-none list-inside space-y-2 properties-list">
                 <li>Tiempo de cómputo: <span className="property-value">{PDComputationTime !== null ? `${PDComputationTime.toFixed(4)} s` : 't'}</span></li>
@@ -292,8 +292,9 @@ function App() {
                 />
               </SubSection>
             </div>
-          </MainSection>
-          <MainSection sectionTitle="Estrategia voraz">
+          </Section>
+
+          <Section sectionTitle="Estrategia voraz" output={strategyVExtremism !== null && strategyVEffort !== null ? { extremism: strategyVExtremism, effort: strategyVEffort, strategy: strategyVData } : undefined}>
             <div className="flex flex-col gap-4">
               <ul className="list-none list-inside space-y-2 properties-list">
                 <li>Tiempo de cómputo: <span className="property-value">{strategyVComputationTime !== null ? `${strategyVComputationTime.toFixed(4)} s` : 't'}</span></li>
@@ -309,13 +310,13 @@ function App() {
                 chartData={[
                   { 
                     property: "Extremismo", 
-                    original: networkData?.extremism ?? 0, // Evitar null o undefined
-                    modex: strategyVExtremism ?? 0 // Evitar null o undefined
+                    original: networkData?.extremism ?? 0,
+                    modex: strategyVExtremism ?? 0 
                   },
                   { 
                     property: "Esfuerzo empleado", 
-                    original: networkData?.effort ?? 0, // Evitar null o undefined
-                    modex: strategyVEffort ?? 0 // Evitar null o undefined
+                    original: networkData?.effort ?? 0,
+                    modex: strategyVEffort ?? 0
                   },
                 ]}
                 chartConfig={{
@@ -330,18 +331,10 @@ function App() {
                 } satisfies ChartConfig}
               />
             </SubSection>
-          </MainSection>
+          </Section>
         </main>
-        ) : (
-          <div className="flex justify-center items-center h-64">
-          </div>
-        )}
-        <footer className='w-full my-20 text-[#CECECE] bottom-0'>
-          <div className="mt-8 md:order-1 md:mt-0 max-w-3xl m-auto px-4">
-            <p className="text-left text-xs leading-5 ">&copy; 2024-II Grupo 1: Juan Camilo Narváez Tascón, Julián Ernesto Puyo, Cristian David Pacheco, Juan Sebastian Molina</p>
-            <p className="text-left text-xs leading-5 "><a target='_blank' href="https://github.com/Krud3/ada2/tree/main">Repositorio</a></p>
-          </div>
-        </footer>
+        ) : null}
+        <Footer />
       </div>
     </ThemeProvider>
   );
