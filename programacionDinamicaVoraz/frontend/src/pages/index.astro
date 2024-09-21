@@ -1,6 +1,6 @@
 ---
 import Layout from '../layouts/Layout.astro';
-import Header from '../components/Header.astro';
+import Header from '../components/Header.tsx';
 import MainSection from '../components/MainSection.astro';
 import SubSection from '../components/SubSection.astro';
 import CustomRadarChart from '@/components/RadarChart';
@@ -18,11 +18,11 @@ import {
 } from "../components/ui/table"
 
 
-const strategyFB = [0, 1, 0, 1, 1, 0, 1, 1, 0, 0,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0,0,0,0]; // Ejemplo de estrategia para fuerza bruta
+const strategyFB = [0, 1, 0, 1, 1, 0, 1, 1, 0]; // Ejemplo de estrategia para fuerza bruta
 ---
 
 <Layout title="Modex">
-  <Header subject="Análisis y diseño de algoritmos II"/>
+  <Header subject="Análisis y diseño de algoritmos II" client:load/>
 
   <main class="max-w-3xl m-auto rounded-md ring-1 ring-[#3D3D3D] shadow-2xl overflow-hidden">
     <MainSection sectionTitle="Información general">
@@ -33,9 +33,9 @@ const strategyFB = [0, 1, 0, 1, 1, 0, 1, 1, 0, 0,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0
           <li>Extremismo de la red: <span class="text-white italic">Ext</span></li>
           <li>Esfuerzo total de moderación: <span class="text-white italic">Esf</span></li>
         </ul>
-        <div class="max-w-xs overflow-y-scroll relative max-h-72 flow-root agents-table">
+        <div class="max-w-sm overflow-y-scroll ring-1 ring-[#D9D9D9] ring-opacity-30 relative max-h-72 flow-root agents-table">
           <Table>
-            <TableHeader className='sticky top-0 bg-[#D9D9D9] bg-opacity-60 backdrop-blur backdrop-filter'>
+            <TableHeader className='sticky top-0 bg-[#D9D9D9] bg-opacity-20 backdrop-blur backdrop-filter'>
               <TableRow>
                 <TableHead className='text-white'>Agente</TableHead>
                 <TableHead className='text-white'>Opinión</TableHead>
@@ -104,8 +104,10 @@ const strategyFB = [0, 1, 0, 1, 1, 0, 1, 1, 0, 0,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0
           <li>Tiempo de cómputo: <span class="text-white italic">t</span></li>
           <li>Extremismo óptimo: <span class="text-white italic">Ext</span></li>
           <li>Esfuerzo empleado: <span class="text-white italic">Esf</span></li>
-          <Matrix title="Estrategia Fuerza Bruta" strategy={strategyFB} />
         </ul>
+        <SubSection subTitle="Estrategia fuerza bruta">
+          <Matrix title="" strategy={strategyFB} />
+        </SubSection>
         <SubSection subTitle="Comparación con datos iniciales">
             <CustomBarChart client:only/>
         </SubSection>
@@ -121,6 +123,7 @@ const strategyFB = [0, 1, 0, 1, 1, 0, 1, 1, 0, 0,1,1,1,1,1,1,1,1,1,0,0,0,0,0,0,0
     </MainSection>
 
   </main>
+
 </Layout>
 
 <style>

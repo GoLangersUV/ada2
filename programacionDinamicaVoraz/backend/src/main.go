@@ -24,80 +24,35 @@
 package main
 
 import (
-	"encoding/json"
-	"log"
-	"net/http"
+  "log"
+  "net/http"
 
-	"github.com/Krud3/ada2/programacionDinamicaVoraz/backend/src/modex"
+  "github.com/rs/cors"
+
+  "github.com/Krud3/ada2/programacionDinamicaVoraz/backend/src/handlers"
 )
 
-func byteSliceToIntSlice(b []byte) []int {
-	intSlice := make([]int, len(b))
-	for i, v := range b {
-		intSlice[i] = int(v)
-	}
-	return intSlice
-}
-
-func processModex(network modex.Network, algorithm func(*modex.Network) ([]byte, float64, float64, error), w http.ResponseWriter) {
-	minStrategy, minEffort, minExtremism, err := algorithm(&network)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	strategyInt := byteSliceToIntSlice(minStrategy)
-
-	response := struct {
-		Strategy  []int   `json:"strategy"`
-		Effort    float64 `json:"effort"`
-		Extremism float64 `json:"extremism"`
-	}{
-		Strategy:  strategyInt,
-		Effort:    minEffort,
-		Extremism: minExtremism,
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(response)
-}
-
-func modexPDHandler(w http.ResponseWriter, r *http.Request) {
-	var network modex.Network
-	err := json.NewDecoder(r.Body).Decode(&network)
-	if err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
-		return
-	}
-	processModex(network, modex.ModexPD, w)
-}
-
-func modexFBHandler(w http.ResponseWriter, r *http.Request) {
-	var network modex.Network
-	err := json.NewDecoder(r.Body).Decode(&network)
-	if err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
-		return
-	}
-	processModex(network, modex.ModexFB, w)
-}
-
-func modexVHandler(w http.ResponseWriter, r *http.Request) {
-	var network modex.Network
-	err := json.NewDecoder(r.Body).Decode(&network)
-	if err != nil {
-		http.Error(w, "Invalid request body", http.StatusBadRequest)
-		return
-	}
-	processModex(network, modex.ModexV, w)
-}
-
 func main() {
-	http.HandleFunc("/modex/pd", modexPDHandler)
-	http.HandleFunc("/modex/fb", modexFBHandler)
-	http.HandleFunc("/modex/v", modexVHandler)
+    // Rutas de los algoritmos
+    http.HandleFunc("/modex/pd", handlers.ModexPDHandler)
+    http.HandleFunc("/modex/fb", handlers.ModexFBHandler)
+    http.HandleFunc("/modex/v", handlers.ModexVHandler)
 
-	log.Println("Server running on http://localhost:8080")
-	log.Fatal(http.ListenAndServe(":8080", nil))
+    // Rutas para manejo de archivos
+    http.HandleFunc("/upload", handlers.UploadHandler)
+    http.HandleFunc("/files", handlers.FilesHandler)
+    http.HandleFunc("/network", handlers.GetNetworkHandler)
+
+    // Configurar CORS
+    c := cors.New(cors.Options{
+        AllowedOrigins:   []string{"http://localhost:3000"},
+        AllowedMethods:   []string{"GET", "POST", "OPTIONS"},
+        AllowedHeaders:   []string{"Content-Type"},
+        AllowCredentials: true,
+    })
+
+    handler := c.Handler(http.DefaultServeMux)
+
+    log.Println("Server running on http://localhost:8080")
+    log.Fatal(http.ListenAndServe(":8080", handler))
 }
-
