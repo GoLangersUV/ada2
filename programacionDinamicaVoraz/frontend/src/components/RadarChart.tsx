@@ -1,3 +1,13 @@
+/*
+ * File: github.com/Krud3/ada2/programacionDinamicaVoraz/frontend/src/components/RadarChart.tsx
+ * Authors: Julián Ernesto Puyo Mora...2226905
+ *          Cristian David Pacheco.....2227437
+ *          Juan Sebastián Molina......2224491
+ *          Juan Camilo Narváez Tascón.2140112
+ * Creation date: 09/10/2024
+ * Last modification: 09/21/2024
+ * License: GNU-GPL
+ */
 import { PolarAngleAxis, PolarGrid, Radar, RadarChart, ResponsiveContainer } from "recharts"
 
 import {
@@ -6,9 +16,26 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart"
 
-export const description = "A radar chart with lines only"
+interface ChartData {
+  category: string;
+  ModexPD?: number;
+  ModexV?: number;
+  ModexFB?: number;
+}
 
-export default function CustomRadarChart( {chartData, chartConfig } ) {
+interface ChartConfig {
+  [key: string]: {
+    label: string;
+    color: string;
+  };
+}
+
+interface CustomRadarChartProps {
+  chartData: ChartData[];
+  chartConfig: ChartConfig;
+}
+
+export default function CustomRadarChart({ chartData, chartConfig }: CustomRadarChartProps) {
   return (
     <div className="max-w-sm font-sans -mb-10">
       <ChartContainer

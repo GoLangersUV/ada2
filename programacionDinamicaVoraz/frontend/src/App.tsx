@@ -1,3 +1,13 @@
+/*
+ * File: github.com/Krud3/ada2/programacionDinamicaVoraz/frontend/src/app.tsx
+ * Authors: Julián Ernesto Puyo Mora...2226905
+ *          Cristian David Pacheco.....2227437
+ *          Juan Sebastián Molina......2224491
+ *          Juan Camilo Narváez Tascón.2140112
+ * Creation date: 09/19/2024
+ * Last modification: 09/21/2024
+ * License: GNU-GPL
+ */
 import { useState, useEffect } from 'react';
 import './App.css';
 import {
@@ -69,23 +79,20 @@ function App() {
 
   useEffect(() => {
     if (networkData) {
-      fetchModexResults(selectedFile); // Ejecuta fetch de Modex solo cuando networkData está cargado
+      fetchModexResults(selectedFile);
     }
   }, [networkData, selectedFile]);
 
-  // Función para obtener los datos de la red
   const fetchNetworkData = async (fileName: string) => {
     try {
       const response = await fetch(`http://localhost:8080/network?file=${fileName}`);
       const data = await response.json();
-      // console.log('Datos del network:', data);
       setNetworkData(data);
     } catch (error) {
       console.error('Error al obtener los datos del network:', error);
     }
   };
 
-  // Función para obtener los resultados de Modex
   const fetchModexResults = async (fileName: string) => {
     try {
       const responsePD = await fetch(`http://localhost:8080/modex/pd?file=${fileName}`);
@@ -111,8 +118,12 @@ function App() {
         setFbEffort(dataFB.effort);
       } else {
         console.log("Fuerza Bruta no se ejecuta para más de 25 agentes.");
+        // Limpia los datos de ModexFB si no se deben calcular
+        setStrategyFBData([]);
+        setFbComputationTime(null);
+        setFbExtremism(null);
+        setFbEffort(null);
       }
-
     } catch (error) {
       console.error('Error al obtener los resultados de Modex:', error);
     }
@@ -157,9 +168,24 @@ function App() {
               <SubSection subTitle="Comparación de soluciones">
                 <CustomRadarChart
                   chartData={[
-                    { category: "Tiempo", ModexPD: PDComputationTime, ModexV: strategyVComputationTime, ...(networkData?.agents.length <= 25 && { ModexFB: fbComputationTime }) },
-                    { category: "Extremismo", ModexPD: PDExtremism, ModexV: strategyVExtremism, ...(networkData?.agents.length <= 25 && { ModexFB: fbExtremism }) },
-                    { category: "Esfuerzo", ModexPD: PDEffort, ModexV: strategyVEffort, ...(networkData?.agents.length <= 25 && { ModexFB: fbEffort }) },
+                    { 
+                      category: "Tiempo", 
+                      ModexPD: PDComputationTime ?? undefined, 
+                      ModexV: strategyVComputationTime ?? undefined, 
+                      ...(networkData?.agents.length <= 25 && { ModexFB: fbComputationTime ?? undefined })
+                    },
+                    { 
+                      category: "Extremismo", 
+                      ModexPD: PDExtremism ?? undefined, 
+                      ModexV: strategyVExtremism ?? undefined, 
+                      ...(networkData?.agents.length <= 25 && { ModexFB: fbExtremism ?? undefined })
+                    },
+                    { 
+                      category: "Esfuerzo", 
+                      ModexPD: PDEffort ?? undefined, 
+                      ModexV: strategyVEffort ?? undefined, 
+                      ...(networkData?.agents.length <= 25 && { ModexFB: fbEffort ?? undefined })
+                    },
                   ]}
                   chartConfig={{
                     ...(networkData?.agents.length <= 25 && {
@@ -201,13 +227,20 @@ function App() {
                 <Matrix title="" strategy={strategyFBData.length > 0 ? strategyFBData : strategyFB} agents={networkData?.agents} />
               </SubSection>
               <SubSection subTitle="Comparación con datos iniciales">
-                  <CustomBarChart chartData={[
-                    { property: "Extremismo", original: networkData?.extremism, modex: fbExtremism },
-                    { property: "Esfuerzo empleado", original: networkData?.effort, modex: fbEffort },
-                  ]
-                }
-                chartConfig={
-                  {
+                <CustomBarChart
+                  chartData={[
+                    { 
+                      property: "Extremismo", 
+                      original: networkData?.extremism ?? 0,
+                      modex: fbExtremism ?? 0
+                    },
+                    { 
+                      property: "Esfuerzo empleado", 
+                      original: networkData?.effort ?? 0,
+                      modex: fbEffort ?? 0
+                    },
+                  ]}
+                  chartConfig={{
                     original: {
                       label: "Original",
                       color: "#00A29C",
@@ -216,8 +249,8 @@ function App() {
                       label: "ModexFB",
                       color: "#FF6B6B",
                     },
-                  } satisfies ChartConfig
-                  }/>
+                  } satisfies ChartConfig}
+                />
               </SubSection>
             </div>
           </MainSection>) : null}
@@ -233,13 +266,20 @@ function App() {
                 <Matrix title="" strategy={strategyPDData.length > 0 ? strategyPDData : strategyPDData} agents={networkData?.agents} />
               </SubSection>
               <SubSection subTitle="Comparación con datos iniciales">
-                  <CustomBarChart chartData={[
-                    { property: "Extremismo", original: networkData?.extremism, modex: PDExtremism },
-                    { property: "Esfuerzo empleado", original: networkData?.effort, modex: PDEffort },
-                  ]
-                }
-                chartConfig={
-                  {
+                <CustomBarChart
+                  chartData={[
+                    { 
+                      property: "Extremismo", 
+                      original: networkData?.extremism ?? 0,
+                      modex: PDExtremism ?? 0 
+                    },
+                    { 
+                      property: "Esfuerzo empleado", 
+                      original: networkData?.effort ?? 0,
+                      modex: PDEffort ?? 0
+                    },
+                  ]}
+                  chartConfig={{
                     original: {
                       label: "Original",
                       color: "#00A29C",
@@ -248,12 +288,11 @@ function App() {
                       label: "ModexPD",
                       color: "#FFA500",
                     },
-                  } satisfies ChartConfig
-                  }/>
+                  } satisfies ChartConfig}
+                />
               </SubSection>
             </div>
           </MainSection>
-
           <MainSection sectionTitle="Estrategia voraz">
             <div className="flex flex-col gap-4">
               <ul className="list-none list-inside space-y-2 properties-list">
@@ -264,45 +303,48 @@ function App() {
               <SubSection subTitle="Estrategia voraz">
                 <Matrix title="" strategy={strategyVData.length > 0 ? strategyVData : strategyVData} agents={networkData?.agents} />
               </SubSection>
-              <SubSection subTitle="Comparación con datos iniciales">
-                  <CustomBarChart chartData={[
-                    { property: "Extremismo", original: networkData?.extremism, modex: strategyVExtremism},
-                    { property: "Esfuerzo empleado", original: networkData?.effort, modex: strategyVEffort},
-                  ]
-                } 
-                chartConfig={
-                  {
-                    original: {
-                      label: "Original",
-                      color: "#00A29C",
-                    },
-                    modex: {
-                      label: "ModexV",
-                      color: "#9B59B6",
-                    },
-                  } satisfies ChartConfig
-                }/>
-              </SubSection>
             </div>
+            <SubSection subTitle="Comparación con datos iniciales">
+              <CustomBarChart
+                chartData={[
+                  { 
+                    property: "Extremismo", 
+                    original: networkData?.extremism ?? 0, // Evitar null o undefined
+                    modex: strategyVExtremism ?? 0 // Evitar null o undefined
+                  },
+                  { 
+                    property: "Esfuerzo empleado", 
+                    original: networkData?.effort ?? 0, // Evitar null o undefined
+                    modex: strategyVEffort ?? 0 // Evitar null o undefined
+                  },
+                ]}
+                chartConfig={{
+                  original: {
+                    label: "Original",
+                    color: "#00A29C",
+                  },
+                  modex: {
+                    label: "ModexV",
+                    color: "#9B59B6",
+                  },
+                } satisfies ChartConfig}
+              />
+            </SubSection>
           </MainSection>
-
         </main>
         ) : (
           <div className="flex justify-center items-center h-64">
           </div>
         )}
         <footer className='w-full my-20 text-[#CECECE] bottom-0'>
-        <div className="mt-8 md:order-1 md:mt-0 max-w-3xl m-auto px-4">
-          <p className="text-left text-xs leading-5 ">&copy; 09/20/2024 Grupo 1: Juan Camilo Narváez Tascón, Julián Ernesto Puyo, Cristian David Pacheco, Juan Sebastian Molina</p>
-          <p className="text-left text-xs leading-5 "><a target='_blank' href="https://github.com/Krud3/ada2/tree/main">Repositorio</a></p>
-        </div>
-
+          <div className="mt-8 md:order-1 md:mt-0 max-w-3xl m-auto px-4">
+            <p className="text-left text-xs leading-5 ">&copy; 2024-II Grupo 1: Juan Camilo Narváez Tascón, Julián Ernesto Puyo, Cristian David Pacheco, Juan Sebastian Molina</p>
+            <p className="text-left text-xs leading-5 "><a target='_blank' href="https://github.com/Krud3/ada2/tree/main">Repositorio</a></p>
+          </div>
         </footer>
       </div>
-
     </ThemeProvider>
   );
 }
 
 export default App;
-

@@ -1,3 +1,13 @@
+/*
+ * File: github.com/Krud3/ada2/programacionDinamicaVoraz/frontend/src/components/Matrix.tsx
+ * Authors: Julián Ernesto Puyo Mora...2226905
+ *          Cristian David Pacheco.....2227437
+ *          Juan Sebastián Molina......2224491
+ *          Juan Camilo Narváez Tascón.2140112
+ * Creation date: 09/10/2024
+ * Last modification: 09/21/2024
+ * License: GNU-GPL
+ */
 import React, { useEffect, useRef, useState } from 'react';
 import {
   Tooltip,
@@ -25,9 +35,9 @@ const Matrix: React.FC<MatrixProps> = ({ strategy, title, agents }) => {
     const calculateDimensions = () => {
       if (containerRef.current) {
         const containerWidth = containerRef.current.offsetWidth;
-        const maxHeight = 1000; // Altura máxima en píxeles
-        const gap = 2; // Tamaño del gap entre celdas
-        const maxCellSize = 20; // Tamaño máximo de celda
+        const maxHeight = 1000;
+        const gap = 2;
+        const maxCellSize = 20;
 
         let columns = Math.floor((containerWidth + gap) / (maxCellSize + gap));
         let cellSize = Math.floor((containerWidth - (columns - 1) * gap) / columns);

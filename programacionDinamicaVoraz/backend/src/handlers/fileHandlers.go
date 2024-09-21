@@ -98,7 +98,6 @@ func FilesHandler(w http.ResponseWriter, r *http.Request) {
 
 // GetNetworkHandler handles the network retrieval operation. It returns the network
 func GetNetworkHandler(w http.ResponseWriter, r *http.Request) {
-	// Obtener el nombre del archivo desde los parámetros de la URL
 	fileName := r.URL.Query().Get("file")
 	if fileName == "" {
 		http.Error(w, "Falta el parámetro 'file'", http.StatusBadRequest)
@@ -182,7 +181,7 @@ func parseNetworkFromFile(filePath string) (modex.Network, error) {
 	for i := range strategyAllOnes {
 		strategyAllOnes[i] = 1
 	}
-	network.Effort, _ = modex.Effort(&network, strategyAllOnes) // Estrategia vacía
+	network.Effort, _ = modex.Effort(&network, strategyAllOnes)
 
 	return network, nil
 }

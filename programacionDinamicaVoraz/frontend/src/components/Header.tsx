@@ -1,4 +1,13 @@
-// frontend/src/components/Header.tsx
+/*
+ * File: github.com/Krud3/ada2/programacionDinamicaVoraz/frontend/src/components/Header.tsx
+ * Authors: Julián Ernesto Puyo Mora...2226905
+ *          Cristian David Pacheco.....2227437
+ *          Juan Sebastián Molina......2224491
+ *          Juan Camilo Narváez Tascón.2140112
+ * Creation date: 09/10/2024
+ * Last modification: 09/21/2024
+ * License: GNU-GPL
+ */
 import React, { useState, useEffect } from 'react';
 
 interface HeaderProps {
@@ -10,25 +19,21 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({ subject, onFileSelect, selectedFile }) => {
   const [fileList, setFileList] = useState<string[]>([]);
 
-  // Función para obtener la lista de archivos desde el servidor
   const fetchFileList = async () => {
     try {
       const response = await fetch('http://localhost:8080/files');
       const files = await response.json();
 
-      // Verificar que 'files' es un arreglo
       const filesList = Array.isArray(files) ? files : [];
 
       setFileList(filesList);
 
       if (filesList.length > 0) {
-        // Si el archivo seleccionado no existe o no está en la lista, seleccionar el último
         if (!selectedFile || !filesList.includes(selectedFile)) {
           const lastFile = filesList[filesList.length - 1];
           onFileSelect(lastFile);
         }
       } else {
-        // Si no hay archivos, limpiar la selección
         onFileSelect('');
       }
     } catch (error) {
@@ -36,12 +41,10 @@ const Header: React.FC<HeaderProps> = ({ subject, onFileSelect, selectedFile }) 
     }
   };
 
-  // Llamar a fetchFileList cuando el componente se monta
   useEffect(() => {
     fetchFileList();
   }, []);
 
-  // Función para abrir el diálogo de selección de archivos
   const openFileDialog = () => {
     const fileInput = document.getElementById('file-input') as HTMLInputElement;
     if (fileInput) {
@@ -49,25 +52,20 @@ const Header: React.FC<HeaderProps> = ({ subject, onFileSelect, selectedFile }) 
     }
   };
 
-  // Función para manejar la carga del archivo
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      // Crear FormData y añadir el archivo
       const formData = new FormData();
       formData.append('file', file);
 
       try {
-        // Enviar el archivo al servidor
         const response = await fetch('http://localhost:8080/upload', {
           method: 'POST',
           body: formData,
         });
 
         if (response.ok) {
-          // Llamar a onFileSelect para actualizar el estado en App
           onFileSelect(file.name);
-          // Actualizar la lista de archivos
           fetchFileList();
         } else {
           alert('Error al subir el archivo');
@@ -79,7 +77,6 @@ const Header: React.FC<HeaderProps> = ({ subject, onFileSelect, selectedFile }) 
     }
   };
 
-  // Función para manejar la selección de archivo desde el desplegable
   const handleFileSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const fileName = event.target.value;
     onFileSelect(fileName);
@@ -112,7 +109,6 @@ const Header: React.FC<HeaderProps> = ({ subject, onFileSelect, selectedFile }) 
         >
           +
         </button>
-        {/* Input de archivo oculto */}
         <input
           type="file"
           id="file-input"
@@ -126,4 +122,3 @@ const Header: React.FC<HeaderProps> = ({ subject, onFileSelect, selectedFile }) 
 };
 
 export default Header;
-

@@ -1,3 +1,13 @@
+/*
+ * File: github.com/Krud3/ada2/programacionDinamicaVoraz/frontend/src/components/MainSection.tsx
+ * Authors: Julián Ernesto Puyo Mora...2226905
+ *          Cristian David Pacheco.....2227437
+ *          Juan Sebastián Molina......2224491
+ *          Juan Camilo Narváez Tascón.2140112
+ * Creation date: 09/10/2024
+ * Last modification: 09/21/2024
+ * License: GNU-GPL
+ */
 import React from 'react';
 
 interface MainSectionProps {
@@ -17,4 +27,3 @@ const MainSection: React.FC<MainSectionProps> = ({ sectionTitle, children }) => 
 };
 
 export default MainSection;
-
