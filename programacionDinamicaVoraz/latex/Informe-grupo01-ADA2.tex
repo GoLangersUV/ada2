@@ -116,15 +116,18 @@ A continuación se presentan las funciones auxiliares y tipos de datos utilizado
 \subsection*{Tipos de datos}
 A continuación, se muestran los tipos de datos definidos para representar la red social y los agentes en la misma.
 \subsubsection*{Red Social}
-\[
-  \mathcal{R} \mathcal{S}  = < AG, R\_max >
-\]
-\[
+\begin{equation}
+  \mathcal{R} \mathcal{S} = < AG, R\_max >
+\end{equation}\label{eq:red_social}
+\begin{equation}
   AG = < a_1, a_2, \ldots, a_n >
-\]
-\[
+  \label{eq:agentes}
+\end{equation}
+\begin{equation}
   R\_max \in \mathbb{N}
-\]
+  \label{eq:recursos}
+\end{equation}
+
 Donde $AG$ es un conjunto de agentes y $R\_max$ es la cantidad máxima de recursos disponibles.
 
 \begin{lstlisting}[caption={Definición de red social}, label={lst:r_s}]
@@ -144,9 +147,11 @@ type Agent struct {
 Donde un agente $a_i$ es una pareja: $<{o_i}{^{\mathcal{R} \mathcal{S}}}, {r_i}{^{\mathcal{R} \mathcal{S}}}>$.
 \newpage
 \subsubsection*{Extremismo de una red $\mathcal{R}\mathcal{S}$}
-\[
+\begin{equation}
   Ext(\mathcal{R}\mathcal{S}) = \frac{\sqrt{\sum_{i=0}^{n-1}{({o_i}{^{\mathcal{R} \mathcal{S}}})^2}}}{n}
-\]
+  \label{eq:extremismo}
+\end{equation}
+
 \begin{lstlisting}[caption={Implementación del extremismo}, label={lst:ext}]
 // extremism calculates the extremism of the network. It returns a float64 value.
 func extremism(network *Network) float64 {
@@ -160,17 +165,19 @@ func extremism(network *Network) float64 {
 }
 \end{lstlisting}
 \subsubsection*{Aplicar una estrategia de moderación $Mod(\mathcal{R}\mathcal{S},E)$}
-\[
+\begin{equation}
   Mod(\mathcal{R}\mathcal{S}, E) = \mathcal{R}\mathcal{S}'
-\]
+\end{equation}\label{eq:mod}
 donde,
-\[
+\begin{equation}
   o_i^{\mathcal{R}\mathcal{S}'} = 
   \begin{cases} 
         o_i^{\mathcal{R}\mathcal{S}'} & \text{si } e_i = 0 \\
         0        & \text{si } e_i = 1 
   \end{cases}
-\]
+  \label{eq:mod_opinion}
+\end{equation}
+
 \begin{lstlisting}[caption={Implementación del Mod}, label={lst:mod}]
 // moderation applies the strategy to the network. It returns the network after applying the strategy.
 func moderation(network *Network, strategy []byte) *Network {
@@ -189,9 +196,11 @@ func moderation(network *Network, strategy []byte) *Network {
 \newpage
 \subsubsection*{Esfuerzo}
 El valor de esfuerzo a modelar la red $\mathcal{R}\mathcal{S}$.
-\[
-  Esfuerzo(\mathcal{R}\mathcal{S}, E) = \sum_{i=0}^{n-1} \left\lceil  |o_i^{\mathcal{R}\mathcal{S}} - o_i^{\mathcal{R}\mathcal{S}'}| \times (1 - r_i^{\mathcal{R}\mathcal{S}}) \right\rceil 
-\]
+\begin{equation}
+  Esfuerzo(\mathcal{R}\mathcal{S}, E) = \sum_{i=0}^{n-1} \left\lceil  |o_i^{\mathcal{R}\mathcal{S}} - o_i^{\mathcal{R}\mathcal{S}'}| \times (1 - r_i^{\mathcal{R}\mathcal{S}}) \right\rceil
+  \label{eq:esfuerzo}
+\end{equation}
+
 Donde $E$ (estrategia) es una secuencia que indica qué opinión de qué agente se modera por medio de $E$.
 \begin{lstlisting}[caption={Implementación del esfuerzo}, label={lst:esfuerzo}]
   // effort calculates the effort of the network after applying the strategy. It returns a float64 value.
@@ -262,7 +271,50 @@ func StrategyGenerator(n int) [][]byte {
 \label{subsec:complejidad_fuerza_bruta}
 \subsection{Corrección}
 \label{subsec:correccion_fuerza_bruta}
-
+Sea \( \mathcal{R}\mathcal{S} = < AG, R\_max > \) una red social con \( n \) agentes $AG$ \eqref{eq:agentes} y \( R\_max \) recursos disponibles para moderar el extremismo $Ext(\mathcal{R}\mathcal{S})$ \eqref{eq:extremismo}.
+\newline
+Sea \( \mathcal{E} \) el conjunto de las estrategias posibles para moderar una red social \( \mathcal{R}\mathcal{S}' \) tal que \( E = \langle e_1, e_2, \ldots, e_n \rangle \in \mathcal{E}\) donde \( e_i \) $\in \{0,1\} $ para $1\leq i \leq n$ indica si el agente \( i \) se modera o no. 
+\newline
+Sea $Esfuerzo(\mathcal{R} \mathcal{S})$ \eqref{eq:esfuerzo} el esfuerzo de aplicar la estrategia \( E \) a la red social \( \mathcal{R} \mathcal{S} \) y sea $Esf_{a_l}(\mathcal{R}\mathcal{S},e_l)$ para cierto agente $a_l$ el esfuerzo individual para moderar un agente de $\mathcal{R}\mathcal{S}$. Así:
+\begin{equation}
+  Esf_{a_l}(\mathcal{R}\mathcal{S},e_l) = \left\lceil |o_l^{\mathcal{R}\mathcal{S}} - o_l^{\mathcal{R}\mathcal{S}'}| \times (1 - r_l^{\mathcal{R}\mathcal{S}}) \right\rceil
+\end{equation}
+donde la pareja: $<{o_l}{^{\mathcal{R} \mathcal{S}}}, {r_l}{^{\mathcal{R} \mathcal{S}}}>$ $\in$ $a_l$.
+\newline
+Definase:
+\begin{equation}
+   E_{min} \subseteq \mathcal{E}  | Mod(\mathcal{R} \mathcal{S}, E_{min}) \rightarrow min(Ext(\mathcal{R} \mathcal{S})) \land R_{max} \geq Esfuerzo(\mathcal{R} \mathcal{S}, E_{min})
+\end{equation}
+Como la estrategia de moderación que minimiza el extremismo de la red social \( \mathcal{R} \mathcal{S} \) que alcanza un esfuerzo menor a la cantidad de recursos disponibles.
+\newline
+Definase:
+\begin{equation}
+  R_{k}=R_{max} -  \sum_{i=1}^{k} \left\lceil  |o_i^{\mathcal{R}\mathcal{S}} - o_i^{\mathcal{R}\mathcal{S}'}| \times (1 - r_i^{\mathcal{R}\mathcal{S}}) \right\rceil
+\end{equation}
+\subsubsection*{Caso base:}
+Para una $\mathcal{R} \mathcal{S}$ de un solo agente, se tiene que:
+\begin{equation}
+  \mathcal{E} =   
+  \begin{cases} 
+    \langle 1 \rangle, \\
+    \langle 0 \rangle 
+  \end{cases}
+\end{equation}
+\begin{equation}
+  E_{min} =   
+  \begin{cases} 
+    \quad si \quad R_{max} - Esf_{a_1}(\mathcal{R}\mathcal{S},\langle 1 \rangle ) \geqslant 0 \rightarrow \langle 1 \rangle  , \\
+    \quad si \quad no \rightarrow \langle 0 \rangle  
+  \end{cases}
+\end{equation}
+Supongamos que es valido para $k$ y se quiere demostrar si el paso inductivo para $k+1$ es valido.
+\begin{equation}
+  E_{min_{k+1}} =   
+  \begin{cases} 
+    Si ~ R_{k} -Esf_{a_{k+1}}(\mathcal{R}\mathcal{S},\langle 1 \rangle )\geqslant 0 \rightarrow E_{min_k} + \langle 1 \rangle   , \\
+    Si ~ no \rightarrow E_{min_k} + \langle 0 \rangle 
+  \end{cases}
+\end{equation}
 \section{Solución con Algoritmo Voraz}
 \label{sec:algoritmo_voraz}
 "Describen correctamente un algoritmo voraz para resolver el problema, calcula correctamente su complejidad y la justifica, y analiza acertadamente si el algoritmo da siempre la respuesta correcta y lo justifica. El algoritmo quedó clasificado en el grupo de los mejores voraces del curso."
