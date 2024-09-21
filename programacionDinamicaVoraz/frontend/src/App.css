@@ -3,3 +3,11 @@
   scrollbar-color: gray transparent;
 }
 
+.property-value {
+  font-style: italic;
+  color: #fff;
+}
+
+.properties-list {
+  color: #CECECE;
+}
