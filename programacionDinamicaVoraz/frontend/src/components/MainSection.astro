@@ -1,0 +1,10 @@
+---
+const { sectionTitle } = Astro.props;
+---
+
+<section class="main-section mb-14 text-[#CECECE] font-serif">
+  <h2 class="text-[#00ADD8] bg-[#3D3D3D] mb-5 py-1 px-4 italic">{sectionTitle}</h2>
+  <div class="section-content mx-4">
+    <slot />
+  </div>
+</section>

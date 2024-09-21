@@ -1,0 +1,12 @@
+---
+const { subTitle } = Astro.props;
+import { Separator } from "../components/ui/separator"
+---
+
+<div class="sub-section flex flex-col">
+  <Separator className="bg-[#CECECE] mt-7 bg-opacity-60" />
+  <h3 class="text-[#00ADD8] text-xs mt-2 mb-5">{subTitle}</h3>
+  <div class="sub-content">
+    <slot />
+  </div>
+</div>

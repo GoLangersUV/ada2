@@ -1,0 +1,62 @@
+---
+interface MatrixProps {
+  strategy: number[];
+  title: string;
+}
+
+const props = Astro.props as MatrixProps;
+const strategy = props.strategy;
+const title = props.title;
+
+function calculateMatrixDimensions(n: number) {
+  const columns = Math.ceil(Math.sqrt(n));
+  const rows = Math.ceil(n / columns);
+  return { rows, columns };
+}
+
+const { rows, columns } = calculateMatrixDimensions(strategy.length);
+---
+<div class="flex flex-col max-w-sm">
+  <div class="flex justify-between text-[#CECECE] items-center mb-2">
+    <!-- Título alineado a la izquierda -->
+    <h3 class="text-md">{title}:</h3>
+  
+    <!-- Botón de copiar estrategia alineado a la derecha -->
+    <button class="text-white text-xs rounded" onclick={`copyStrategy(${JSON.stringify(strategy)})`}>
+      📋 Copiar estrategia
+    </button>
+  </div>
+
+  <!-- Matriz -->
+  <div class="matrix w-full" style={`--rows: ${rows}; --columns: ${columns};`}>
+    {strategy.map((value, index) => (
+      <div class={`cell rounded-sm ${value === 1 ? 'bg-green-600 bg-opacity-30' : 'bg-red-600 bg-opacity-30'}`} key={index}></div>
+    ))}
+  </div>
+</div>
+
+<style>
+  .matrix {
+    display: grid;
+    gap: 2px;
+    grid-template-rows: repeat(var(--rows), 1fr);
+    grid-template-columns: repeat(var(--columns), 1fr);
+    aspect-ratio: 1 / 0.8;
+  }
+</style>
+
+<!-- Script para copiar la estrategia al portapapeles -->
+<script is:inline>
+  function copyStrategy(strategyArray) {
+    // Añadir corchetes al inicio y al final
+    const strategyString = '[' + strategyArray.join(', ') + ']';
+    navigator.clipboard.writeText(strategyString)
+      .then(() => {
+        alert('Estrategia copiada al portapapeles.');
+      })
+      .catch((err) => {
+        console.error('Error al copiar la estrategia:', err);
+      });
+  }
+</script>
+
