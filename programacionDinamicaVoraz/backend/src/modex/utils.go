@@ -1,11 +1,11 @@
 /*
- * File: utils.go
+ * File: github.com/Krud3/ada2/programacionDinamicaVoraz/backend/src/modex/utils.go
  * Authors: Julián Ernesto Puyo Mora...2226905
  *          Cristian David Pacheco.....2227437
  *          Juan Sebastián Molina......2224491
  *          Juan Camilo Narváez Tascón.2140112
  * Creation date: 09/01/2024
- * Last modification: 09/11/2024
+ * Last modification: 09/21/2024
  * License: GNU-GPL
  */
 package modex
@@ -17,10 +17,10 @@ import (
 
 // AgentRatio holds the agent index along with its benefit-to-cost ratio.
 type AgentRatio struct {
-	Index   int     // Index of the agent in the network.
-	Ratio   float64 // Benefit-to-cost ratio.
-	Effort  float64 // Effort required to moderate the agent.
-	Benefit float64 // Benefit of moderating the agent.
+	Index   int
+	Ratio   float64
+	Effort  float64
+	Benefit float64
 }
 
 // Extremism calculates the Extremism of the network. It returns a float64 value.
@@ -106,7 +106,7 @@ func max(a, b int64) int64 {
 	return b
 }
 
-// Function to rank agents based on their benefit-to-cost ratio.
+// rankAgents ranks agents based on their benefit-to-cost ratio.
 func rankAgents(network *Network) []AgentRatio {
 	agentRatios := make([]AgentRatio, len(network.Agents))
 
@@ -115,7 +115,7 @@ func rankAgents(network *Network) []AgentRatio {
 		Effort := partialEffort(agent)
 		var ratio float64
 		if Effort == 0 {
-			ratio = math.Inf(1) // Assign infinite ratio to agents with zero Effort.
+			ratio = math.Inf(1)
 		} else {
 			ratio = Extremism / Effort
 		}
@@ -128,7 +128,6 @@ func rankAgents(network *Network) []AgentRatio {
 		}
 	}
 
-	// Sort agents by descending ratio. Check complexity.
 	sort.Slice(agentRatios, func(i, j int) bool {
 		return agentRatios[i].Ratio > agentRatios[j].Ratio
 	})

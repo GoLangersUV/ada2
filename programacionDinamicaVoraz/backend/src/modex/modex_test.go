@@ -1,3 +1,13 @@
+/*
+ * File: github.com/Krud3/ada2/programacionDinamicaVoraz/backend/src/modex/modex_test.go
+ * Authors: Julián Ernesto Puyo Mora...2226905
+ *          Cristian David Pacheco.....2227437
+ *          Juan Sebastián Molina......2224491
+ *          Juan Camilo Narváez Tascón.2140112
+ * Creation date: 09/07/2024
+ * Last modification: 09/21/2024
+ * License: GNU-GPL
+ */
 package modex
 
 import (
@@ -166,7 +176,7 @@ func parseNetworkFromFile(filename string) (Network, error) {
 // Prueba para ModexFB
 func TestModexFB(t *testing.T) {
 	runTestCases(t, func(network *Network) (float64, error) {
-    _, _, minExtremism, _,err := ModexFB(network)
+		_, _, minExtremism, _, err := ModexFB(network)
 		return minExtremism, err
 	}, 1, 6)
 }
@@ -178,7 +188,7 @@ func TestModexPD(t *testing.T) {
 		// fmt.Printf("Strategy: %d\n", strategy)
 		// fmt.Printf("Effort: %.3f\n", effort)
 		return minExtremism, err
-	}, 38, 38) // Por ejemplo, para un rango diferente de archivos
+	}, 1, 34)
 }
 
 // Prueba para ModexV
@@ -188,5 +198,5 @@ func TestModexV(t *testing.T) {
 		// fmt.Printf("Strategy: %d\n", strategy)
 		// fmt.Printf("Effort: %.3f\n", effort)
 		return minExtremism, err
-	}, 1, 45) // Por ejemplo, para un rango diferente de archivos
+	}, 1, 45)
 }

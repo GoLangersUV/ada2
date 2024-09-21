@@ -11,10 +11,10 @@
 package main
 
 import (
-  "testing"
+	"testing"
 )
 
 // TestMain tests the main function of the ModEx program.
 func TestMain(t *testing.T) {
-  // Tests to be implemented.
+	// Tests to be implemented.
 }

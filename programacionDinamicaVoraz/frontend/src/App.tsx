@@ -136,7 +136,7 @@ function App() {
 
               <div className="max-w-sm overflow-y-scroll ring-1 ring-[#D9D9D9] ring-opacity-30 relative max-h-72 flow-root agents-table">
                 <Table>
-                  <TableHeader className='sticky top-0 bg-[#D9D9D9] bg-opacity-20 backdrop-blur backdrop-filter'>
+                  <TableHeader className='sticky top-0 bg-[#D9D9D9] bg-opacity-20 backdrop-blur backdrop-filter font-sans'>
                     <TableRow>
                       <TableHead>Agente</TableHead>
                       <TableHead>Opinión</TableHead>

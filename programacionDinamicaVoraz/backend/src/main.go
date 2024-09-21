@@ -5,7 +5,7 @@
  *          Juan Sebastián Molina......2224491
  *          Juan Camilo Narváez Tascón.2140112
  * Creation date: 09/01/2024
- * Last modification: 09/01/2024
+ * Last modification: 09/21/2024
  * License: GNU-GPL
  */
 
@@ -24,35 +24,32 @@
 package main
 
 import (
-  "log"
-  "net/http"
+	"log"
+	"net/http"
 
-  "github.com/rs/cors"
+	"github.com/rs/cors"
 
-  "github.com/Krud3/ada2/programacionDinamicaVoraz/backend/src/handlers"
+	"github.com/Krud3/ada2/programacionDinamicaVoraz/backend/src/handlers"
 )
 
 func main() {
-    // Rutas de los algoritmos
-    http.HandleFunc("/modex/pd", handlers.ModexPDHandler)
-    http.HandleFunc("/modex/fb", handlers.ModexFBHandler)
-    http.HandleFunc("/modex/v", handlers.ModexVHandler)
+	http.HandleFunc("/modex/pd", handlers.ModexPDHandler)
+	http.HandleFunc("/modex/fb", handlers.ModexFBHandler)
+	http.HandleFunc("/modex/v", handlers.ModexVHandler)
 
-    // Rutas para manejo de archivos
-    http.HandleFunc("/upload", handlers.UploadHandler)
-    http.HandleFunc("/files", handlers.FilesHandler)
-    http.HandleFunc("/network", handlers.GetNetworkHandler)
+	http.HandleFunc("/upload", handlers.UploadHandler)
+	http.HandleFunc("/files", handlers.FilesHandler)
+	http.HandleFunc("/network", handlers.GetNetworkHandler)
 
-    // Configurar CORS
-    c := cors.New(cors.Options{
-        AllowedOrigins:   []string{"http://localhost:5173"}, // Cambiado a 5173
-        AllowedMethods:   []string{"GET", "POST", "OPTIONS"},
-        AllowedHeaders:   []string{"Content-Type"},
-        AllowCredentials: true,
-    })
+	c := cors.New(cors.Options{
+		AllowedOrigins:   []string{"http://localhost:5173"},
+		AllowedMethods:   []string{"GET", "POST", "OPTIONS"},
+		AllowedHeaders:   []string{"Content-Type"},
+		AllowCredentials: true,
+	})
 
-    handler := c.Handler(http.DefaultServeMux)
+	handler := c.Handler(http.DefaultServeMux)
 
-    log.Println("Server running on http://localhost:8080")
-    log.Fatal(http.ListenAndServe(":8080", handler))
+	log.Println("Server running on http://localhost:8080")
+	log.Fatal(http.ListenAndServe(":8080", handler))
 }

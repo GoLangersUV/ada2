@@ -1,11 +1,11 @@
 /*
- * File: modex.go
+ * File: github.com/Krud3/ada2/programacionDinamicaVoraz/backend/src/modex/modex.go
  * Authors: Julián Ernesto Puyo Mora...2226905
  *          Cristian David Pacheco.....2227437
  *          Juan Sebastián Molina......2224491
  *          Juan Camilo Narváez Tascón.2140112
  * Creation date: 09/01/2024
- * Last modification: 09/11/2024
+ * Last modification: 09/21/2024
  * License: GNU-GPL
  */
 
@@ -16,23 +16,23 @@ package modex
 import (
 	"errors"
 	"math"
-  "time"
+	"time"
 )
 
 // Agent represents an individual in the social network, with an opinion on a
 // specific topic and a receptivity level.
 type Agent struct {
-    Opinion     int8    `json:"opinion"`
-    Receptivity float64 `json:"receptivity"`
+	Opinion     int8    `json:"opinion"`
+	Receptivity float64 `json:"receptivity"`
 }
 
 // Network represents a social network, composed of multiple agents and a total
 // amount of resources.
 type Network struct {
-    Agents     []Agent `json:"agents"`
-    Resources  uint64  `json:"resources"`
-    Extremism  float64 `json:"extremism"`
-    Effort     float64 `json:"effort"`
+	Agents    []Agent `json:"agents"`
+	Resources uint64  `json:"resources"`
+	Extremism float64 `json:"extremism"`
+	Effort    float64 `json:"effort"`
 }
 
 // ModexFB calculates the minimum Effort required to moderate the opinions of all
@@ -46,6 +46,7 @@ type Network struct {
 //   - strategy: A byte slice representing the strategy used to moderate the opinions.
 //   - Effort: A float64 value representing the minimum Effort required.
 //   - Extremism: A float64 value representing the total Extremism in the network.
+//   - computationTime: A float64 value representing the time taken to compute the strategy.
 //   - err: An error value, if any.
 func ModexFB(network *Network) (bestStrategy []byte, bestEffort float64, minExtremism float64, computationTime float64, err error) {
 	numAgents := len(network.Agents)
@@ -54,7 +55,7 @@ func ModexFB(network *Network) (bestStrategy []byte, bestEffort float64, minExtr
 		return nil, 0, 0, 0, errors.New("In ModexFB the number of agents must be less than or equal to 25")
 	}
 
-  startTime := time.Now() 
+	startTime := time.Now()
 
 	var possibleStrategies [][]byte = strategyGenerator(numAgents)
 	minExtremism = math.Inf(1)
@@ -72,10 +73,10 @@ func ModexFB(network *Network) (bestStrategy []byte, bestEffort float64, minExtr
 		}
 	}
 
-  endTime := time.Now()
-  computationTime = endTime.Sub(startTime).Seconds() // Tiempo en segundos
+	endTime := time.Now()
+	computationTime = endTime.Sub(startTime).Seconds() // Tiempo en segundos
 
-  return bestStrategy, bestEffort, minExtremism, computationTime, nil
+	return bestStrategy, bestEffort, minExtremism, computationTime, nil
 }
 
 // ModexPD calculates the minimum Effort required to moderate the opinions of all
@@ -88,6 +89,7 @@ func ModexFB(network *Network) (bestStrategy []byte, bestEffort float64, minExtr
 //   - strategy: A byte slice representing the strategy used to moderate the opinions.
 //   - Effort: A float64 value representing the minimum Effort required.
 //   - Extremism: A float64 value representing the total Extremism in the network.
+//   - computationTime: A float64 value representing the time taken to compute the strategy.
 //   - err: An error value, if any.
 func ModexPD(network *Network) ([]byte, float64, float64, float64, error) {
 	resources := int(network.Resources)
@@ -108,7 +110,7 @@ func ModexPD(network *Network) ([]byte, float64, float64, float64, error) {
 		}
 	}
 
-  startTime := time.Now()
+	startTime := time.Now()
 
 	// Fill the matrix with the subproblem solutions
 	for agent_i := 1; agent_i < numAgents; agent_i++ {
@@ -144,8 +146,8 @@ func ModexPD(network *Network) ([]byte, float64, float64, float64, error) {
 	Effort, networkPrime := Effort(network, strategy)
 	Extremism := Extremism(networkPrime)
 
-  endTime := time.Now()
-  computationTime := endTime.Sub(startTime).Seconds() // Tiempo en segundos
+	endTime := time.Now()
+	computationTime := endTime.Sub(startTime).Seconds() // Tiempo en segundos
 	return strategy, Effort, Extremism, computationTime, nil
 }
 
@@ -159,6 +161,8 @@ func ModexPD(network *Network) ([]byte, float64, float64, float64, error) {
 //   - strategy: A byte slice representing the strategy used to moderate the opinions.
 //   - Effort: A float64 value representing the minimum Effort required.
 //   - Extremism: A float64 value representing the total Extremism in the network.
+//   - computationTime: A float64 value representing the time taken to compute the strategy.
+//   - err: An error value, if any.
 func ModexV(network *Network) ([]byte, float64, float64, float64, error) {
 	if network == nil || len(network.Agents) == 0 {
 		return nil, 0, 0, 0, errors.New("network is nil or has no agents")
@@ -169,35 +173,30 @@ func ModexV(network *Network) ([]byte, float64, float64, float64, error) {
 	strategy := make([]byte, len(network.Agents))
 	totalEffort := 0.0
 
-  startTime := time.Now()
+	startTime := time.Now()
 
 	rankedAgents := rankAgents(network)
 
 	for _, agentInfo := range rankedAgents {
 		if uint64(totalEffort+agentInfo.Effort) <= resources {
-			// Moderate the agent.
 			strategy[agentInfo.Index] = 1
 			totalEffort += agentInfo.Effort
 		} else {
-			// Do not moderate the agent.
 			strategy[agentInfo.Index] = 0
 		}
 	}
 
-	// Calculate the total Effort and the moderated network.
 	totalEffort, moderatedNetwork := Effort(network, strategy)
 
-	// Check if the total Effort exceeds the available resources.
 	if uint64(totalEffort) > network.Resources {
 		return nil, 0, 0, 0, errors.New("insufficient resources to apply the strategy")
 	}
 
-	// Calculate the new Extremism after applying the strategy.
 	newExtremism := Extremism(moderatedNetwork)
 
-  endTime := time.Now()
+	endTime := time.Now()
 
-  computationTime := endTime.Sub(startTime).Seconds() // Tiempo en segundos
+	computationTime := endTime.Sub(startTime).Seconds() // Tiempo en segundos
 
 	return strategy, totalEffort, newExtremism, computationTime, nil
 }

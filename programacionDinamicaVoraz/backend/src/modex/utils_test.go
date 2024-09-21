@@ -1,5 +1,13 @@
-// utils_test.go
-
+/*
+ * File: github.com/Krud3/ada2/programacionDinamicaVoraz/backend/src/modex/utils_test.go
+ * Authors: Julián Ernesto Puyo Mora...2226905
+ *          Cristian David Pacheco.....2227437
+ *          Juan Sebastián Molina......2224491
+ *          Juan Camilo Narváez Tascón.2140112
+ * Creation date: 09/07/2024
+ * Last modification: 09/21/2024
+ * License: GNU-GPL
+ */
 package modex
 
 import (
@@ -7,7 +15,6 @@ import (
 	"testing"
 )
 
-// Networks to test
 var networks = []Network{
 	{
 		Agents: []Agent{
@@ -27,15 +34,13 @@ var networks = []Network{
 	},
 }
 
-// Strategies to test
 var strategies = [][]byte{
-	[]byte{0, 0, 1},
-	[]byte{1, 0, 0},
-	[]byte{0, 1, 0},
-	[]byte{1, 0, 1},
+	{0, 0, 1},
+	{1, 0, 0},
+	{0, 1, 0},
+	{1, 0, 1},
 }
 
-// Moderations to test
 var moderations = []*Network{
 	moderation(&networks[0], strategies[0]),
 	moderation(&networks[0], strategies[1]),
