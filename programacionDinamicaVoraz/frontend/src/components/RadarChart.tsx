@@ -5,36 +5,10 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart"
-import type { ChartConfig } from "@/components/ui/chart"
 
 export const description = "A radar chart with lines only"
 
-const chartData = [
-  { category: "Tiempo", ModexFB: 186, Original: 160, ModexPD: 175, ModexV: 190 },
-  { category: "Extremismo", ModexFB: 185, Original: 170, ModexPD: 180, ModexV: 195 },
-  { category: "Esfuerzo", ModexFB: 207, Original: 180, ModexPD: 200, ModexV: 210 },
-]
-
-const chartConfig = {
-  ModexFB: {
-    label: "ModexFB",
-    color: "#FF6B6B",
-  },
-  Original: {
-    label: "Original",
-    color: "#4ECDC4",
-  },
-  ModexPD: {
-    label: "ModexPD",
-    color: "#FFA500",
-  },
-  ModexV: {
-    label: "ModexV",
-    color: "#9B59B6",
-  },
-} satisfies ChartConfig
-
-export default function CustomRadarChart() {
+export default function CustomRadarChart( {chartData, chartConfig } ) {
   return (
     <div className="max-w-sm font-sans -mb-10">
       <ChartContainer
@@ -50,7 +24,7 @@ export default function CustomRadarChart() {
             />
             <PolarAngleAxis
               dataKey="category"
-              tick={{ fill: "#CECECE", fontSize: 12 }}
+              tick={{ fontSize: 12 }}
               tickLine={false}
               axisLine={false}
             />

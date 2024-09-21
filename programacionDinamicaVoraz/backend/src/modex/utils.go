@@ -23,8 +23,8 @@ type AgentRatio struct {
 	Benefit float64 // Benefit of moderating the agent.
 }
 
-// extremism calculates the extremism of the network. It returns a float64 value.
-func extremism(network *Network) float64 {
+// Extremism calculates the Extremism of the network. It returns a float64 value.
+func Extremism(network *Network) float64 {
 	var sumOpinions float64
 
 	for _, agent := range network.Agents {
@@ -49,8 +49,8 @@ func moderation(network *Network, strategy []byte) *Network {
 	return &networkPrime
 }
 
-// effort calculates the effort of the network after applying the strategy. It returns the float64 value of the effort and the network after applying the strategy.
-func effort(network *Network, strategy []byte) (float64, *Network) {
+// Effort calculates the Effort of the network after applying the strategy. It returns the float64 value of the Effort and the network after applying the strategy.
+func Effort(network *Network, strategy []byte) (float64, *Network) {
 	n := len(network.Agents)
 	networkPrime := moderation(network, strategy)
 
@@ -79,12 +79,12 @@ func strategyGenerator(n int) [][]byte {
 	return combinations
 }
 
-// partialExtremism calculates the partial extremism of an agent. It returns a float64 value.
+// partialExtremism calculates the partial Extremism of an agent. It returns a float64 value.
 func partialExtremism(agent Agent) int64 {
 	return int64(agent.Opinion) * int64(agent.Opinion)
 }
 
-// partialEffort calculates the partial effort required for modering an agent. It returns a float64 value.
+// partialEffort calculates the partial Effort required for modering an agent. It returns a float64 value.
 func partialEffort(agent Agent) float64 {
 	opinion_difference := float64(agent.Opinion)
 	return math.Ceil(math.Abs(opinion_difference) * (1 - agent.Receptivity))
@@ -111,20 +111,20 @@ func rankAgents(network *Network) []AgentRatio {
 	agentRatios := make([]AgentRatio, len(network.Agents))
 
 	for i, agent := range network.Agents {
-		extremism := float64(partialExtremism(agent))
-		effort := partialEffort(agent)
+		Extremism := float64(partialExtremism(agent))
+		Effort := partialEffort(agent)
 		var ratio float64
-		if effort == 0 {
-			ratio = math.Inf(1) // Assign infinite ratio to agents with zero effort.
+		if Effort == 0 {
+			ratio = math.Inf(1) // Assign infinite ratio to agents with zero Effort.
 		} else {
-			ratio = extremism / effort
+			ratio = Extremism / Effort
 		}
 
 		agentRatios[i] = AgentRatio{
 			Index:   i,
 			Ratio:   ratio,
-			Effort:  effort,
-			Benefit: extremism,
+			Effort:  Effort,
+			Benefit: Extremism,
 		}
 	}
 

@@ -57,14 +57,14 @@ var tableExtremism = []struct {
 	extremismObtained float64
 	expected          float64
 }{
-	{extremism(moderations[0]), 47.14},
-	{extremism(moderations[1]), 33.49},
-	{extremism(moderations[2]), 13.33},
+	{Extremism(moderations[0]), 47.14},
+	{Extremism(moderations[1]), 33.49},
+	{Extremism(moderations[2]), 13.33},
 }
 
 func TestEffort(t *testing.T) {
 	for _, tt := range tableEffort {
-		result, _ := effort(&tt.network, tt.strategy)
+		result, _ := Effort(&tt.network, tt.strategy)
 		if result != tt.expected {
 			t.Errorf("Effort(%v, %v) => %v, want %v", tt.network, tt.strategy, result, tt.expected)
 		}

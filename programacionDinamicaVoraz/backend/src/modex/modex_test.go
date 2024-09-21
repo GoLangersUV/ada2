@@ -166,7 +166,7 @@ func parseNetworkFromFile(filename string) (Network, error) {
 // Prueba para ModexFB
 func TestModexFB(t *testing.T) {
 	runTestCases(t, func(network *Network) (float64, error) {
-		_, _, minExtremism, err := ModexFB(network)
+    _, _, minExtremism, _,err := ModexFB(network)
 		return minExtremism, err
 	}, 1, 6)
 }
@@ -174,7 +174,7 @@ func TestModexFB(t *testing.T) {
 // Prueba para ModexPD
 func TestModexPD(t *testing.T) {
 	runTestCases(t, func(network *Network) (float64, error) {
-		_, _, minExtremism, err := ModexPD(network)
+		_, _, minExtremism, _, err := ModexPD(network)
 		// fmt.Printf("Strategy: %d\n", strategy)
 		// fmt.Printf("Effort: %.3f\n", effort)
 		return minExtremism, err
@@ -184,7 +184,7 @@ func TestModexPD(t *testing.T) {
 // Prueba para ModexV
 func TestModexV(t *testing.T) {
 	runTestCases(t, func(network *Network) (float64, error) {
-		_, _, minExtremism, err := ModexV(network)
+		_, _, minExtremism, _, err := ModexV(network)
 		// fmt.Printf("Strategy: %d\n", strategy)
 		// fmt.Printf("Effort: %.3f\n", effort)
 		return minExtremism, err

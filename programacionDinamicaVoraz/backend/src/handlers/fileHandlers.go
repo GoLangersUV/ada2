@@ -11,9 +11,17 @@ import (
     "os"
     "path/filepath"
     "strconv"
+    "log"
     "strings"
+    "sync"
 
     "github.com/Krud3/ada2/programacionDinamicaVoraz/backend/src/modex"
+)
+
+// Variable global para almacenar los networks en memoria
+var (
+    networks   = make(map[string]modex.Network)
+    networksMu sync.RWMutex // Mutex para proteger el acceso concurrente a 'networks'
 )
 
 // Manejador para subir archivos
@@ -54,20 +62,28 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
         return
     }
 
-    // Almacenar el Network en memoria
+    // Almacenar el Network en memoria de forma segura
+    networksMu.Lock()
     networks[handler.Filename] = network
+    networksMu.Unlock()
 
     // Enviar respuesta exitosa
     w.WriteHeader(http.StatusOK)
     w.Write([]byte("Archivo subido y procesado exitosamente"))
 }
 
-// Manejador para listar los archivos disponibles
 func FilesHandler(w http.ResponseWriter, r *http.Request) {
+    // Asegurarse de que la carpeta 'uploads' existe
+    if _, err := os.Stat("uploads/"); os.IsNotExist(err) {
+        // Si la carpeta no existe, crearla
+        os.MkdirAll("uploads", os.ModePerm)
+    }
+
     files, err := ioutil.ReadDir("uploads/")
     if err != nil {
-        http.Error(w, "Error al leer los archivos", http.StatusInternalServerError)
-        return
+        // Registrar el error y continuar con un slice vacío
+        log.Println("Error al leer los archivos:", err)
+        files = []os.FileInfo{}
     }
 
     var fileNames []string
@@ -81,6 +97,7 @@ func FilesHandler(w http.ResponseWriter, r *http.Request) {
     json.NewEncoder(w).Encode(fileNames)
 }
 
+
 // Manejador para obtener el Network de un archivo
 func GetNetworkHandler(w http.ResponseWriter, r *http.Request) {
     // Obtener el nombre del archivo desde los parámetros de la URL
@@ -90,7 +107,9 @@ func GetNetworkHandler(w http.ResponseWriter, r *http.Request) {
         return
     }
 
+    networksMu.RLock()
     network, exists := networks[fileName]
+    networksMu.RUnlock()
     if !exists {
         http.Error(w, "El archivo no existe o no ha sido procesado", http.StatusNotFound)
         return
@@ -161,6 +180,14 @@ func parseNetworkFromFile(filePath string) (modex.Network, error) {
         Agents:    agents,
         Resources: resources,
     }
+
+    // Calcular extremismo y esfuerzo
+    network.Extremism = modex.Extremism(&network)
+    strategyAllOnes := make([]byte, len(network.Agents))
+    for i := range strategyAllOnes {
+        strategyAllOnes[i] = 1
+    }
+    network.Effort, _ = modex.Effort(&network, strategyAllOnes) // Estrategia vacía
 
     return network, nil
 }
