@@ -271,50 +271,104 @@ func StrategyGenerator(n int) [][]byte {
 \label{subsec:complejidad_fuerza_bruta}
 \subsection{Corrección}
 \label{subsec:correccion_fuerza_bruta}
-Sea \( \mathcal{R}\mathcal{S} = < AG, R\_max > \) una red social con \( n \) agentes $AG$ \eqref{eq:agentes} y \( R\_max \) recursos disponibles para moderar el extremismo $Ext(\mathcal{R}\mathcal{S})$ \eqref{eq:extremismo}.
-\newline
-Sea \( \mathcal{E} \) el conjunto de las estrategias posibles para moderar una red social \( \mathcal{R}\mathcal{S}' \) tal que \( E = \langle e_1, e_2, \ldots, e_n \rangle \in \mathcal{E}\) donde \( e_i \) $\in \{0,1\} $ para $1\leq i \leq n$ indica si el agente \( i \) se modera o no. 
-\newline
-Sea $Esfuerzo(\mathcal{R} \mathcal{S})$ \eqref{eq:esfuerzo} el esfuerzo de aplicar la estrategia \( E \) a la red social \( \mathcal{R} \mathcal{S} \) y sea $Esf_{a_l}(\mathcal{R}\mathcal{S},e_l)$ para cierto agente $a_l$ el esfuerzo individual para moderar un agente de $\mathcal{R}\mathcal{S}$. Así:
-\begin{equation}
-  Esf_{a_l}(\mathcal{R}\mathcal{S},e_l) = \left\lceil |o_l^{\mathcal{R}\mathcal{S}} - o_l^{\mathcal{R}\mathcal{S}'}| \times (1 - r_l^{\mathcal{R}\mathcal{S}}) \right\rceil
-\end{equation}
-donde la pareja: $<{o_l}{^{\mathcal{R} \mathcal{S}}}, {r_l}{^{\mathcal{R} \mathcal{S}}}>$ $\in$ $a_l$.
-\newline
-Definase:
-\begin{equation}
-   E_{min} \subseteq \mathcal{E}  | Mod(\mathcal{R} \mathcal{S}, E_{min}) \rightarrow min(Ext(\mathcal{R} \mathcal{S})) \land R_{max} \geq Esfuerzo(\mathcal{R} \mathcal{S}, E_{min})
-\end{equation}
-Como la estrategia de moderación que minimiza el extremismo de la red social \( \mathcal{R} \mathcal{S} \) que alcanza un esfuerzo menor a la cantidad de recursos disponibles.
-\newline
-Definase:
-\begin{equation}
-  R_{k}=R_{max} -  \sum_{i=1}^{k} \left\lceil  |o_i^{\mathcal{R}\mathcal{S}} - o_i^{\mathcal{R}\mathcal{S}'}| \times (1 - r_i^{\mathcal{R}\mathcal{S}}) \right\rceil
-\end{equation}
-\subsubsection*{Caso base:}
-Para una $\mathcal{R} \mathcal{S}$ de un solo agente, se tiene que:
-\begin{equation}
-  \mathcal{E} =   
-  \begin{cases} 
-    \langle 1 \rangle, \\
-    \langle 0 \rangle 
-  \end{cases}
-\end{equation}
-\begin{equation}
-  E_{min} =   
-  \begin{cases} 
-    \quad si \quad R_{max} - Esf_{a_1}(\mathcal{R}\mathcal{S},\langle 1 \rangle ) \geqslant 0 \rightarrow \langle 1 \rangle  , \\
-    \quad si \quad no \rightarrow \langle 0 \rangle  
-  \end{cases}
-\end{equation}
-Supongamos que es valido para $k$ y se quiere demostrar si el paso inductivo para $k+1$ es valido.
-\begin{equation}
-  E_{min_{k+1}} =   
-  \begin{cases} 
-    Si ~ R_{k} -Esf_{a_{k+1}}(\mathcal{R}\mathcal{S},\langle 1 \rangle )\geqslant 0 \rightarrow E_{min_k} + \langle 1 \rangle   , \\
-    Si ~ no \rightarrow E_{min_k} + \langle 0 \rangle 
-  \end{cases}
-\end{equation}
+Sea $RS$ una red social con $n$ agentes $AG = \{a_1, a_2, \dots, a_n\}$.
+
+Definimos una estrategia de moderación como un vector:
+
+\[
+E = \langle e_1, e_2, \dots, e_n \rangle
+\]
+
+donde:
+\begin{itemize}
+  \item $e_i \in \{0, 1\}$ para $1 \leq i \leq n$.
+  \begin{itemize}
+    \item $e_i = 1$: el agente $a_i$ es moderado.
+    \item $e_i = 0$: el agente $a_i$ no es moderado.
+  \end{itemize}
+\end{itemize}
+
+El conjunto de todas las estrategias posibles es:
+
+\[
+\mathcal{E} = \{\langle e_1, e_2, \dots, e_n \rangle \mid e_i \in \{0, 1\} \, \forall i\}
+\]
+
+\subsubsection*{Número total de estrategias posibles}
+
+Cada agente tiene 2 opciones (ser moderado o no), y hay $n$ agentes. Por lo tanto, el número total de estrategias posibles es:
+
+\[
+|\mathcal{E}| = 2^n
+\]
+
+\subsubsection*{Análisis de la función \texttt{strategyGenerator(n)} (\ref{lst:strategy_generator})}
+
+Descripción de la función:
+
+La función \texttt{strategyGenerator(n)} (\ref{lst:strategy_generator}) genera todas las posibles combinaciones de estrategias para $n$ agentes. Lo hace de la siguiente manera:
+
+\begin{itemize}
+    \item Calcula el total de combinaciones posibles: $total = 2^n$.
+    \item Itera desde $i = 0$ hasta $i = 2^n - 1$.
+    \item Para cada $i$, genera una combinación binaria de longitud $n$, donde cada bit representa $e_j$ para el agente $a_j$.
+\end{itemize}
+
+\textbf{Demostración de que genera todas las estrategias}
+\\
+
+\textbf{Cobertura completa}: El rango de $i$ desde $0$ hasta $2^n - 1$ asegura que se cubren todas las posibles combinaciones binarias de longitud $n$.
+
+\textbf{Correspondencia uno a uno}: Cada entero $i$ en este rango tiene una representación binaria única de $n$ bits. Esta representación binaria se asigna directamente a una estrategia $E = \langle e_1, e_2, \dots, e_n \rangle$, donde $e_j$ es el bit $j$ de $i$.
+
+\textbf{Conclusión}: La función \texttt{strategyGenerator(n)} (\ref{lst:strategy_generator}) genera exactamente todas las $2^n$ estrategias posibles en $E$, sin omitir ni repetir ninguna.
+
+\subsubsection*{Funcionamiento del algoritmo \texttt{ModexFB}}
+
+\textbf{Paso a paso del algoritmo}
+\\
+
+\textbf{Generación de estrategias}:
+\begin{itemize}
+    \item Llama a \texttt{strategyGenerator(n)} (\ref{lst:strategy_generator}) para obtener el conjunto completo de estrategias posibles $E$.
+\end{itemize}
+
+\textbf{Inicialización de variables}:
+\begin{itemize}
+    \item Establece \texttt{minExtremism} y \texttt{bestEffort} con valores iniciales infinitos. Estas variables almacenarán el extremismo mínimo encontrado y el esfuerzo correspondiente.
+\end{itemize}
+
+\textbf{Evaluación de cada estrategia}:
+\begin{itemize}
+    \item Recorre cada estrategia $E \in \mathcal{E}$.
+    \item Para cada estrategia:
+    \begin{itemize}
+        \item Calcula el esfuerzo total requerido para aplicar $E$ usando la función \texttt{effort(network, strategy)} (\ref{lst:esfuerzo}).
+        \item Si el esfuerzo total es menor o igual a los recursos disponibles $R_{max}$, procede a calcular el extremismo resultante.
+        \item Utiliza la función \texttt{extremism(networkPrime)}(\ref{lst:ext}) para obtener el extremismo de la red después de aplicar $E$.
+        \item Si el extremismo resultante es menor que \texttt{minExtremism}, actualiza:
+        \begin{itemize}
+            \item \texttt{minExtremism} con el nuevo valor de extremismo.
+            \item \texttt{bestEffort} con el esfuerzo total de la estrategia actual.
+            \item \texttt{bestStrategy} con la estrategia actual $E$.
+        \end{itemize}
+    \end{itemize}
+\end{itemize}
+
+\textbf{Resultado final}:
+\begin{itemize}
+    \item Después de recorrer todas las estrategias en $E$, el algoritmo devuelve:
+    \begin{itemize}
+        \item \texttt{bestStrategy}: la estrategia que minimiza el extremismo sin exceder $R_{max}$.
+        \item \texttt{bestEffort}: el esfuerzo total de \texttt{bestStrategy}.
+        \item \texttt{minExtremism}: el extremismo mínimo logrado.
+    \end{itemize}
+\end{itemize}
+
+\subsubsection*{Demostración de exhaustividad}
+
+Dado que el algoritmo recorre todas las estrategias en $\mathcal{E}$ sin excepción, y para cada una realiza las evaluaciones necesarias, asegura que ninguna estrategia posible es omitida. Por lo tanto, el algoritmo considera todas las posibles combinaciones de estrategias $E$.
+
 \section{Solución con Algoritmo Voraz}
 \label{sec:algoritmo_voraz}
 "Describen correctamente un algoritmo voraz para resolver el problema, calcula correctamente su complejidad y la justifica, y analiza acertadamente si el algoritmo da siempre la respuesta correcta y lo justifica. El algoritmo quedó clasificado en el grupo de los mejores voraces del curso."
