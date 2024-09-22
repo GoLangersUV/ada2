@@ -28,17 +28,17 @@ export default function Footer() {
   return (
     <footer>
       <div className="mx-auto flex flex-row items-center max-w-3xl px-6 py-12 md:flex md:items-center justify-between lg:px-8">
-        <div className="mt-8 md:mt-0">
+        <div className="mt-8 md:mt-0 text-[#CECECE] text-xs text-left leading-5">
           <img src="/pilot-bust.svg" alt="" width={"80px"} />
-          <p className="text-left text-xs leading-5 text-[#CECECE]">
+          <p>
             &copy; 2024-II Grupo 1.
-            <ul>
-              <li>Juan Camilo Narváez Tascón - 2140112</li>
-              <li>Julián Ernesto Puyo - 2226905</li>
-              <li>Cristian David Pacheco - 2227437</li>
-              <li>Juan Sebastian Molina - 2224491</li>
-            </ul>
           </p>
+          <ul>
+            <li>Juan Camilo Narváez Tascón - 2140112</li>
+            <li>Julián Ernesto Puyo - 2226905</li>
+            <li>Cristian David Pacheco - 2227437</li>
+            <li>Juan Sebastian Molina - 2224491</li>
+          </ul>
         </div>
         <div className="block w-fit justify-center space-x-6">
           {navigation.map((item) => (
