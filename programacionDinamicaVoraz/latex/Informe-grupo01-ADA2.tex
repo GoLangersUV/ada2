@@ -219,7 +219,6 @@ Donde $E$ (estrategia) es una secuencia que indica qué opinión de qué agente 
 \end{lstlisting}
 \section{Solución con Fuerza Bruta}
 \label{sec:fuerza_bruta}
-"Entiende correctamente el algoritmo de fuerza bruta propuesto, calcula correctamente su complejidad y la justifica, analiza acertadamente si el algoritmo da siempre la respuesta correcta y lo justifica."
 
 \subsection{Descripción del Algoritmo}
 \label{subsec:descripcion_fuerza_bruta}
@@ -266,9 +265,92 @@ func StrategyGenerator(n int) [][]byte {
   \item Se asigna el arreglo de bytes "\textit{combination}" a la posición $i$ del arreglo de arreglos de bytes "\textit{combinations}" en la linea 10.
   \item Se retorna el arreglo de arreglos de bytes "\textit{combinations}" en la linea 13.
 \end{itemize}
+\subsubsection*{Algoritmo de Moderación (ModexFB)}
+\begin{lstlisting}[caption={Algoritmo de Fuerza Bruta}, label={lst:modexfb}]
+func ModexFB(network *Network) (bestStrategy []byte, bestEffort float64, minExtremism float64, err error) {
+  numAgents := len(network.Agents)
+  
+  if numAgents > 25 {
+    return nil, 0, 0, errors.New("In ModexFB the number of agents must be less than or equal to 25")
+  }
 
+  var possibleStrategies [][]byte = strategyGenerator(numAgents)
+  minExtremism = math.Inf(1)
+  bestEffort = math.Inf(1)
+  
+  for _, strategy := range possibleStrategies {
+    effortValue, networkPrime := effort(network, strategy)
+    if effortValue <= float64(network.Resources) {
+      extremismValue := extremism(networkPrime)
+      if extremismValue < minExtremism {
+        minExtremism = extremismValue
+        bestEffort = effortValue
+        bestStrategy = strategy
+      }
+    }
+  }
+  return bestStrategy, bestEffort, minExtremism, nil
+}
+\end{lstlisting}
+\textit{La función \textit{ModexFB} toma como parámetro un puntero a una estructura \textit{Network} y retorna la mejor estrategia (\textit{bestStrategy}), el esfuerzo asociado a dicha estrategia (\textit{bestEffort}), el extremismo mínimo alcanzado (\textit{minExtremism}), y un posible error (\textit{err}).}
+\begin{itemize}
+  
+  \item En la línea 2, se inicializa la variable \textit{numAgents} con el número de agentes en la red social (número de elementos en \textit{network.Agents}).
+  \item En la línea 4, si el número de agentes supera los 25, la función retorna un error, indicando que el número de agentes debe ser menor o igual a 25 (esto evita la explosión combinatoria al generar estrategias).
+  \item En la línea 7, se llama a la función \textit{strategyGenerator} (\ref{lst:strategy_generator}) para generar todas las posibles combinaciones de estrategias de moderación, que son almacenadas en \textit{possibleStrategies}
+  \item En las líneas 8 y 9, se inicializan las variables \textit{minExtremism} y \textit{bestEffort} con valores infinitos positivos (\textit{math.Inf(1)}), de forma que cualquier valor que se calcule después será menor que este valor inicial.
+  \item Se inicia un ciclo \textit{for} en la línea 11 que recorre todas las estrategias generadas en \textit{possibleStrategies}.
+  \item En la línea 12, se calcula el esfuerzo (\textit{effortValue}) asociado a una estrategia usando la función \textit{effort} (\ref{lst:esfuerzo}), y también se obtiene una nueva red \textit{networkPrime}, que es la red social modificada según esa estrategia.
+  \item En la línea 13, se verifica si el esfuerzo es menor o igual a los recursos disponibles en la red (\textit{network.Resources}). Si es así, la estrategia es válida y se procede a calcular su nivel de extremismo.
+  \item En la línea 14, se calcula el nivel de extremismo de la red modificada (\textit{networkPrime}) con la función \textit{extremism}.
+  \item Si el nivel de extremismo es menor que el mínimo extremismo registrado (\textit{minExtremism}), en la línea 15 se actualizan las variables \textit{minExtremism}, \textit{bestEffort}, y \textit{bestStrategy} con los valores de la estrategia actual.
+  \item Finalmente, en la línea 19, se retorna la mejor estrategia encontrada (\textit{bestStrategy}), su esfuerzo (\textit{bestEffort}), el mínimo nivel de extremismo (\textit{minExtremism}) y ningún error.
+\end{itemize}
+
+Este algoritmo de fuerza bruta genera todas las posibles estrategias de moderación y selecciona la mejor según dos criterios: esfuerzo mínimo y extremismo mínimo, siempre que el esfuerzo no exceda los recursos de la red.
+\subsubsection*{ModexFB mejorado}
+
+Debido a que el siclo realizado en la función \textit{ModexFB} (\ref{lst:modexfb}) recorre todas las estrategias posibles, además de en la línea 18 llamar a \textit{strategyGenerator} (\ref{lst:strategy_generator}) pero para evitar la exploración de estrategias inecesarias y además en el mismo recorrido calcular el esfuerzo y el extremismo de la red, se puede mejorar el algoritmo de la siguiente manera:
+\begin{lstlisting}[caption={ModexFB mejorado}, label={lst:modexfb_mejorado}]
+func ModexFB(network *Network) (bestStrategy []byte, bestEffort float64, minExtremism float64, err error) {
+	numAgents := len(network.Agents)
+
+	if numAgents > 25 {
+		return nil, 0, 0, errors.New("In ModexFB the number of agents must be less than or equal to 25")
+	}
+
+	total := 1 << numAgents
+	minExtremism = math.Inf(1)
+
+	for i := 0; i < total; i++ {
+		strategy := make([]byte, numAgents)
+		for j := 0; j < numAgents; j++ {
+			strategy[numAgents-j-1] = byte((i >> j) & 1)
+		}
+		effortValue, networkPrime := effort(network, strategy)
+		if effortValue <= float64(network.Resources) {
+			extremismValue := extremism(networkPrime)
+			if extremismValue < minExtremism {
+				minExtremism = extremismValue
+				bestEffort = effortValue
+				bestStrategy = strategy
+			}
+		}
+	}
+
+	return bestStrategy, bestEffort, minExtremism, nil
+}
+\end{lstlisting}
 \subsection{Complejidad}
 \label{subsec:complejidad_fuerza_bruta}
+Para analizar la complejidad del algoritmo debemos de considerar los dos ciclos \textit{for} que ocurren dentro del código, el primer ciclo (linea 11) hace un recorrido sobre todas las posibles combinaciones de agentes que existen (linea 8 \textit{total = 1 $<<$ numAgents}), y el segundo ciclo (linea 13) hace un recorrido por el total de agentes (linea 2 \textit{numAgents:= len(network.Agents)}).
+
+\textbf{Entonces tenemos que:}
+\begin{itemize}
+  \item El primer ciclo tiene una complejidad de \(O(2^n)\), debido a que $e_i$ puede tomar dos valores ($0$ o $1$) donde \(n\) es el número de agentes en la red social.
+  \item El segundo ciclo tiene una complejidad de \(O(n)\), donde \(n\) es el número de agentes en la red social.
+\end{itemize}
+Debido a que los demás cálculos internos realizados son de complejidad \(O(1)\), la complejidad total del algoritmo es \(O(2^n \cdot n)\).
 \subsection{Corrección}
 \label{subsec:correccion_fuerza_bruta}
 Sea $RS$ una red social con $n$ agentes $AG = \{a_1, a_2, \dots, a_n\}$.
@@ -302,11 +384,11 @@ Cada agente tiene 2 opciones (ser moderado o no), y hay $n$ agentes. Por lo tant
 |\mathcal{E}| = 2^n
 \]
 
-\subsubsection*{Análisis de la función \texttt{strategyGenerator(n)} (\ref{lst:strategy_generator})}
+\subsubsection*{Análisis de la función \textit{strategyGenerator(n)} (\ref{lst:strategy_generator})}
 
 Descripción de la función:
 
-La función \texttt{strategyGenerator(n)} (\ref{lst:strategy_generator}) genera todas las posibles combinaciones de estrategias para $n$ agentes. Lo hace de la siguiente manera:
+La función \textit{strategyGenerator(n)} (\ref{lst:strategy_generator}) genera todas las posibles combinaciones de estrategias para $n$ agentes. Lo hace de la siguiente manera:
 
 \begin{itemize}
     \item Calcula el total de combinaciones posibles: $total = 2^n$.
@@ -321,21 +403,21 @@ La función \texttt{strategyGenerator(n)} (\ref{lst:strategy_generator}) genera 
 
 \textbf{Correspondencia uno a uno}: Cada entero $i$ en este rango tiene una representación binaria única de $n$ bits. Esta representación binaria se asigna directamente a una estrategia $E = \langle e_1, e_2, \dots, e_n \rangle$, donde $e_j$ es el bit $j$ de $i$.
 
-\textbf{Conclusión}: La función \texttt{strategyGenerator(n)} (\ref{lst:strategy_generator}) genera exactamente todas las $2^n$ estrategias posibles en $E$, sin omitir ni repetir ninguna.
+\textbf{Conclusión}: La función \textit{strategyGenerator(n)} (\ref{lst:strategy_generator}) genera exactamente todas las $2^n$ estrategias posibles en $E$, sin omitir ni repetir ninguna.
 
-\subsubsection*{Funcionamiento del algoritmo \texttt{ModexFB}}
+\subsubsection*{Funcionamiento del algoritmo \textit{ModexFB}}
 
 \textbf{Paso a paso del algoritmo}
 \\
 
 \textbf{Generación de estrategias}:
 \begin{itemize}
-    \item Llama a \texttt{strategyGenerator(n)} (\ref{lst:strategy_generator}) para obtener el conjunto completo de estrategias posibles $E$.
+    \item Llama a \textit{strategyGenerator(n)} (\ref{lst:strategy_generator}) para obtener el conjunto completo de estrategias posibles $E$.
 \end{itemize}
 
 \textbf{Inicialización de variables}:
 \begin{itemize}
-    \item Establece \texttt{minExtremism} y \texttt{bestEffort} con valores iniciales infinitos. Estas variables almacenarán el extremismo mínimo encontrado y el esfuerzo correspondiente.
+    \item Establece \textit{minExtremism} y \textit{bestEffort} con valores iniciales infinitos. Estas variables almacenarán el extremismo mínimo encontrado y el esfuerzo correspondiente.
 \end{itemize}
 
 \textbf{Evaluación de cada estrategia}:
@@ -343,14 +425,14 @@ La función \texttt{strategyGenerator(n)} (\ref{lst:strategy_generator}) genera 
     \item Recorre cada estrategia $E \in \mathcal{E}$.
     \item Para cada estrategia:
     \begin{itemize}
-        \item Calcula el esfuerzo total requerido para aplicar $E$ usando la función \texttt{effort(network, strategy)} (\ref{lst:esfuerzo}).
+        \item Calcula el esfuerzo total requerido para aplicar $E$ usando la función \textit{effort(network, strategy)} (\ref{lst:esfuerzo}).
         \item Si el esfuerzo total es menor o igual a los recursos disponibles $R_{max}$, procede a calcular el extremismo resultante.
-        \item Utiliza la función \texttt{extremism(networkPrime)}(\ref{lst:ext}) para obtener el extremismo de la red después de aplicar $E$.
-        \item Si el extremismo resultante es menor que \texttt{minExtremism}, actualiza:
+        \item Utiliza la función \textit{extremism(networkPrime)}(\ref{lst:ext}) para obtener el extremismo de la red después de aplicar $E$.
+        \item Si el extremismo resultante es menor que \textit{minExtremism}, actualiza:
         \begin{itemize}
-            \item \texttt{minExtremism} con el nuevo valor de extremismo.
-            \item \texttt{bestEffort} con el esfuerzo total de la estrategia actual.
-            \item \texttt{bestStrategy} con la estrategia actual $E$.
+            \item \textit{minExtremism} con el nuevo valor de extremismo.
+            \item \textit{bestEffort} con el esfuerzo total de la estrategia actual.
+            \item \textit{bestStrategy} con la estrategia actual $E$.
         \end{itemize}
     \end{itemize}
 \end{itemize}
@@ -359,9 +441,9 @@ La función \texttt{strategyGenerator(n)} (\ref{lst:strategy_generator}) genera 
 \begin{itemize}
     \item Después de recorrer todas las estrategias en $E$, el algoritmo devuelve:
     \begin{itemize}
-        \item \texttt{bestStrategy}: la estrategia que minimiza el extremismo sin exceder $R_{max}$.
-        \item \texttt{bestEffort}: el esfuerzo total de \texttt{bestStrategy}.
-        \item \texttt{minExtremism}: el extremismo mínimo logrado.
+        \item \textit{bestStrategy}: la estrategia que minimiza el extremismo sin exceder $R_{max}$.
+        \item \textit{bestEffort}: el esfuerzo total de \textit{bestStrategy}.
+        \item \textit{minExtremism}: el extremismo mínimo logrado.
     \end{itemize}
 \end{itemize}
 
