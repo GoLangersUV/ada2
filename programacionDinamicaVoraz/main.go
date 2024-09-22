@@ -1,5 +1,5 @@
 /*
-* File: github.com/Krud3/ada2/programacionDinamicaVoraz/backend/src/main.go
+* File: main.go
 * Authors: Julián Ernesto Puyo Mora...2226905
 *          Cristian David Pacheco.....2227437
 *          Juan Sebastián Molina......2224491
