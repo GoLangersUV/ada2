@@ -1,0 +1,13 @@
+.agents-table {
+  scrollbar-width: thin;
+  scrollbar-color: gray transparent;
+}
+
+.property-value {
+  font-style: italic;
+  color: #fff;
+}
+
+.properties-list {
+  color: #CECECE;
+}
