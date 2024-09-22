@@ -49,6 +49,12 @@ interface ModexResult {
   computationTime: number;
 }
 
+interface StrategyDifferences {
+  fbVsPd: number | null;
+  fbVsV: number | null;
+  pdVsV: number | null;
+}
+
 function App() {
   const [selectedFile, setSelectedFile] = useState<string>('');
   const [networkData, setNetworkData] = useState<NetworkData | null>(null);
@@ -67,6 +73,12 @@ function App() {
   const [strategyVExtremism, setStrategyVExtremism] = useState<number | null>(null);
   const [strategyVEffort, setStrategyVEffort] = useState<number | null>(null);
   const [strategyVData, setStrategyVData] = useState<number[]>([]);
+
+  const [strategyDifferences, setStrategyDifferences] = useState<StrategyDifferences>({
+    fbVsPd: null,
+    fbVsV: null,
+    pdVsV: null
+  });
 
   const onFileSelect = (fileName: string) => {
     setSelectedFile(fileName);
@@ -128,6 +140,41 @@ function App() {
       console.error('Error al obtener los resultados de Modex:', error);
     }
   };
+
+  const calculateHammingDistance = (arr1: number[], arr2: number[]): number => {
+    if (arr1.length !== arr2.length) return -1; // Invalid comparison
+    return arr1.reduce((acc, val, idx) => acc + (val !== arr2[idx] ? 1 : 0), 0);
+  };
+
+  const calculateStrategyDifferences = () => {
+    const pdVsV = calculateHammingDistance(strategyPDData, strategyVData);
+    
+    let fbVsPd: number | null = null;
+    let fbVsV: number | null = null;
+
+    if (strategyFBData.length > 0 && strategyFBData.length <= 25) {
+      fbVsPd = calculateHammingDistance(strategyFBData, strategyPDData);
+      fbVsV = calculateHammingDistance(strategyFBData, strategyVData);
+    }
+
+    setStrategyDifferences({
+      fbVsPd: fbVsPd !== -1 ? fbVsPd : null,
+      fbVsV: fbVsV !== -1 ? fbVsV : null,
+      pdVsV: pdVsV !== -1 ? pdVsV : null
+    });
+  };
+
+  const formatPercentage = (value: number | null): string => {
+    if (value === null) return 'N/A';
+    const totalAgents = networkData?.agents.length || 1; // Prevent division by zero
+    return `${((value / totalAgents) * 100).toFixed(2)}%`;
+  };
+
+  useEffect(() => {
+    if (strategyPDData.length > 0 && strategyVData.length > 0) {
+      calculateStrategyDifferences();
+    }
+  }, [strategyFBData, strategyPDData, strategyVData]);
 
   return (
     <ThemeProvider defaultTheme="system" >
@@ -207,9 +254,13 @@ function App() {
               </SubSection>
               <SubSection subTitle="Diferencias de estrategias">
                 <ul className="list-none list-inside space-y-2 properties-list">
-                  <li>ModexFB vs ModexPD: <span className="property-value">α</span></li>
-                  <li>ModexFB vs ModexV : <span className="property-value">β</span></li>
-                  <li>ModexPD vs ModexV: <span className="property-value">γ</span></li>
+                  {strategyFBData.length > 0 && strategyFBData.length <= 25 ? (
+                    <>
+                      <li>ModexFB vs ModexPD: <span className="property-value">{formatPercentage(strategyDifferences.fbVsPd)}</span></li>
+                      <li>ModexFB vs ModexV: <span className="property-value">{formatPercentage(strategyDifferences.fbVsV)}</span></li>
+                    </>
+                  ) : null}
+                  <li>ModexPD vs ModexV: <span className="property-value">{formatPercentage(strategyDifferences.pdVsV)}</span></li>
                 </ul>
               </SubSection>
             </div>
