@@ -1,12 +1,12 @@
 /*
- * File: github.com/Krud3/ada2/programacionDinamicaVoraz/backend/src/handlers/fileHandlers.go
- * Authors: Julián Ernesto Puyo Mora...2226905
- *          Cristian David Pacheco.....2227437
- *          Juan Sebastián Molina......2224491
- *          Juan Camilo Narváez Tascón.2140112
- * Creation date: 09/01/2024
- * Last modification: 09/21/2024
- * License: GNU-GPL
+* File: github.com/Krud3/ada2/programacionDinamicaVoraz/backend/src/handlers/fileHandlers.go
+* Authors: Julián Ernesto Puyo Mora...2226905
+*          Cristian David Pacheco.....2227437
+*          Juan Sebastián Molina......2224491
+*          Juan Camilo Narváez Tascón.2140112
+* Creation date: 09/01/2024
+* Last modification: 09/21/2024
+* License: GNU-GPL
  */
 
 // Package handlers provides HTTP handlers for file upload and download operations.
@@ -33,16 +33,25 @@ var (
 	networksMu sync.RWMutex
 )
 
-// UploadHandler handles the file upload operation. It reads the file from the
 func UploadHandler(w http.ResponseWriter, r *http.Request) {
-	// Parse the multipart form with a maximum memory of 10MB
+	contentType := r.Header.Get("Content-Type")
+
+	if r.Method != http.MethodPost {
+		http.Error(w, "Método no permitido", http.StatusMethodNotAllowed)
+		return
+	}
+
+	if !strings.HasPrefix(contentType, "multipart/form-data") {
+		http.Error(w, "request Content-Type isn't multipart/form-data", http.StatusBadRequest)
+		return
+	}
+
 	err := r.ParseMultipartForm(10 << 20) // 10MB
 	if err != nil {
 		http.Error(w, "Error al parsear el formulario multipart: "+err.Error(), http.StatusBadRequest)
 		return
 	}
 
-	// Retrieve the file from form data
 	file, handler, err := r.FormFile("file")
 	if err != nil {
 		http.Error(w, "Error al obtener el archivo: "+err.Error(), http.StatusBadRequest)
@@ -50,33 +59,6 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer file.Close()
 
-	// Create a temporary file in the system's default temp directory
-	tempFile, err := os.CreateTemp("", "upload-*.txt")
-	if err != nil {
-		http.Error(w, "Error al crear archivo temporal: "+err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	// Ensure the temporary file is deleted in case of any failure
-	defer func() {
-		tempFile.Close()
-		os.Remove(tempFile.Name())
-	}()
-
-	// Copy the uploaded file's content to the temporary file
-	if _, err := io.Copy(tempFile, file); err != nil {
-		http.Error(w, "Error al guardar el archivo temporal: "+err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	// Parse and validate the network data from the temporary file
-	network, err := parseNetworkFromFile(tempFile.Name())
-	if err != nil {
-		http.Error(w, "Error al parsear el archivo: "+err.Error(), http.StatusBadRequest)
-		return
-	}
-
-	// If parsing is successful, move the temporary file to the 'uploads' directory
 	uploadsDir := "uploads"
 	err = os.MkdirAll(uploadsDir, os.ModePerm)
 	if err != nil {
@@ -85,25 +67,33 @@ func UploadHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	destPath := filepath.Join(uploadsDir, handler.Filename)
-	err = os.Rename(tempFile.Name(), destPath)
+	destFile, err := os.Create(destPath)
 	if err != nil {
-		http.Error(w, "Error al mover el archivo al directorio de uploads: "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Error al crear el archivo de destino: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+	defer destFile.Close()
+
+	_, err = io.Copy(destFile, file)
+	if err != nil {
+		http.Error(w, "Error al guardar el archivo: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	// Close the temporary file after moving
-	if err := tempFile.Close(); err != nil {
-		log.Printf("Error al cerrar el archivo temporal: %v", err)
+	network, err := parseNetworkFromFile(destPath)
+	if err != nil {
+		http.Error(w, "Error al parsear el archivo: "+err.Error(), http.StatusBadRequest)
+		return
 	}
 
-	// Update the in-memory networks map with the newly uploaded network
 	networksMu.Lock()
 	networks[handler.Filename] = network
 	networksMu.Unlock()
+	log.Printf("Updated networks map with file: %s", handler.Filename)
 
-	// Respond to the client indicating a successful upload
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("Archivo subido y procesado exitosamente"))
+	log.Println("Responded with success status.")
 }
 
 // FilesHandler handles the file listing operation. It returns a JSON array with

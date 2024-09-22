@@ -55,7 +55,7 @@ const Header: React.FC<HeaderProps> = ({ subject, onFileSelect, selectedFile }) 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file) {
-      const formData = new FormData();
+      const formData = new FormData()
       formData.append('file', file);
 
       try {
