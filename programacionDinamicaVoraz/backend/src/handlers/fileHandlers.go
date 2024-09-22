@@ -35,40 +35,73 @@ var (
 
 // UploadHandler handles the file upload operation. It reads the file from the
 func UploadHandler(w http.ResponseWriter, r *http.Request) {
-	r.ParseMultipartForm(10 << 20)
+	// Parse the multipart form with a maximum memory of 10MB
+	err := r.ParseMultipartForm(10 << 20) // 10MB
+	if err != nil {
+		http.Error(w, "Error al parsear el formulario multipart: "+err.Error(), http.StatusBadRequest)
+		return
+	}
 
+	// Retrieve the file from form data
 	file, handler, err := r.FormFile("file")
 	if err != nil {
-		http.Error(w, "Error al obtener el archivo", http.StatusBadRequest)
+		http.Error(w, "Error al obtener el archivo: "+err.Error(), http.StatusBadRequest)
 		return
 	}
 	defer file.Close()
 
-	os.MkdirAll("uploads", os.ModePerm)
-
-	filePath := filepath.Join("uploads", handler.Filename)
-	dst, err := os.Create(filePath)
+	// Create a temporary file in the system's default temp directory
+	tempFile, err := os.CreateTemp("", "upload-*.txt")
 	if err != nil {
-		http.Error(w, "Error al crear el archivo en el servidor", http.StatusInternalServerError)
-		return
-	}
-	defer dst.Close()
-
-	if _, err := io.Copy(dst, file); err != nil {
-		http.Error(w, "Error al guardar el archivo", http.StatusInternalServerError)
+		http.Error(w, "Error al crear archivo temporal: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
-	network, err := parseNetworkFromFile(filePath)
+	// Ensure the temporary file is deleted in case of any failure
+	defer func() {
+		tempFile.Close()
+		os.Remove(tempFile.Name())
+	}()
+
+	// Copy the uploaded file's content to the temporary file
+	if _, err := io.Copy(tempFile, file); err != nil {
+		http.Error(w, "Error al guardar el archivo temporal: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Parse and validate the network data from the temporary file
+	network, err := parseNetworkFromFile(tempFile.Name())
 	if err != nil {
 		http.Error(w, "Error al parsear el archivo: "+err.Error(), http.StatusBadRequest)
 		return
 	}
 
+	// If parsing is successful, move the temporary file to the 'uploads' directory
+	uploadsDir := "uploads"
+	err = os.MkdirAll(uploadsDir, os.ModePerm)
+	if err != nil {
+		http.Error(w, "Error al crear el directorio de uploads: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	destPath := filepath.Join(uploadsDir, handler.Filename)
+	err = os.Rename(tempFile.Name(), destPath)
+	if err != nil {
+		http.Error(w, "Error al mover el archivo al directorio de uploads: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Close the temporary file after moving
+	if err := tempFile.Close(); err != nil {
+		log.Printf("Error al cerrar el archivo temporal: %v", err)
+	}
+
+	// Update the in-memory networks map with the newly uploaded network
 	networksMu.Lock()
 	networks[handler.Filename] = network
 	networksMu.Unlock()
 
+	// Respond to the client indicating a successful upload
 	w.WriteHeader(http.StatusOK)
 	w.Write([]byte("Archivo subido y procesado exitosamente"))
 }

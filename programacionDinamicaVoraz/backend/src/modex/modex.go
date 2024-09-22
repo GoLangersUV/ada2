@@ -96,6 +96,20 @@ func ModexPD(network *Network) ([]byte, float64, float64, float64, error) {
 	agents := network.Agents
 	numAgents := len(agents)
 
+  if resources >= numAgents*100 {
+		strategy := make([]byte, numAgents)
+		for i := 0; i < numAgents; i++ {
+			strategy[i] = 1
+		}
+
+		startTime := time.Now()
+		Effort, networkPrime := Effort(network, strategy)
+		Extremism := Extremism(networkPrime)
+		computationTime := time.Since(startTime).Seconds()
+
+		return strategy, Effort, Extremism, computationTime, nil
+	}
+
 	// Allocate space for the subproblem matrix
 	svMatrix := make([][]int64, numAgents)
 	for i := range svMatrix {

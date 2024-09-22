@@ -1,13 +1,13 @@
 /*
- * File: main.go
- * Authors: Julián Ernesto Puyo Mora...2226905
- *          Cristian David Pacheco.....2227437
- *          Juan Sebastián Molina......2224491
- *          Juan Camilo Narváez Tascón.2140112
- * Creation date: 09/01/2024
- * Last modification: 09/21/2024
- * License: GNU-GPL
- */
+* File: main.go
+* Authors: Julián Ernesto Puyo Mora...2226905
+*          Cristian David Pacheco.....2227437
+*          Juan Sebastián Molina......2224491
+*          Juan Camilo Narváez Tascón.2140112
+* Creation date: 09/01/2024
+* Last modification: 09/21/2024
+* License: GNU-GPL
+*/
 
 // Package main implements the ModEx program, which addresses the problem of Opinion
 // extremism in a simulated social network. In this network, each agent holds an
@@ -24,32 +24,53 @@
 package main
 
 import (
-	"log"
-	"net/http"
+  "log"
+  "net/http"
+  "os"
 
-	"github.com/rs/cors"
+  "github.com/rs/cors"
 
-	"github.com/Krud3/ada2/programacionDinamicaVoraz/backend/src/handlers"
+  "github.com/Krud3/ada2/programacionDinamicaVoraz/backend/src/handlers"
 )
 
+func cleanUploadsDir(dir string) error {
+  if err := os.RemoveAll(dir); err != nil {
+    return err
+  }
+
+  if err := os.MkdirAll(dir, os.ModePerm); err != nil {
+    return err
+  }
+
+  log.Printf("Successfully cleaned and recreated the '%s' directory.", dir)
+  return nil
+}
+
 func main() {
-	http.HandleFunc("/modex/pd", handlers.ModexPDHandler)
-	http.HandleFunc("/modex/fb", handlers.ModexFBHandler)
-	http.HandleFunc("/modex/v", handlers.ModexVHandler)
+  uploadsDir := "uploads"
 
-	http.HandleFunc("/upload", handlers.UploadHandler)
-	http.HandleFunc("/files", handlers.FilesHandler)
-	http.HandleFunc("/network", handlers.GetNetworkHandler)
+  if err := cleanUploadsDir(uploadsDir); err != nil {
+    log.Fatalf("Failed to clean uploads directory: %v", err)
+  }
 
-	c := cors.New(cors.Options{
-		AllowedOrigins:   []string{"http://localhost:5173"},
-		AllowedMethods:   []string{"GET", "POST", "OPTIONS"},
-		AllowedHeaders:   []string{"Content-Type"},
-		AllowCredentials: true,
-	})
 
-	handler := c.Handler(http.DefaultServeMux)
+  http.HandleFunc("/modex/pd", handlers.ModexPDHandler)
+  http.HandleFunc("/modex/fb", handlers.ModexFBHandler)
+  http.HandleFunc("/modex/v", handlers.ModexVHandler)
 
-	log.Println("Server running on http://localhost:8080")
-	log.Fatal(http.ListenAndServe(":8080", handler))
+  http.HandleFunc("/upload", handlers.UploadHandler)
+  http.HandleFunc("/files", handlers.FilesHandler)
+  http.HandleFunc("/network", handlers.GetNetworkHandler)
+
+  c := cors.New(cors.Options{
+    AllowedOrigins:   []string{"http://localhost:5173"},
+    AllowedMethods:   []string{"GET", "POST", "OPTIONS"},
+    AllowedHeaders:   []string{"Content-Type"},
+    AllowCredentials: true,
+  })
+
+  handler := c.Handler(http.DefaultServeMux)
+
+  log.Println("Server running on http://localhost:8080")
+  log.Fatal(http.ListenAndServe(":8080", handler))
 }

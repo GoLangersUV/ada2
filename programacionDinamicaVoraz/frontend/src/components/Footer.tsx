@@ -12,7 +12,7 @@ const navigation = [
   {
     name: 'GitHub',
     href: 'https://github.com/Krud3/ada2/tree/main',
-    icon: (props) => (
+    icon: (props: React.SVGProps<SVGSVGElement>) => (
       <svg fill="currentColor" viewBox="0 0 24 24" {...props}>
         <path
           fillRule="evenodd"
@@ -27,14 +27,14 @@ const navigation = [
 export default function Footer() {
   return (
     <footer>
-      <div className="mx-auto flex flex-row items-center max-w-3xl px-6 py-12 md:flex md:items-center justify-between lg:px-8">
-        <div className="mt-8 md:mt-0 text-[#CECECE] text-xs text-left leading-5">
+      <div className="mx-auto flex flex-col items-center max-w-3xl px-6 py-12 md:flex gap-4 md:items-center justify-between lg:px-8">
+        <div className="mt-8 md:mt-0 text-[#CECECE] text-xs text-center flex flex-col gap-2 items-center leading-5">
           <img src="/pilot-bust.svg" alt="" width={"80px"} />
           <p>
             &copy; 2024-II Grupo 1.
           </p>
           <ul>
-            <li>Juan Camilo Narváez Tascón - 2140112</li>
+            <li>Juan Camilo Narváez - 2140112</li>
             <li>Julián Ernesto Puyo - 2226905</li>
             <li>Cristian David Pacheco - 2227437</li>
             <li>Juan Sebastian Molina - 2224491</li>

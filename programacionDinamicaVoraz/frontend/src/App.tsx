@@ -5,7 +5,7 @@
  *          Juan Sebastián Molina......2224491
  *          Juan Camilo Narváez Tascón.2140112
  * Creation date: 09/19/2024
- * Last modification: 09/21/2024
+ * Last modification: 09/22/2024
  * License: GNU-GPL
  */
 import { useState, useEffect } from 'react';
@@ -99,7 +99,10 @@ function App() {
   const fetchNetworkData = async (fileName: string) => {
     try {
       const response = await fetch(`http://localhost:8080/network?file=${fileName}`);
-      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(`Error al obtener Network: ${response.statusText}`);
+      }
+      const data: NetworkData = await response.json();
       setNetworkData(data);
     } catch (error) {
       console.error('Error al obtener los datos del network:', error);
@@ -108,14 +111,28 @@ function App() {
 
   const fetchModexResults = async (fileName: string) => {
     try {
-      const responsePD = await fetch(`http://localhost:8080/modex/pd?file=${fileName}`);
-      const dataPD: ModexResult = await responsePD.json();
-      setPDComputationTime(dataPD.computationTime);
-      setPDExtremism(dataPD.extremism);
-      setPDEffort(dataPD.effort);
-      setStrategyPDData(dataPD.strategy);
+      if (networkData?.agents.length && networkData.agents.length <= 2500) {
+        const responsePD = await fetch(`http://localhost:8080/modex/pd?file=${fileName}`);
+        if (!responsePD.ok) {
+          throw new Error(`Error al obtener ModexPD: ${responsePD.statusText}`);
+        }
+        const dataPD: ModexResult = await responsePD.json();
+        setPDComputationTime(dataPD.computationTime);
+        setPDExtremism(dataPD.extremism);
+        setPDEffort(dataPD.effort);
+        setStrategyPDData(dataPD.strategy);
+      } else {
+        console.log("Programación Dinámica no se ejecuta para más de 2500 agentes.");
+        setPDComputationTime(null);
+        setPDExtremism(null);
+        setPDEffort(null);
+        setStrategyPDData([]);
+      }
 
       const responseV = await fetch(`http://localhost:8080/modex/v?file=${fileName}`);
+      if (!responseV.ok) {
+        throw new Error(`Error al obtener ModexV: ${responseV.statusText}`);
+      }
       const dataV: ModexResult = await responseV.json();
       setStrategyVComputationTime(dataV.computationTime);
       setStrategyVExtremism(dataV.extremism);
@@ -124,6 +141,9 @@ function App() {
 
       if (networkData?.agents.length && networkData.agents.length <= 25) {
         const responseFB = await fetch(`http://localhost:8080/modex/fb?file=${fileName}`);
+        if (!responseFB.ok) {
+          throw new Error(`Error al obtener ModexFB: ${responseFB.statusText}`);
+        }
         const dataFB: ModexResult = await responseFB.json();
         setStrategyFBData(dataFB.strategy);
         setFbComputationTime(dataFB.computationTime);
@@ -147,12 +167,15 @@ function App() {
   };
 
   const calculateStrategyDifferences = () => {
-    const pdVsV = calculateHammingDistance(strategyPDData, strategyVData);
-    
+    let pdVsV: number | null = null;
     let fbVsPd: number | null = null;
     let fbVsV: number | null = null;
 
-    if (strategyFBData.length > 0 && strategyFBData.length <= 25) {
+    if (strategyPDData.length > 0 && strategyVData.length > 0) {
+      pdVsV = calculateHammingDistance(strategyPDData, strategyVData);
+    }
+
+    if (strategyFBData.length > 0 && strategyPDData.length > 0) {
       fbVsPd = calculateHammingDistance(strategyFBData, strategyPDData);
       fbVsV = calculateHammingDistance(strategyFBData, strategyVData);
     }
@@ -171,7 +194,10 @@ function App() {
   };
 
   useEffect(() => {
-    if (strategyPDData.length > 0 && strategyVData.length > 0) {
+    if (
+      (strategyPDData.length > 0 && strategyVData.length > 0) ||
+      (strategyPDData.length === 0 && strategyVData.length > 0)
+    ) {
       calculateStrategyDifferences();
     }
   }, [strategyFBData, strategyPDData, strategyVData]);
@@ -235,16 +261,18 @@ function App() {
                     },
                   ]}
                   chartConfig={{
+                    ...(networkData?.agents.length <= 2500 && {
+                      ModexPD: {
+                        label: "ModexPD",
+                        color: "#FFA500",
+                      },
+                    }),
                     ...(networkData?.agents.length <= 25 && {
                       ModexFB: {
                         label: "ModexFB",
                         color: "#FF6B6B",
                       },
                     }),
-                    ModexPD: {
-                      label: "ModexPD",
-                      color: "#FFA500",
-                    },
                     ModexV: {
                       label: "ModexV",
                       color: "#9B59B6",
@@ -254,19 +282,23 @@ function App() {
               </SubSection>
               <SubSection subTitle="Diferencias de estrategias">
                 <ul className="list-none list-inside space-y-2 properties-list">
-                  {strategyFBData.length > 0 && strategyFBData.length <= 25 ? (
+                  {strategyPDData.length > 0 && strategyPDData.length <= 2500 && (
                     <>
-                      <li>ModexFB vs ModexPD: <span className="property-value">{formatPercentage(strategyDifferences.fbVsPd)}</span></li>
-                      <li>ModexFB vs ModexV: <span className="property-value">{formatPercentage(strategyDifferences.fbVsV)}</span></li>
+                      {strategyFBData.length > 0 && (
+                        <>
+                          <li>ModexFB vs ModexPD: <span className="property-value">{formatPercentage(strategyDifferences.fbVsPd)}</span></li>
+                          <li>ModexFB vs ModexV: <span className="property-value">{formatPercentage(strategyDifferences.fbVsV)}</span></li>
+                        </>
+                      )}
+                      <li>ModexPD vs ModexV: <span className="property-value">{formatPercentage(strategyDifferences.pdVsV)}</span></li>
                     </>
-                  ) : null}
-                  <li>ModexPD vs ModexV: <span className="property-value">{formatPercentage(strategyDifferences.pdVsV)}</span></li>
+                  )}
                 </ul>
               </SubSection>
             </div>
           </Section>
 
-          {networkData?.agents.length <= 25 ? (
+          {networkData?.agents.length <= 25 && (
           <Section sectionTitle="Fuerza Bruta" output={fbExtremism !== null && fbEffort !== null ? { extremism: fbExtremism, effort: fbEffort, strategy: strategyFBData } : undefined}>
             <div className="flex flex-col gap-4">
               <ul className="list-none list-inside space-y-2 properties-list">
@@ -304,85 +336,89 @@ function App() {
                 />
               </SubSection>
             </div>
-          </Section>) : null}
+          </Section>)}
 
-          <Section sectionTitle="Programación dinámica" output={PDExtremism !== null && PDEffort !== null ? { extremism: PDExtremism, effort: PDEffort, strategy: strategyPDData } : undefined}>
-            <div className="flex flex-col gap-4">
-              <ul className="list-none list-inside space-y-2 properties-list">
-                <li>Tiempo de cómputo: <span className="property-value">{PDComputationTime !== null ? `${PDComputationTime.toFixed(4)} s` : 't'}</span></li>
-                <li>Extremismo óptimo: <span className="property-value">{PDExtremism !== null ? PDExtremism.toFixed(3) : 'Ext'}</span></li>
-                <li>Esfuerzo empleado: <span className="property-value">{PDEffort !== null ? PDEffort.toFixed(3) : 'Esf'}</span></li>
-              </ul>
-              <SubSection subTitle="Estrategia programación dinámica">
-                <Matrix title="" strategy={strategyPDData.length > 0 ? strategyPDData : strategyPDData} agents={networkData?.agents} />
-              </SubSection>
-              <SubSection subTitle="Comparación con datos iniciales">
-                <CustomBarChart
-                  chartData={[
-                    { 
-                      property: "Extremismo", 
-                      original: networkData?.extremism ?? 0,
-                      modex: PDExtremism ?? 0 
-                    },
-                    { 
-                      property: "Esfuerzo empleado", 
-                      original: networkData?.effort ?? 0,
-                      modex: PDEffort ?? 0
-                    },
-                  ]}
-                  chartConfig={{
-                    original: {
-                      label: "Original",
-                      color: "#00A29C",
-                    },
-                    modex: {
-                      label: "ModexPD",
-                      color: "#FFA500",
-                    },
-                  } satisfies ChartConfig}
-                />
-              </SubSection>
-            </div>
-          </Section>
+          {networkData?.agents.length <= 2500 && (
+            <Section sectionTitle="Programación dinámica" output={PDExtremism !== null && PDEffort !== null ? { extremism: PDExtremism, effort: PDEffort, strategy: strategyPDData } : undefined}>
+              <div className="flex flex-col gap-4">
+                <ul className="list-none list-inside space-y-2 properties-list">
+                  <li>Tiempo de cómputo: <span className="property-value">{PDComputationTime !== null ? `${PDComputationTime.toFixed(4)} s` : 't'}</span></li>
+                  <li>Extremismo óptimo: <span className="property-value">{PDExtremism !== null ? PDExtremism.toFixed(3) : 'Ext'}</span></li>
+                  <li>Esfuerzo empleado: <span className="property-value">{PDEffort !== null ? PDEffort.toFixed(3) : 'Esf'}</span></li>
+                </ul>
+                <SubSection subTitle="Estrategia programación dinámica">
+                  <Matrix title="" strategy={strategyPDData.length > 0 ? strategyPDData : []} agents={networkData?.agents} />
+                </SubSection>
+                <SubSection subTitle="Comparación con datos iniciales">
+                  <CustomBarChart
+                    chartData={[
+                      { 
+                        property: "Extremismo", 
+                        original: networkData?.extremism ?? 0,
+                        modex: PDExtremism ?? 0 
+                      },
+                      { 
+                        property: "Esfuerzo empleado", 
+                        original: networkData?.effort ?? 0,
+                        modex: PDEffort ?? 0 
+                      },
+                    ]}
+                    chartConfig={{
+                      original: {
+                        label: "Original",
+                        color: "#00A29C",
+                      },
+                      modex: {
+                        label: "ModexPD",
+                        color: "#FFA500",
+                      },
+                    } satisfies ChartConfig}
+                  />
+                </SubSection>
+              </div>
+            </Section>
+          )}
 
-          <Section sectionTitle="Estrategia voraz" output={strategyVExtremism !== null && strategyVEffort !== null ? { extremism: strategyVExtremism, effort: strategyVEffort, strategy: strategyVData } : undefined}>
-            <div className="flex flex-col gap-4">
-              <ul className="list-none list-inside space-y-2 properties-list">
-                <li>Tiempo de cómputo: <span className="property-value">{strategyVComputationTime !== null ? `${strategyVComputationTime.toFixed(4)} s` : 't'}</span></li>
-                <li>Extremismo calculado: <span className="property-value">{strategyVExtremism !== null ? strategyVExtremism.toFixed(3) : 'Ext'}</span></li>
-                <li>Esfuerzo empleado: <span className="property-value">{strategyVEffort !== null ? strategyVEffort.toFixed(3) : 'Esf'}</span></li>
-              </ul>
-              <SubSection subTitle="Estrategia voraz">
-                <Matrix title="" strategy={strategyVData.length > 0 ? strategyVData : strategyVData} agents={networkData?.agents} />
-              </SubSection>
-            </div>
-            <SubSection subTitle="Comparación con datos iniciales">
-              <CustomBarChart
-                chartData={[
-                  { 
-                    property: "Extremismo", 
-                    original: networkData?.extremism ?? 0,
-                    modex: strategyVExtremism ?? 0 
-                  },
-                  { 
-                    property: "Esfuerzo empleado", 
-                    original: networkData?.effort ?? 0,
-                    modex: strategyVEffort ?? 0
-                  },
-                ]}
-                chartConfig={{
-                  original: {
-                    label: "Original",
-                    color: "#00A29C",
-                  },
-                  modex: {
-                    label: "ModexV",
-                    color: "#9B59B6",
-                  },
-                } satisfies ChartConfig}
-              />
-            </SubSection>
-          </Section>
+          {networkData?.agents.length <= 25000 && (
+            <Section sectionTitle="Estrategia voraz" output={strategyVExtremism !== null && strategyVEffort !== null ? { extremism: strategyVExtremism, effort: strategyVEffort, strategy: strategyVData } : undefined}>
+              <div className="flex flex-col gap-4">
+                <ul className="list-none list-inside space-y-2 properties-list">
+                  <li>Tiempo de cómputo: <span className="property-value">{strategyVComputationTime !== null ? `${strategyVComputationTime.toFixed(4)} s` : 't'}</span></li>
+                  <li>Extremismo calculado: <span className="property-value">{strategyVExtremism !== null ? strategyVExtremism.toFixed(3) : 'Ext'}</span></li>
+                  <li>Esfuerzo empleado: <span className="property-value">{strategyVEffort !== null ? strategyVEffort.toFixed(3) : 'Esf'}</span></li>
+                </ul>
+                <SubSection subTitle="Estrategia voraz">
+                  <Matrix title="" strategy={strategyVData.length > 0 ? strategyVData : []} agents={networkData?.agents} />
+                </SubSection>
+                <SubSection subTitle="Comparación con datos iniciales">
+                  <CustomBarChart
+                    chartData={[
+                      { 
+                        property: "Extremismo", 
+                        original: networkData?.extremism ?? 0,
+                        modex: strategyVExtremism ?? 0 
+                      },
+                      { 
+                        property: "Esfuerzo empleado", 
+                        original: networkData?.effort ?? 0,
+                        modex: strategyVEffort ?? 0 
+                      },
+                    ]}
+                    chartConfig={{
+                      original: {
+                        label: "Original",
+                        color: "#00A29C",
+                      },
+                      modex: {
+                        label: "ModexV",
+                        color: "#9B59B6",
+                      },
+                    } satisfies ChartConfig}
+                  />
+                </SubSection>
+              </div>
+            </Section>
+          )}
         </main>
         ) : null}
         <Footer />
