@@ -256,14 +256,15 @@ func StrategyGenerator(n int) [][]byte {
 
 \textbf{Explicación del código:}
 \begin{itemize}
-  \item Se inicia la función con un parametro $n$ el cual indica la cantidad de agentes de la red social, luego en la linea 2 "\textit{total := 1 $<<$ n}".
-  \item Se crea un arreglo de arreglos de bytes llamado "\textit{combinations}" en la linea 3.
-  \item Se inicia un ciclo for que va desde 0 hasta el total de combinaciones posibles en la linea 6.
-  \item Se crea un arreglo de bytes llamado "\textit{combination}
-  \item Se inicia un ciclo for que va desde 0 hasta la cantidad de agentes de la red social en la linea 7.
-  \item Se asigna a la posición $n-j-1$ del arreglo de bytes "\textit{combination}" el valor de la operación $i >> j$ en la linea 8.
-  \item Se asigna el arreglo de bytes "\textit{combination}" a la posición $i$ del arreglo de arreglos de bytes "\textit{combinations}" en la linea 10.
-  \item Se retorna el arreglo de arreglos de bytes "\textit{combinations}" en la linea 13.
+  \item Se recibe como parámetro \(n\), el número de agentes, y se calcula el total de combinaciones posibles (\(2^n\)).
+  \item Se crea un arreglo \textit{combinations} para almacenar todas las combinaciones posibles.
+  \item Un ciclo \textit{for} itera sobre cada combinación posible. Dentro del ciclo:
+  \begin{itemize}
+    \item Se crea un arreglo \textit{combination} que representa una combinación específica de \(n\) bits.
+    \item Otro ciclo \textit{for} asigna el valor de cada bit en la combinación utilizando operaciones de desplazamiento de bits.
+    \item La combinación generada se guarda en el arreglo \textit{combinations}.
+  \end{itemize}
+  \item Al final, se retorna el arreglo que contiene todas las combinaciones generadas.
 \end{itemize}
 \subsubsection*{Algoritmo de Moderación (ModexFB)}
 \begin{lstlisting}[caption={Algoritmo de Fuerza Bruta}, label={lst:modexfb}]
@@ -292,20 +293,19 @@ func ModexFB(network *Network) (bestStrategy []byte, bestEffort float64, minExtr
   return bestStrategy, bestEffort, minExtremism, nil
 }
 \end{lstlisting}
-\textit{La función \textit{ModexFB} toma como parámetro un puntero a una estructura \textit{Network} y retorna la mejor estrategia (\textit{bestStrategy}), el esfuerzo asociado a dicha estrategia (\textit{bestEffort}), el extremismo mínimo alcanzado (\textit{minExtremism}), y un posible error (\textit{err}).}
+\textit{La función \textit{ModexFB} recibe por parametro la red de agentes y retorna la mejor estrategia , el esfuerzo asociado , el extremismo mínimo.}
+\\
+\\
+\\
+\textbf{Explicación del código:}
 \begin{itemize}
-  
-  \item En la línea 2, se inicializa la variable \textit{numAgents} con el número de agentes en la red social (número de elementos en \textit{network.Agents}).
-  \item En la línea 4, si el número de agentes supera los 25, la función retorna un error, indicando que el número de agentes debe ser menor o igual a 25 (esto evita la explosión combinatoria al generar estrategias).
-  \item En la línea 7, se llama a la función \textit{strategyGenerator} (\ref{lst:strategy_generator}) para generar todas las posibles combinaciones de estrategias de moderación, que son almacenadas en \textit{possibleStrategies}
-  \item En las líneas 8 y 9, se inicializan las variables \textit{minExtremism} y \textit{bestEffort} con valores infinitos positivos (\textit{math.Inf(1)}), de forma que cualquier valor que se calcule después será menor que este valor inicial.
-  \item Se inicia un ciclo \textit{for} en la línea 11 que recorre todas las estrategias generadas en \textit{possibleStrategies}.
-  \item En la línea 12, se calcula el esfuerzo (\textit{effortValue}) asociado a una estrategia usando la función \textit{effort} (\ref{lst:esfuerzo}), y también se obtiene una nueva red \textit{networkPrime}, que es la red social modificada según esa estrategia.
-  \item En la línea 13, se verifica si el esfuerzo es menor o igual a los recursos disponibles en la red (\textit{network.Resources}). Si es así, la estrategia es válida y se procede a calcular su nivel de extremismo.
-  \item En la línea 14, se calcula el nivel de extremismo de la red modificada (\textit{networkPrime}) con la función \textit{extremism}.
-  \item Si el nivel de extremismo es menor que el mínimo extremismo registrado (\textit{minExtremism}), en la línea 15 se actualizan las variables \textit{minExtremism}, \textit{bestEffort}, y \textit{bestStrategy} con los valores de la estrategia actual.
-  \item Finalmente, en la línea 19, se retorna la mejor estrategia encontrada (\textit{bestStrategy}), su esfuerzo (\textit{bestEffort}), el mínimo nivel de extremismo (\textit{minExtremism}) y ningún error.
+  \item Se inicializa el número de agentes (\textit{numAgents}) y, si es mayor a 25, se retorna un error.
+  \item Se generan todas las estrategias posibles con \textit{strategyGenerator} y se inicializan \textit{minExtremism} y \textit{bestEffort} con valores infinitos.
+  \item Un ciclo \textit{for} recorre cada estrategia posible, calculando el esfuerzo (\textit{effortValue}) y el extremismo (\textit{extremismValue}) resultante.
+  \item Si el esfuerzo es menor o igual a los recursos disponibles y el extremismo es menor al mínimo registrado, se actualizan las variables \textit{bestStrategy}, \textit{bestEffort}, y \textit{minExtremism}.
+  \item Al final, se retorna la mejor estrategia encontrada junto con el esfuerzo y el extremismo mínimo.
 \end{itemize}
+
 
 Este algoritmo de fuerza bruta genera todas las posibles estrategias de moderación y selecciona la mejor según dos criterios: esfuerzo mínimo y extremismo mínimo, siempre que el esfuerzo no exceda los recursos de la red.
 \subsubsection*{ModexFB mejorado}
@@ -452,14 +452,174 @@ Dado que el algoritmo recorre todas las estrategias en $\mathcal{E}$ sin excepci
 \section{Solución con Algoritmo Voraz}
 \label{sec:algoritmo_voraz}
 "Describen correctamente un algoritmo voraz para resolver el problema, calcula correctamente su complejidad y la justifica, y analiza acertadamente si el algoritmo da siempre la respuesta correcta y lo justifica. El algoritmo quedó clasificado en el grupo de los mejores voraces del curso."
+
+Para la realización de este algoritmo, se considero la relación que hay entre el $extremismoParcial$ $(O_i\mathcal{R} \mathcal{S})^2$ y el $RecParcial = \left\lceil  |o_n^{\mathcal{R}\mathcal{S}} - o_n^{\mathcal{R}\mathcal{S}'}| \times (1 - r_n^{\mathcal{R}\mathcal{S}}) \right\rceil$ para cada agente $a_i$ en la red social $\mathcal{R}\mathcal{S}$.
+
+Sea:
+\[
+  RecParcial = \left\lceil  |o_n^{\mathcal{R}\mathcal{S}} - o_n^{\mathcal{R}\mathcal{S}'}| \times (1 - r_n^{\mathcal{R}\mathcal{S}}) \right\rceil
+\]
+
+De tal forma que para un agente $a_i$ en la red social $\mathcal{R}\mathcal{S}$, se moderará si se cumple:
+\begin{equation}
+  \frac{(O_i\mathcal{R} \mathcal{S})^2}{\left\lceil  |o_i^{\mathcal{R}\mathcal{S}} - o_i^{\mathcal{R}\mathcal{S}'}| \times (1 - r_i^{\mathcal{R}\mathcal{S}}) \right\rceil} \geqslant  \frac{(O_{i-1} \mathcal{R} \mathcal{S})^2}{\left\lceil  |o_{i-1}^{\mathcal{R}\mathcal{S}} - o_{i-1}^{\mathcal{R}\mathcal{S}'}| \times (1 - r_{i-1}^{\mathcal{R}\mathcal{S}}) \right\rceil}
+  \label{eq:voraz}
+\end{equation}
+\begin{equation}
+  \eqref{eq:voraz} | \sum_{l=1}^{i}RecParcial + RecParcial_i \leqslant Recursos
+  \label{eq:voraz2}
+\end{equation}
 \subsection{Descripción del Algoritmo}
 \label{subsec:descripcion_algoritmo_voraz}
+Teniendo en cuenta lo explicado anteriormente se realizó el siguiente algoritmo:
+\begin{lstlisting}[caption={Algoritmo Voraz}, label={lst:ModexV}]
+func ModexV(network *Network) ([]byte, float64, float64, error) {
+  if network == nil || len(network.Agents) == 0 {
+    return nil, 0, 0, errors.New("network is nil or has no agents")
+  }
+
+  // Generate the greedy strategy.
+  resources := network.Resources
+  strategy := make([]byte, len(network.Agents))
+  totalEffort := 0.0
+
+  rankedAgents := rankAgents(network)
+
+  for _, agentInfo := range rankedAgents {
+    if uint64(totalEffort+agentInfo.Effort) <= resources {
+      // Moderate the agent.
+      strategy[agentInfo.Index] = 1
+      totalEffort += agentInfo.Effort
+    } else {
+      // Do not moderate the agent.
+      strategy[agentInfo.Index] = 0
+    }
+  }
+
+  // Calculate the total effort and the moderated network.
+  totalEffort, moderatedNetwork := effort(network, strategy)
+
+  // Check if the total effort exceeds the available resources.
+  if uint64(totalEffort) > network.Resources {
+    return nil, 0, 0, errors.New("insufficient resources to apply the strategy")
+  }
+
+  // Calculate the new extremism after applying the strategy.
+  newExtremism := extremism(moderatedNetwork)
+
+  return strategy, totalEffort, newExtremism, nil
+}
+\end{lstlisting}
+\textbf{Explicación del código:}
+\begin{itemize}
+  \item Primero, el algoritmo verifica si la red es nula o no tiene agentes. Si es así, retorna un error.
+  \item Se inicializa la cantidad de recursos disponibles y se crea un arreglo \textit{strategy} para almacenar la estrategia de moderación, que contiene un 1 si el agente es moderado y un 0 si no lo es.
+  \item Los agentes son ordenados de manera voraz usando una función \textit{rankAgents}, que los clasifica y los ordena en función de \eqref{eq:voraz2}.
+  \item Un ciclo recorre la lista de agentes ordenados. Para cada agente:
+  \begin{itemize}
+    \item Si el esfuerzo acumulado más el esfuerzo del agente no excede los recursos disponibles, se modera al agente (se asigna 1 en \textit{strategy}).
+    \item Si no hay suficientes recursos, el agente no es moderado (se asigna 0 en \textit{strategy}).
+  \end{itemize}
+  \item Una vez definida la estrategia, se calcula el esfuerzo total y se genera una versión moderada de la red con la función \textit{effort}.
+  \item Si el esfuerzo total excede los recursos disponibles, se retorna un error.
+  \item Finalmente, se calcula el extremismo resultante de la red moderada utilizando la función \textit{extremism} y se retorna la estrategia, el esfuerzo total y el nuevo extremismo.
+\end{itemize}
 \subsection{Análisis del Algoritmo}
 \label{subsec:analisis_algoritmo_voraz}
+Como podemos apreciar el algoritmo aplica la eurísitca mensionada en \eqref{eq:voraz} y \eqref{eq:voraz2} para moderar los agentes de la red social $\mathcal{R}\mathcal{S}$, de tal forma que se minimiza el extremismo de la red social sin exceder los recursos disponibles.
+
+Pero ello tiene un problema, si la red social, no está ordenada en función de \eqref{eq:voraz2}, la eurística perderá precisión para el caso en que la red tenga los mejores casos de moderación al final de la lista de agentes.
+
+Por ello se implementó la función \textit{rankAgents} que ordena los agentes en función de \eqref{eq:voraz2} de la siguiente manera:
+\begin{lstlisting}[caption={Rank Agents}, label={lst:rank_agents}]
+func rankAgents(network *Network) []AgentRatio {
+  agentRatios := make([]AgentRatio, len(network.Agents))
+
+  for i, agent := range network.Agents {
+    extremism := float64(partialExtremism(agent))
+    effort := partialEffort(agent)
+    var ratio float64
+    if effort == 0 {
+      ratio = math.Inf(1) // Assign infinite ratio to agents with zero effort.
+    } else {
+      ratio = extremism / effort
+    }
+
+    agentRatios[i] = AgentRatio{
+      Index:   i,
+      Ratio:   ratio,
+      Effort:  effort,
+      Benefit: extremism,
+    }
+  }
+
+  // Sort agents by descending ratio.
+  sort.Slice(agentRatios, func(i, j int) bool {
+    return agentRatios[i].Ratio > agentRatios[j].Ratio
+  })
+
+  return agentRatios
+}
+\end{lstlisting}
+\textbf{Explicación del código:}
+\begin{itemize}
+  \item Se inicializa un arreglo \textit{agentRatios} de tamaño igual al número de agentes en la red.
+  \item El ciclo \textit{for} recorre todos los agentes de la red. Para cada agente:
+  \begin{itemize}
+    \item Se calcula el extremismo parcial del agente (\textit{partialExtremism}) y el esfuerzo necesario para moderarlo (\textit{partialEffort}).
+    \item Se determina la relación (\textit{ratio}) entre el extremismo y el esfuerzo. Si el esfuerzo es cero, se asigna una relación infinita (\textit{math.Inf(1)}), ya que moderar a este agente no requiere esfuerzo.
+    \item La relación calculada, junto con el índice del agente, el esfuerzo y el extremismo, se almacena en el arreglo \textit{agentRatios}.
+  \end{itemize}
+  \item Una vez que se ha calculado la relación para todos los agentes, se ordenan por su relación de extremismo sobre esfuerzo en orden descendente usando la función \textit{sort.Slice}.
+  \item El algoritmo retorna el arreglo \textit{agentRatios}, que ahora contiene a los agentes clasificados en función de la mayor relación $\frac{extremismoParcial}{RecParcial}$.
+\end{itemize}
+\textbf{¿Garantiza solución óptima?}
+
+Como vimos anteriormente el algoritmo selecciona a los agentes en función de \eqref{eq:voraz2}, por lo que se garantiza que se seleccionan los agentes que minimizan el extremismo de la red social sin exceder los recursos disponibles. Más adelante podría no haber suficientes recursos para moderar otro agente que, en combinación con otros, habría resultado en un menor extremismo global si se hubieran elegido de manera diferente.
+
+Debido a que no se evalúa las combinaciones posibles de agentes y recursos, sino que elige en cada paso lo que pareciera mejor en ese instante (euristica \eqref{eq:voraz2}), el algoritmo no garantiza la solución óptima global.
+
 \subsection{Complejidad}
 \label{subsec:complejidad_algoritmo_voraz}
 \subsection{Corrección}
 \label{subsec:correccion_algoritmo_voraz}
+El algoritmo voraz propuesto \ref{lst:ModexV} no garantiza solución óptima global, como se mensionó anteriormente. 
+
+Supongamos que:
+\[
+  \forall \mathcal{R}\mathcal{S}, \forall R_{max} \in \mathbb{N},
+\]
+\begin{equation}
+\text{ si } E = \text{ModexV}(\mathcal{R}\mathcal{S}, R_{max}), \text{ entonces }
+\min\left(Ext\left(Mod(\mathcal{R}\mathcal{S}, E)\right)\right) \land Esfuerzo(\mathcal{R}\mathcal{S}, E) \leq R_{max}.
+\label{eq:correccion}
+\end{equation}
+
+\subsubsection*{Contra ejemplo de \eqref{eq:correccion} (\texttt{ModexV})}
+
+Supongamos que se tienen 3 agentes y 4 unidades de recursos disponibles.
+
+El \textbf{Agente A} tiene una opinión de 5, receptividad de 0.4, extremismoParcial \(25\), $RecParcial$ \(3\), y un ratio $\frac{extremismoParcial}{RecParcial}$ de \(\frac{25}{3}\). El \textbf{Agente B} tiene una opinión de 4, receptividad de 0.5, extremismoParcial \(16\), $RecParcial$ \(2\), y ratio \(\frac{16}{2}\). El \textbf{Agente C} tiene características idénticas a B: opinión de 4, receptividad de 0.5, extremismoParcial \(16\), $RecParcial$ \(2\), y ratio \(\frac{16}{2}\).
+\\
+
+Es decir: $\mathcal{R} \mathcal{S} = (\mathcal{A},E)$, $O=\langle 5,4,4 \rangle$, $r=\langle 0.4, 0.5, 0.5\rangle$ y $\frac{extremismoParcial}{RecParcial}(\mathcal{A})=\langle \frac{25}{3},\frac{16}{2},\frac{16}{2} \rangle $
+\\
+
+Aplicando $ModexV$ (\ref{lst:ModexV}), los agentes se ordenan en el siguiente orden: A ($\frac{25}{3}$), B ($\frac{16}{2}$), C ($\frac{16}{2}$). El algoritmo selecciona primero al Agente A (\(RecParcial_A = 3\)), lo que deja \(1\) unidad de recurso restante. No se puede moderar a los Agentes B ni C debido a la falta de recursos. La estrategia seleccionada es \([1, 0, 0]\), con un esfuerzo total de \(3\) unidades y una reducción de extremismo de \(25\). El extremismo total final es:
+\[
+Ext = \frac{\sqrt{0^2 + 4^2 + 4^2}}{3} = \frac{\sqrt{32}}{3} \approx 1.89.
+\]
+
+\textbf{Solución Óptima:}  
+
+Moderando a los Agentes B y C, con un esfuerzo total de \(4\) unidades, la reducción de extremismo es \(32\) unidades. El extremismo final es:
+\[
+Ext = \frac{\sqrt{5^2 + 0^2 + 0^2}}{3} = \frac{5}{3} \approx 1.67.
+\]
+
+Como se puede observar el algoritmo voraz tiene un extremismo final de \(1.89\), mientras que la solución óptima tiene como valor el extremismo final de \(1.67\).
+ 
+Este ejemplo demuestra que el algoritmo voraz (\texttt{ModexV}) prioriza a los agentes con la mejor relación $\frac{extremismoParcial}{RecParcial}$, pero no considera combinaciones que puedan ofrecer una mayor reducción del extremismo total. Queda demostrado que el algoritmo voraz no garantiza siempre la solución óptima.
 
 \section{Solución con Programación Dinámica}
 \label{sec:programacion_dinamica}
@@ -557,18 +717,18 @@ return strategy, effort, extremism, nil
 \end{lstlisting}
 \textbf{Explicación del código:}
 \begin{itemize}
-  \item Se inicializa el arreglo \texttt{strategy} con tamaño \texttt{numAgents}, donde cada elemento indica si un agente está moderado (1) o no (0).
+  \item Se inicializa el arreglo \textit{strategy} con tamaño \textit{numAgents}, donde cada elemento indica si un agente está moderado (1) o no (0).
 
   \item El bucle recorre los agentes desde el último al primero. Para cada agente:
   \begin{itemize}
-    \item Se calcula el esfuerzo necesario para moderarlo (\texttt{effort}).
+    \item Se calcula el esfuerzo necesario para moderarlo (\textit{effort}).
     \item Si es el primer agente, se comprueba si hay recursos suficientes y si vale la pena moderarlo.
     \item Para los demás agentes, se verifica si moderarlo reduce el extremismo comparado con no hacerlo. Si es así, se incluye al agente en la estrategia y se ajustan los recursos disponibles.
   \end{itemize}
 
   \item Una vez completado el bucle, se calcula el esfuerzo total y el extremismo resultante tras aplicar la estrategia óptima.
 
-  \item Finalmente, el algoritmo retorna la estrategia, el esfuerzo total, el extremismo, y un valor \texttt{nil} indicando que no hubo errores.
+  \item Finalmente, el algoritmo retorna la estrategia, el esfuerzo total, el extremismo, y un valor \textit{nil} indicando que no hubo errores.
 \end{itemize}
 
 \subsection{Complejidad}
