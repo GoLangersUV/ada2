@@ -12,7 +12,6 @@ package modex
 
 import (
 	"math"
-	"sort"
 )
 
 // AgentRatio holds the agent index along with its benefit-to-cost ratio.
@@ -106,31 +105,37 @@ func max(a, b int64) int64 {
 	return b
 }
 
-// rankAgents ranks agents based on their benefit-to-cost ratio.
 func rankAgents(network *Network) []AgentRatio {
-	agentRatios := make([]AgentRatio, len(network.Agents))
+	count := make([][]AgentRatio, 10002)
 
+	// Populate the agentRatios slice and sort by ratio
 	for i, agent := range network.Agents {
 		Extremism := float64(partialExtremism(agent))
 		Effort := partialEffort(agent)
-		var ratio float64
+		var ratio int
 		if Effort == 0 {
-			ratio = math.Inf(1)
+			ratio = 10001
 		} else {
-			ratio = Extremism / Effort
+			ratio = int(Extremism / Effort)
 		}
 
-		agentRatios[i] = AgentRatio{
+		agentRatio := AgentRatio{
 			Index:   i,
-			Ratio:   ratio,
+			Ratio:   float64(ratio),
 			Effort:  Effort,
 			Benefit: Extremism,
 		}
+		// Place agent into the appropriate bucket based on ratio
+		count[ratio] = append(count[ratio], agentRatio)
 	}
 
-	sort.Slice(agentRatios, func(i, j int) bool {
-		return agentRatios[i].Ratio > agentRatios[j].Ratio
-	})
+	// Collect sorted agent ratios
+	sortedAgentRatios := []AgentRatio{}
+	for ratio := 10001; ratio >= 0; ratio-- {
+		if len(count[ratio]) > 0 {
+			sortedAgentRatios = append(sortedAgentRatios, count[ratio]...)
+		}
+	}
 
-	return agentRatios
+	return sortedAgentRatios
 }
