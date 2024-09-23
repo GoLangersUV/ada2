@@ -8,7 +8,7 @@
  * Last modification: 09/21/2024
  * License: GNU-GPL
  */
-import { PolarAngleAxis, PolarGrid, Radar, RadarChart, ResponsiveContainer } from "recharts"
+import { PolarAngleAxis, PolarGrid, Radar, RadarChart, ResponsiveContainer, PolarRadiusAxis } from "recharts"
 
 import {
   ChartContainer,
@@ -17,25 +17,41 @@ import {
 } from "@/components/ui/chart"
 
 interface ChartData {
-  category: string;
-  ModexPD?: number;
-  ModexV?: number;
-  ModexFB?: number;
+  category: string
+  ModexPD?: number
+  ModexV?: number
+  ModexFB?: number
 }
 
 interface ChartConfig {
   [key: string]: {
-    label: string;
-    color: string;
-  };
+    label: string
+    color: string
+  }
 }
 
 interface CustomRadarChartProps {
-  chartData: ChartData[];
-  chartConfig: ChartConfig;
+  chartData: ChartData[]
+  chartConfig: ChartConfig
+}
+
+const getMaxValue = (data: ChartData[]): number => {
+  return data.reduce((max, item) => {
+    const itemMax = Object.values(item).reduce((itemMax, value) => {
+      if (typeof value === 'number' && value > itemMax) {
+        return value
+      }
+      return itemMax
+    }, max)
+    return itemMax
+  }, 0)
 }
 
 export default function CustomRadarChart({ chartData, chartConfig }: CustomRadarChartProps) {
+  const maxValue = getMaxValue(chartData)
+  
+  const adjustedMax = maxValue > 0 ? maxValue * 1.1 : 1 
+
   return (
     <div className="max-w-sm font-sans -mb-10">
       <ChartContainer
@@ -55,6 +71,12 @@ export default function CustomRadarChart({ chartData, chartConfig }: CustomRadar
               tickLine={false}
               axisLine={false}
             />
+            <PolarRadiusAxis
+              scale="log"
+              axisLine={false}
+              domain={[0.00001, adjustedMax]}
+              tick={false}
+            />
             <PolarGrid stroke="#CECECE" opacity={0.2} />
             {Object.entries(chartConfig).map(([key, config]) => (
               <Radar
@@ -72,3 +94,4 @@ export default function CustomRadarChart({ chartData, chartConfig }: CustomRadar
     </div>
   )
 }
+
