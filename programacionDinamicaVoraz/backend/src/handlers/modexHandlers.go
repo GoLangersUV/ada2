@@ -28,7 +28,7 @@ func byteSliceToIntSlice(b []byte) []int {
 	return intSlice
 }
 
-// processModex procesa el network y ejecuta el algoritmo proporcionado
+// processModex processes the Modex operation.
 func processModex(w http.ResponseWriter, network modex.Network, algorithm func(*modex.Network) ([]byte, float64, float64, float64, error)) {
 	minStrategy, minEffort, minExtremism, computationTime, err := algorithm(&network)
 	if err != nil {
