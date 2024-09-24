@@ -162,9 +162,13 @@ function App() {
   };
 
   const calculateHammingDistance = (arr1: number[], arr2: number[]): number => {
-    if (arr1.length !== arr2.length) return -1; // Invalid comparison
+    if (arr1.length !== arr2.length) return -1;
     return arr1.reduce((acc, val, idx) => acc + (val !== arr2[idx] ? 1 : 0), 0);
   };
+
+  const differenceExtremism = (fbExtremism: number, strategyVExtremism: number) => {
+    return ` ${((Math.abs(strategyVExtremism - fbExtremism) / fbExtremism) * 100).toFixed(2)}%`
+  }
 
   const calculateStrategyDifferences = () => {
     let pdVsV: number | null = null;
@@ -189,8 +193,8 @@ function App() {
 
   const formatPercentage = (value: number | null): string => {
     if (value === null) return 'N/A';
-    const totalAgents = networkData?.agents.length || 1; // Prevent division by zero
-    return `${((value / totalAgents) * 100).toFixed(2)}%`;
+    const totalAgents = networkData?.agents.length || 1; 
+    return ` ${((value / totalAgents) * 100).toFixed(2)}%`;
   };
 
   useEffect(() => {
@@ -203,7 +207,7 @@ function App() {
   }, [strategyFBData, strategyPDData, strategyVData]);
 
   return (
-    <ThemeProvider defaultTheme="system" >
+    <ThemeProvider defaultTheme="dark">
       <div className='min-h-screen'>
         <Header subject="Análisis y diseño de algoritmos II" onFileSelect={onFileSelect} selectedFile={selectedFile} />
 
@@ -239,58 +243,63 @@ function App() {
                 </Table>
               </div>
               <SubSection subTitle="Comparación de soluciones">
-                <CustomRadarChart
-                  chartData={[
-                    { 
-                      category: "Tiempo", 
-                      ModexPD: PDComputationTime ?? undefined, 
-                      ModexV: strategyVComputationTime ?? undefined, 
-                      ...(networkData?.agents.length <= 25 && { ModexFB: fbComputationTime ?? undefined })
+              <CustomRadarChart
+                chartData={[
+                  { 
+                    category: "Tiempo", 
+                    ModexPD: PDComputationTime ?? undefined, 
+                    ModexV: strategyVComputationTime ?? undefined, 
+                    ...(networkData?.agents.length <= 25 && { ModexFB: fbComputationTime ?? undefined })
+                  },
+                  { 
+                    category: "Extremismo", 
+                    ModexPD: PDExtremism ?? undefined, 
+                    ModexV: strategyVExtremism ?? undefined, 
+                    ...(networkData?.agents.length <= 25 && { ModexFB: fbExtremism ?? undefined })
+                  },
+                  { 
+                    category: "Esfuerzo", 
+                    ModexPD: PDEffort ?? undefined, 
+                    ModexV: strategyVEffort ?? undefined, 
+                    ...(networkData?.agents.length <= 25 && { ModexFB: fbEffort ?? undefined })
+                  },
+                ]}
+                chartConfig={{
+                  ...(networkData?.agents.length <= 2500 && {
+                    ModexPD: {
+                      label: "ModexPD",
+                      color: "#FFA500",
                     },
-                    { 
-                      category: "Extremismo", 
-                      ModexPD: PDExtremism ?? undefined, 
-                      ModexV: strategyVExtremism ?? undefined, 
-                      ...(networkData?.agents.length <= 25 && { ModexFB: fbExtremism ?? undefined })
+                  }),
+                  ...(networkData?.agents.length <= 25 && {
+                    ModexFB: {
+                      label: "ModexFB",
+                      color: "#FF6B6B",
                     },
-                    { 
-                      category: "Esfuerzo", 
-                      ModexPD: PDEffort ?? undefined, 
-                      ModexV: strategyVEffort ?? undefined, 
-                      ...(networkData?.agents.length <= 25 && { ModexFB: fbEffort ?? undefined })
-                    },
-                  ]}
-                  chartConfig={{
-                    ...(networkData?.agents.length <= 2500 && {
-                      ModexPD: {
-                        label: "ModexPD",
-                        color: "#FFA500",
-                      },
-                    }),
-                    ...(networkData?.agents.length <= 25 && {
-                      ModexFB: {
-                        label: "ModexFB",
-                        color: "#FF6B6B",
-                      },
-                    }),
-                    ModexV: {
-                      label: "ModexV",
-                      color: "#9B59B6",
-                    },
-                  }}
-                />
+                  }),
+                  ModexV: {
+                    label: "ModexV",
+                    color: "#9B59B6",
+                  },
+                }}
+              />
               </SubSection>
-              <SubSection subTitle="Diferencias de estrategias">
+              <SubSection subTitle="Porcentajes de diferencias">
                 <ul className="list-none list-inside space-y-2 properties-list">
                   {strategyPDData.length > 0 && strategyPDData.length <= 2500 && (
                     <>
-                      {strategyFBData.length > 0 && (
-                        <>
-                          <li>ModexFB vs ModexPD: <span className="property-value">{formatPercentage(strategyDifferences.fbVsPd)}</span></li>
-                          <li>ModexFB vs ModexV: <span className="property-value">{formatPercentage(strategyDifferences.fbVsV)}</span></li>
-                        </>
-                      )}
-                      <li>ModexPD vs ModexV: <span className="property-value">{formatPercentage(strategyDifferences.pdVsV)}</span></li>
+                      <li>
+                        Diferencia de estrategias: 
+                        <span className="property-value">
+                          {formatPercentage(strategyDifferences.pdVsV)}
+                        </span>
+                      </li>
+                      <li>
+                        Diferencia de extremismos: 
+                        <span className="property-value">
+                          {differenceExtremism(PDExtremism ?? 0, strategyVExtremism ?? 0)}
+                        </span>
+                      </li>
                     </>
                   )}
                 </ul>

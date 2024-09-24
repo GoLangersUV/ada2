@@ -8,8 +8,8 @@
  * Last modification: 09/21/2024
  * License: GNU-GPL
  */
+import { useMemo } from 'react'
 import { PolarAngleAxis, PolarGrid, PolarRadiusAxis, Radar, RadarChart, ResponsiveContainer } from "recharts"
-
 import {
   ChartContainer,
   ChartTooltip,
@@ -36,21 +36,75 @@ interface CustomRadarChartProps {
 }
 
 export default function CustomRadarChart({ chartData, chartConfig }: CustomRadarChartProps) {
+  const { sanitizedChartData, maxValue, minValue } = useMemo(() => {
+    let max = 0
+    let min = Infinity
+    const sanitizedData = chartData.map(item => {
+      const sanitizedItem: ChartData = { category: item.category }
+
+      if (typeof item.ModexPD === 'number' && item.ModexPD > 0) {
+        sanitizedItem.ModexPD = item.ModexPD
+        if (item.ModexPD > max) max = item.ModexPD
+        if (item.ModexPD < min) min = item.ModexPD
+      } else {
+        sanitizedItem.ModexPD = 0.00001
+        if (0.00001 > max) max = 0.00001
+        if (0.00001 < min) min = 0.00001
+      }
+
+      if (typeof item.ModexV === 'number' && item.ModexV > 0) {
+        sanitizedItem.ModexV = item.ModexV
+        if (item.ModexV > max) max = item.ModexV
+        if (item.ModexV < min) min = item.ModexV
+      } else {
+        sanitizedItem.ModexV = 0.00001
+        if (0.00001 > max) max = 0.00001
+        if (0.00001 < min) min = 0.00001
+      }
+
+      if (item.ModexFB !== undefined) {
+        if (typeof item.ModexFB === 'number' && item.ModexFB > 0) {
+          sanitizedItem.ModexFB = item.ModexFB
+          if (item.ModexFB > max) max = item.ModexFB
+          if (item.ModexFB < min) min = item.ModexFB
+        } else {
+          sanitizedItem.ModexFB = 0.00001
+          if (0.00001 > max) max = 0.00001
+          if (0.00001 < min) min = 0.00001
+        }
+      }
+
+      return sanitizedItem
+    })
+
+    return {
+      sanitizedChartData: sanitizedData,
+      maxValue: max,
+      minValue: min === Infinity ? 0.00001 : min,
+    }
+  }, [chartData])
+
+  const adjustedMax = useMemo(() => (maxValue > 0 ? maxValue * 1.1 : 1), [maxValue])
+  const adjustedMin = useMemo(() => (minValue > 0 ? Math.max(minValue * 0.9, 0.00001) : 0.00001), [minValue])
+
   return (
-    <div className="max-w-sm font-sans -mb-10">
+    <div className="max-w-sm font-sans -mb-20">
       <ChartContainer
         config={chartConfig}
         className="mx-auto w-full"
         style={{ height: "350px" }}
       >
         <ResponsiveContainer width="100%" height="100%">
-          <RadarChart data={chartData} margin={{ top: 10, right: 20, bottom: 10, left: 20 }}>
+          <RadarChart data={sanitizedChartData} margin={{ top: 10, right: 20, bottom: 10, left: 20 }}>
             <ChartTooltip
               cursor={false}
               content={<ChartTooltipContent indicator="line" />}
             />
             <PolarRadiusAxis
-              scale={"log"}
+              scale="log"
+              axisLine={false}
+              domain={[adjustedMin, adjustedMax > 0 ? adjustedMax : 1]}
+              tick={false}
             />
             <PolarAngleAxis
               dataKey="category"
@@ -58,7 +112,7 @@ export default function CustomRadarChart({ chartData, chartConfig }: CustomRadar
               tickLine={false}
               axisLine={false}
             />
-            <PolarGrid stroke="#CECECE" opacity={0.2} />
+            <PolarGrid radialLines={false} stroke="#CECECE" opacity={0.2}/>
             {Object.entries(chartConfig).map(([key, config]) => (
               <Radar
                 key={key}
