@@ -8,7 +8,8 @@
  * Last modification: 09/22/2024
  * License: GNU-GPL
  */
-import React, { useState, useEffect } from 'react';
+
+import React, { useState, useEffect, useCallback } from 'react';
 
 interface HeaderProps {
   subject: string;
@@ -18,12 +19,17 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ subject, onFileSelect, selectedFile }) => {
   const [fileList, setFileList] = useState<string[]>([]);
+  const [loading, setLoading] = useState<boolean>(false);
+  const [errorMessage, setErrorMessage] = useState<string>('');
 
-  const fetchFileList = async () => {
+  const fetchFileList = useCallback(async () => {
+    setLoading(true);
     try {
       const response = await fetch('http://localhost:8080/files');
+      if (!response.ok) {
+        throw new Error(`Error: ${response.statusText}`);
+      }
       const files = await response.json();
-
       const filesList = Array.isArray(files) ? files : [];
 
       setFileList(filesList);
@@ -36,59 +42,72 @@ const Header: React.FC<HeaderProps> = ({ subject, onFileSelect, selectedFile }) 
       } else {
         onFileSelect('');
       }
+      setErrorMessage('');
     } catch (error) {
       console.error('Error al obtener la lista de archivos:', error);
+      setErrorMessage('Error al obtener la lista de archivos.');
+    } finally {
+      setLoading(false);
     }
-  };
+  }, [selectedFile, onFileSelect]);
 
   useEffect(() => {
     fetchFileList();
-  }, []);
+  }, [fetchFileList]);
 
-  const openFileDialog = () => {
+  const openFileDialog = useCallback(() => {
     const fileInput = document.getElementById('file-input') as HTMLInputElement;
     if (fileInput) {
       fileInput.click();
     }
-  };
+  }, []);
 
-  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      const formData = new FormData()
-      formData.append('file', file);
+  const handleFileUpload = useCallback(
+    async (event: React.ChangeEvent<HTMLInputElement>) => {
+      const file = event.target.files?.[0];
+      if (file) {
+        const formData = new FormData();
+        formData.append('file', file);
 
-      try {
-        const response = await fetch('http://localhost:8080/upload', {
-          method: 'POST',
-          body: formData,
-        });
+        try {
+          const response = await fetch('http://localhost:8080/upload', {
+            method: 'POST',
+            body: formData,
+          });
 
-        if (response.ok) {
-          onFileSelect(file.name);
-          fetchFileList();
-        } else {
+          if (response.ok) {
+            setFileList((prevList) => [...prevList, file.name]);
+            onFileSelect(file.name);
+            setErrorMessage('');
+          } else {
+            throw new Error('Error al subir el archivo');
+          }
+        } catch (error) {
+          console.error('Error al subir el archivo:', error);
+          setErrorMessage('Error al subir el archivo.');
           alert('Error al subir el archivo');
         }
-      } catch (error) {
-        console.error('Error al subir el archivo:', error);
-        alert('Error al subir el archivo');
       }
-    }
-  };
+    },
+    [onFileSelect]
+  );
 
-  const handleFileSelect = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const fileName = event.target.value;
-    onFileSelect(fileName);
-  };
+  const handleFileSelect = useCallback(
+    (event: React.ChangeEvent<HTMLSelectElement>) => {
+      const fileName = event.target.value;
+      onFileSelect(fileName);
+    },
+    [onFileSelect]
+  );
 
   return (
     <header className="flex flex-col text-lg items-center pt-10">
-      <h2 className=" italic font-light">{subject}</h2>
+      <h2 className="italic font-light">{subject}</h2>
       <h1 className="text-6xl flex mt-2">
         <img src="/logo.png" alt="Modex" className="w-12 mr-2 inline-block" />
         <span className="text-[#00ADD8]">Mod</span>ex
       </h1>
+
       <div className="file-loader my-8 flex gap-1">
         <select
           name="files"
@@ -117,6 +136,9 @@ const Header: React.FC<HeaderProps> = ({ subject, onFileSelect, selectedFile }) 
           onChange={handleFileUpload}
         />
       </div>
+
+      {loading && <p>Cargando lista de archivos...</p>}
+      {errorMessage && <p className="text-red-500">{errorMessage}</p>}
     </header>
   );
 };
