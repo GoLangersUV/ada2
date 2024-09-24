@@ -167,6 +167,7 @@ function App() {
   };
 
   const differenceExtremism = (fbExtremism: number, strategyVExtremism: number) => {
+    if (fbExtremism === 0 && strategyVExtremism === 0) return ' 0%';
     return ` ${((Math.abs(strategyVExtremism - fbExtremism) / fbExtremism) * 100).toFixed(2)}%`
   }
 
@@ -243,48 +244,6 @@ function App() {
                 </Table>
               </div>
               <SubSection subTitle="Comparación de soluciones">
-              <CustomRadarChart
-                chartData={[
-                  { 
-                    category: "Tiempo", 
-                    ModexPD: PDComputationTime ?? undefined, 
-                    ModexV: strategyVComputationTime ?? undefined, 
-                    ...(networkData?.agents.length <= 25 && { ModexFB: fbComputationTime ?? undefined })
-                  },
-                  { 
-                    category: "Extremismo", 
-                    ModexPD: PDExtremism ?? undefined, 
-                    ModexV: strategyVExtremism ?? undefined, 
-                    ...(networkData?.agents.length <= 25 && { ModexFB: fbExtremism ?? undefined })
-                  },
-                  { 
-                    category: "Esfuerzo", 
-                    ModexPD: PDEffort ?? undefined, 
-                    ModexV: strategyVEffort ?? undefined, 
-                    ...(networkData?.agents.length <= 25 && { ModexFB: fbEffort ?? undefined })
-                  },
-                ]}
-                chartConfig={{
-                  ...(networkData?.agents.length <= 2500 && {
-                    ModexPD: {
-                      label: "ModexPD",
-                      color: "#FFA500",
-                    },
-                  }),
-                  ...(networkData?.agents.length <= 25 && {
-                    ModexFB: {
-                      label: "ModexFB",
-                      color: "#FF6B6B",
-                    },
-                  }),
-                  ModexV: {
-                    label: "ModexV",
-                    color: "#9B59B6",
-                  },
-                }}
-              />
-              </SubSection>
-              <SubSection subTitle="Porcentajes de diferencias">
                 <ul className="list-none list-inside space-y-2 properties-list">
                   {strategyPDData.length > 0 && strategyPDData.length <= 2500 && (
                     <>
@@ -303,6 +262,46 @@ function App() {
                     </>
                   )}
                 </ul>
+                <CustomRadarChart
+                  chartData={[
+                    { 
+                      category: "Tiempo", 
+                      ModexPD: PDComputationTime ?? undefined, 
+                      ModexV: strategyVComputationTime ?? undefined, 
+                      ...(networkData?.agents.length <= 25 && { ModexFB: fbComputationTime ?? undefined })
+                    },
+                    { 
+                      category: "Extremismo", 
+                      ModexPD: PDExtremism ?? undefined, 
+                      ModexV: strategyVExtremism ?? undefined, 
+                      ...(networkData?.agents.length <= 25 && { ModexFB: fbExtremism ?? undefined })
+                    },
+                    { 
+                      category: "Esfuerzo", 
+                      ModexPD: PDEffort ?? undefined, 
+                      ModexV: strategyVEffort ?? undefined, 
+                      ...(networkData?.agents.length <= 25 && { ModexFB: fbEffort ?? undefined })
+                    },
+                  ]}
+                  chartConfig={{
+                    ...(networkData?.agents.length <= 2500 && {
+                      ModexPD: {
+                        label: "ModexPD",
+                        color: "#FFA500",
+                      },
+                    }),
+                    ...(networkData?.agents.length <= 25 && {
+                      ModexFB: {
+                        label: "ModexFB",
+                        color: "#FF6B6B",
+                      },
+                    }),
+                    ModexV: {
+                      label: "ModexV",
+                      color: "#9B59B6",
+                    },
+                  }}
+                />
               </SubSection>
             </div>
           </Section>
