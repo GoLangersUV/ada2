@@ -210,7 +210,7 @@ func ModexV(network *Network) ([]byte, float64, float64, float64, error) {
 
 	endTime := time.Now()
 
-	computationTime := endTime.Sub(startTime).Seconds() // Tiempo en segundos
+	computationTime := endTime.Sub(startTime).Seconds()
 
 	return strategy, totalEffort, newExtremism, computationTime, nil
 }

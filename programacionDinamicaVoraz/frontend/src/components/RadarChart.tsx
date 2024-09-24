@@ -8,7 +8,7 @@
  * Last modification: 09/21/2024
  * License: GNU-GPL
  */
-import { PolarAngleAxis, PolarGrid, Radar, RadarChart, ResponsiveContainer } from "recharts"
+import { PolarAngleAxis, PolarGrid, PolarRadiusAxis, Radar, RadarChart, ResponsiveContainer } from "recharts"
 
 import {
   ChartContainer,
@@ -48,6 +48,9 @@ export default function CustomRadarChart({ chartData, chartConfig }: CustomRadar
             <ChartTooltip
               cursor={false}
               content={<ChartTooltipContent indicator="line" />}
+            />
+            <PolarRadiusAxis
+              scale={"log"}
             />
             <PolarAngleAxis
               dataKey="category"
