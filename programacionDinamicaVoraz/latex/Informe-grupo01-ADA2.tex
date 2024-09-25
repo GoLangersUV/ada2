@@ -24,9 +24,10 @@
 \definecolor{backcolour}{rgb}{0.95,0.95,0.92}
 \definecolor{grisclaro}{rgb}{0.9, 0.9, 0.9}
 \definecolor{crtitle}{RGB}{112,48,160}
+\definecolor{darkgreen}{RGB}{64,154,3}
 \hypersetup{
     colorlinks=true,
-    linkcolor=black,
+    linkcolor=blue,
     urlcolor=blue    
 }
 
@@ -308,39 +309,8 @@ func ModexFB(network *Network) (bestStrategy []byte, bestEffort float64, minExtr
 
 
 Este algoritmo de fuerza bruta genera todas las posibles estrategias de moderación y selecciona la mejor según dos criterios: esfuerzo mínimo y extremismo mínimo, siempre que el esfuerzo no exceda los recursos de la red.
-\subsubsection*{ModexFB mejorado}
 
-Debido a que el siclo realizado en la función \textit{ModexFB} (\ref{lst:modexfb}) recorre todas las estrategias posibles, además de en la línea 18 llamar a \textit{strategyGenerator} (\ref{lst:strategy_generator}) pero para evitar la exploración de estrategias inecesarias y además en el mismo recorrido calcular el esfuerzo y el extremismo de la red, se puede mejorar el algoritmo de la siguiente manera:
-\begin{lstlisting}[caption={ModexFB mejorado}, label={lst:modexfb_mejorado}]
-func ModexFB(network *Network) (bestStrategy []byte, bestEffort float64, minExtremism float64, err error) {
-	numAgents := len(network.Agents)
 
-	if numAgents > 25 {
-		return nil, 0, 0, errors.New("In ModexFB the number of agents must be less than or equal to 25")
-	}
-
-	total := 1 << numAgents
-	minExtremism = math.Inf(1)
-
-	for i := 0; i < total; i++ {
-		strategy := make([]byte, numAgents)
-		for j := 0; j < numAgents; j++ {
-			strategy[numAgents-j-1] = byte((i >> j) & 1)
-		}
-		effortValue, networkPrime := effort(network, strategy)
-		if effortValue <= float64(network.Resources) {
-			extremismValue := extremism(networkPrime)
-			if extremismValue < minExtremism {
-				minExtremism = extremismValue
-				bestEffort = effortValue
-				bestStrategy = strategy
-			}
-		}
-	}
-
-	return bestStrategy, bestEffort, minExtremism, nil
-}
-\end{lstlisting}
 \subsection{Complejidad}
 \label{subsec:complejidad_fuerza_bruta}
 Para analizar la complejidad del algoritmo debemos de considerar los dos ciclos \textit{for} que ocurren dentro del código, el primer ciclo (linea 11) hace un recorrido sobre todas las posibles combinaciones de agentes que existen (linea 8 \textit{total = 1 $<<$ numAgents}), y el segundo ciclo (linea 13) hace un recorrido por el total de agentes (linea 2 \textit{numAgents:= len(network.Agents)}).
@@ -449,15 +419,48 @@ La función \textit{strategyGenerator(n)} (\ref{lst:strategy_generator}) genera 
 
 Dado que el algoritmo recorre todas las estrategias en $\mathcal{E}$ sin excepción, y para cada una realiza las evaluaciones necesarias, asegura que ninguna estrategia posible es omitida. Por lo tanto, el algoritmo considera todas las posibles combinaciones de estrategias $E$.
 
+\subsubsection*{ModexFB mejorado}
+
+Debido a que el ciclo realizado en la función \textit{ModexFB} (\ref{lst:modexfb}) recorre todas las estrategias posibles, además de en la línea 18 llamar a \textit{strategyGenerator} (\ref{lst:strategy_generator}) pero para evitar la exploración de estrategias inecesarias y además en el mismo recorrido calcular el esfuerzo y el extremismo de la red, se puede mejorar el algoritmo de la siguiente manera:
+\begin{lstlisting}[caption={ModexFB mejorado}, label={lst:modexfb_mejorado}]
+func ModexFB(network *Network) (bestStrategy []byte, bestEffort float64, minExtremism float64, err error) {
+	numAgents := len(network.Agents)
+
+	if numAgents > 25 {
+		return nil, 0, 0, errors.New("In ModexFB the number of agents must be less than or equal to 25")
+	}
+
+	total := 1 << numAgents
+	minExtremism = math.Inf(1)
+
+	for i := 0; i < total; i++ {
+		strategy := make([]byte, numAgents)
+		for j := 0; j < numAgents; j++ {
+			strategy[numAgents-j-1] = byte((i >> j) & 1)
+		}
+		effortValue, networkPrime := effort(network, strategy)
+		if effortValue <= float64(network.Resources) {
+			extremismValue := extremism(networkPrime)
+			if extremismValue < minExtremism {
+				minExtremism = extremismValue
+				bestEffort = effortValue
+				bestStrategy = strategy
+			}
+		}
+	}
+
+	return bestStrategy, bestEffort, minExtremism, nil
+}
+\end{lstlisting}
 \section{Solución con Algoritmo Voraz}
 \label{sec:algoritmo_voraz}
 "Describen correctamente un algoritmo voraz para resolver el problema, calcula correctamente su complejidad y la justifica, y analiza acertadamente si el algoritmo da siempre la respuesta correcta y lo justifica. El algoritmo quedó clasificado en el grupo de los mejores voraces del curso."
 
-Para la realización de este algoritmo, se considero la relación que hay entre el $extremismoParcial$ $(O_i\mathcal{R} \mathcal{S})^2$ y el $RecParcial = \left\lceil  |o_n^{\mathcal{R}\mathcal{S}} - o_n^{\mathcal{R}\mathcal{S}'}| \times (1 - r_n^{\mathcal{R}\mathcal{S}}) \right\rceil$ para cada agente $a_i$ en la red social $\mathcal{R}\mathcal{S}$.
+Para la realización de este algoritmo, se consideró la relación que hay entre el $extremismoParcial$ $(O_i\mathcal{R} \mathcal{S})^2$ y el $esfuerzoParcial = \left\lceil  |o_i^{\mathcal{R}\mathcal{S}} - o_i^{\mathcal{R}\mathcal{S}'}| \times (1 - r_i^{\mathcal{R}\mathcal{S}}) \right\rceil$ para cada agente $a_i$ en la red social $\mathcal{R}\mathcal{S}$.
 
 Sea:
 \[
-  RecParcial = \left\lceil  |o_n^{\mathcal{R}\mathcal{S}} - o_n^{\mathcal{R}\mathcal{S}'}| \times (1 - r_n^{\mathcal{R}\mathcal{S}}) \right\rceil
+  esfuerzoParcial = \left\lceil  |o_n^{\mathcal{R}\mathcal{S}} - o_n^{\mathcal{R}\mathcal{S}'}| \times (1 - r_n^{\mathcal{R}\mathcal{S}}) \right\rceil
 \]
 
 De tal forma que para un agente $a_i$ en la red social $\mathcal{R}\mathcal{S}$, se moderará si se cumple:
@@ -466,7 +469,7 @@ De tal forma que para un agente $a_i$ en la red social $\mathcal{R}\mathcal{S}$,
   \label{eq:voraz}
 \end{equation}
 \begin{equation}
-  \eqref{eq:voraz} | \sum_{l=1}^{i}RecParcial + RecParcial_i \leqslant Recursos
+  \eqref{eq:voraz} | \sum_{i=1}^{l}esfuerzoParcial + esfuerzoParcial_i \leqslant Recursos
   \label{eq:voraz2}
 \end{equation}
 \subsection{Descripción del Algoritmo}
@@ -571,7 +574,7 @@ func rankAgents(network *Network) []AgentRatio {
     \item La relación calculada, junto con el índice del agente, el esfuerzo y el extremismo, se almacena en el arreglo \textit{agentRatios}.
   \end{itemize}
   \item Una vez que se ha calculado la relación para todos los agentes, se ordenan por su relación de extremismo sobre esfuerzo en orden descendente usando la función \textit{sort.Slice}.
-  \item El algoritmo retorna el arreglo \textit{agentRatios}, que ahora contiene a los agentes clasificados en función de la mayor relación $\frac{extremismoParcial}{RecParcial}$.
+  \item El algoritmo retorna el arreglo \textit{agentRatios}, que ahora contiene a los agentes clasificados en función de la mayor relación $\frac{extremismoParcial}{esfuerzoParcial}$.
 \end{itemize}
 \textbf{¿Garantiza solución óptima?}
 
@@ -581,6 +584,7 @@ Debido a que no se evalúa las combinaciones posibles de agentes y recursos, sin
 
 \subsection{Complejidad}
 \label{subsec:complejidad_algoritmo_voraz}
+Para determinar la complejidad del algoritmo voraz, se considera tres partes. La primera, donde la función \textit{rankAgents} (\ref{lst:rank_agents}), que recorre n agentes en un solo ciclo para determinar el ratio, dando su complejidad de ejecución de \(O(n)\). La segunda, esta dado por la función \textit{sort.Slice}, una función del paquetede sort de Go, cuya complejidad, según la documentación es \(O(log(n))\). Y la tercera parte, la aplicación de la decisión local del algoritmo voraz, la cual determina si incluir o no un determinado agente, en un recorrido para los n agentes, lo cual, nuevamente, representa una complejidad de \(O(n)\). Por lo tanto, la complejidad total del algoritmo voraz, considerando todas las partes, deviene a \(O(2n + log(n))\) .
 \subsection{Corrección}
 \label{subsec:correccion_algoritmo_voraz}
 El algoritmo voraz propuesto \ref{lst:ModexV} no garantiza solución óptima global, como se mensionó anteriormente. 
@@ -599,13 +603,13 @@ Supongamos que:
 
 Supongamos que se tienen 3 agentes y 4 unidades de recursos disponibles.
 
-El \textbf{Agente A} tiene una opinión de 5, receptividad de 0.4, extremismoParcial \(25\), $RecParcial$ \(3\), y un ratio $\frac{extremismoParcial}{RecParcial}$ de \(\frac{25}{3}\). El \textbf{Agente B} tiene una opinión de 4, receptividad de 0.5, extremismoParcial \(16\), $RecParcial$ \(2\), y ratio \(\frac{16}{2}\). El \textbf{Agente C} tiene características idénticas a B: opinión de 4, receptividad de 0.5, extremismoParcial \(16\), $RecParcial$ \(2\), y ratio \(\frac{16}{2}\).
+El \textbf{Agente A} tiene una opinión de 5, receptividad de 0.4, extremismoParcial \(25\), $esfuerzoParcial$ \(3\), y un ratio $\frac{extremismoParcial}{esfuerzoParcial}$ de \(\frac{25}{3}\). El \textbf{Agente B} tiene una opinión de 4, receptividad de 0.5, extremismoParcial \(16\), $esfuerzoParcial$ \(2\), y ratio \(\frac{16}{2}\). El \textbf{Agente C} tiene características idénticas a B: opinión de 4, receptividad de 0.5, extremismoParcial \(16\), $esfuerzoParcial$ \(2\), y ratio \(\frac{16}{2}\).
 \\
 
-Es decir: $\mathcal{R} \mathcal{S} = (\mathcal{A},E)$, $O=\langle 5,4,4 \rangle$, $r=\langle 0.4, 0.5, 0.5\rangle$ y $\frac{extremismoParcial}{RecParcial}(\mathcal{A})=\langle \frac{25}{3},\frac{16}{2},\frac{16}{2} \rangle $
+Es decir: $\mathcal{R} \mathcal{S} = (\mathcal{A},E)$, $O=\langle 5,4,4 \rangle$, $r=\langle 0.4, 0.5, 0.5\rangle$ y $\frac{extremismoParcial}{esfuerzoParcial}(\mathcal{A})=\langle \frac{25}{3},\frac{16}{2},\frac{16}{2} \rangle $
 \\
 
-Aplicando $ModexV$ (\ref{lst:ModexV}), los agentes se ordenan en el siguiente orden: A ($\frac{25}{3}$), B ($\frac{16}{2}$), C ($\frac{16}{2}$). El algoritmo selecciona primero al Agente A (\(RecParcial_A = 3\)), lo que deja \(1\) unidad de recurso restante. No se puede moderar a los Agentes B ni C debido a la falta de recursos. La estrategia seleccionada es \([1, 0, 0]\), con un esfuerzo total de \(3\) unidades y una reducción de extremismo de \(25\). El extremismo total final es:
+Aplicando $ModexV$ (\ref{lst:ModexV}), los agentes se ordenan en el siguiente orden: A ($\frac{25}{3}$), B ($\frac{16}{2}$), C ($\frac{16}{2}$). El algoritmo selecciona primero al Agente A (\(esfuerzoParcial_A = 3\)), lo que deja \(1\) unidad de recurso restante. No se puede moderar a los Agentes B ni C debido a la falta de recursos. La estrategia seleccionada es \([1, 0, 0]\), con un esfuerzo total de \(3\) unidades y una reducción de extremismo de \(25\). El extremismo total final es:
 \[
 Ext = \frac{\sqrt{0^2 + 4^2 + 4^2}}{3} = \frac{\sqrt{32}}{3} \approx 1.89.
 \]
@@ -619,7 +623,7 @@ Ext = \frac{\sqrt{5^2 + 0^2 + 0^2}}{3} = \frac{5}{3} \approx 1.67.
 
 Como se puede observar el algoritmo voraz tiene un extremismo final de \(1.89\), mientras que la solución óptima tiene como valor el extremismo final de \(1.67\).
  
-Este ejemplo demuestra que el algoritmo voraz (\texttt{ModexV}) prioriza a los agentes con la mejor relación $\frac{extremismoParcial}{RecParcial}$, pero no considera combinaciones que puedan ofrecer una mayor reducción del extremismo total. Queda demostrado que el algoritmo voraz no garantiza siempre la solución óptima.
+Este ejemplo demuestra que el algoritmo voraz (\texttt{ModexV}) prioriza a los agentes con la mejor relación $\frac{extremismoParcial}{esfuerzoParcial}$, pero no considera combinaciones que puedan ofrecer una mayor reducción del extremismo total. Queda demostrado que el algoritmo voraz no garantiza siempre la solución óptima.
 
 \section{Solución con Programación Dinámica}
 \label{sec:programacion_dinamica}
@@ -631,19 +635,19 @@ El problema puede resolverse como se vio anteriormente, utilizando fuerza bruta 
 \subsubsection*{Subestructura óptima}
 Sea:
 \[
-  RecParcial = \left\lceil  |o_n^{\mathcal{R}\mathcal{S}} - o_n^{\mathcal{R}\mathcal{S}'}| \times (1 - r_n^{\mathcal{R}\mathcal{S}}) \right\rceil
+  esfuerzoParcial = \left\lceil  |o_n^{\mathcal{R}\mathcal{S}} - o_n^{\mathcal{R}\mathcal{S}'}| \times (1 - r_n^{\mathcal{R}\mathcal{S}}) \right\rceil
 \]
 Dada una estrategia $E = \langle e_1, \ldots, e_n \rangle$; $e_i \in \{0,1\}$ se tiene que:
 \begin{equation}
   ModEx(1,n-1,Recursos) = 
   \begin{cases}
     ModEx(1, n-1, Recursos) & \text{si } e_n = 0\\
-    ModEx(1, n-1, Recursos-RecParcial) & \text{si } e_n = 1
+    ModEx(1, n-1, Recursos-esfuerzoParcial) & \text{si } e_n = 1
   \end{cases}
 \end{equation}
-La subestructura óptima se presenta cuando se resuelve la moderación del extremismo para una red de $n-1$ agentes, si no se modera el agente $n$ ($e_n = 0$), el problema se resuelve de igualmanera para $n-1$ agentes. Si se decide moderar ($e_{n-1}$), los recursos disponibles se reducen por $RecParcial$ y se resuelve el problema de los primeros $n-1$ agentes con menos recursos ($Recursos-RecParcial$).
+La subestructura óptima se presenta cuando se resuelve la moderación del extremismo para una red de $n-1$ agentes, si no se modera el agente $n$ ($e_n = 0$), el problema se resuelve de igualmanera para $n-1$ agentes. Si se decide moderar ($e_{n-1}$), los recursos disponibles se reducen por $esfuerzoParcial$ y se resuelve el problema de los primeros $n-1$ agentes con menos recursos ($Recursos-esfuerzoParcial$).
 \subsection{Definición Recursiva del Valor de una Solución Óptima}
-\label{subsec:definicion_solucion_optima}
+\label{subsec:definicion_solucion_optima}  
 Sea:
 \[
   (O_i\mathcal{R} \mathcal{S})^2 = n^2Ext^2(\mathcal{R} \mathcal{S})
@@ -652,14 +656,14 @@ Sea $VS_i$($Recursos$) el valor de la solución óptima del problema $ModEx(1,j,
 \begin{equation}
   VS_i(Recursos) =
   \begin{cases}
-    \text{Si } RecParcial \leq Recursos \rightarrow \max(VS_{i-1}(Recursos), VS_{i-1}(Recursos - RecParcial) + (O_i\mathcal{R} \mathcal{S})^2),\\
-    \text{Si } i=1 \land Recursos \geq RecParcial \rightarrow (O_i\mathcal{R} \mathcal{S})^2, \\
+    \text{Si } esfuerzoParcial \leq Recursos \rightarrow \max(VS_{i-1}(Recursos), VS_{i-1}(Recursos - esfuerzoParcial) + (O_i\mathcal{R} \mathcal{S})^2),\\
+    \text{Si } i=1 \land Recursos \geq esfuerzoParcial \rightarrow (O_i\mathcal{R} \mathcal{S})^2, \\
     \text{De lo contrario } \rightarrow VS_{i-1}
   \end{cases}
   \label{eq:valor_solucion}
 \end{equation}
 
-El valor solución se define en tres casos. El primero considera si los recursos parciales son menores o iguales a los recursos disponibles. Si se cumple, se evalúa el máximo entre el valor solución anterior (sin modificar los recursos) y el valor solución anterior restando los recursos parciales (\(Recursos - RecParcial\)), sumado a \((O_i\mathcal{R}\mathcal{S})^2\). El segundo caso ocurre cuando se evalúa el primer agente (\(i=1\)), y los recursos disponibles son mayores o iguales a los recursos parciales; en este caso, el valor solución es simplemente \((O_i\mathcal{R}\mathcal{S})^2\). Finalmente, si no se cumple ninguna de las condiciones anteriores, el valor solución es el mismo que el valor solución anterior.
+El valor solución se define en tres casos. El primero considera si los recursos parciales son menores o iguales a los recursos disponibles. Si se cumple, se evalúa el máximo entre el valor solución anterior (sin modificar los recursos) y el valor solución anterior restando los recursos parciales (\(Recursos - esfuerzoParcial\)), sumado a \((O_i\mathcal{R}\mathcal{S})^2\). El segundo caso ocurre cuando se evalúa el primer agente (\(i=1\)), y los recursos disponibles son mayores o iguales a los recursos parciales; en este caso, el valor solución es simplemente \((O_i\mathcal{R}\mathcal{S})^2\). Finalmente, si no se cumple ninguna de las condiciones anteriores, el valor solución es el mismo que el valor solución anterior.
 
 \subsection{Algoritmo para Calcular el Costo de una Solución Óptima}
 \label{subsec:algoritmo_costo_solucion_optima}
