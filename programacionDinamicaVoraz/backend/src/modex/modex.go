@@ -55,13 +55,30 @@ func ModexFB(network *Network) (bestStrategy []byte, bestEffort float64, minExtr
 		return nil, 0, 0, 0, errors.New("In ModexFB the number of agents must be less than or equal to 25")
 	}
 
+  if network.Resources >= uint64(numAgents*100) {
+		strategy := make([]byte, numAgents)
+		for i := 0; i < numAgents; i++ {
+			strategy[i] = 1
+		}
+
+		startTime := time.Now()
+		Effort, networkPrime := Effort(network, strategy)
+		Extremism := Extremism(networkPrime)
+		computationTime := time.Since(startTime).Seconds()
+
+		return strategy, Effort, Extremism, computationTime, nil
+	}
+
+  total := 1 << numAgents
+	minExtremism = math.Inf(1)
+
 	startTime := time.Now()
 
-	var possibleStrategies [][]byte = strategyGenerator(numAgents)
-	minExtremism = math.Inf(1)
-	bestEffort = math.Inf(1)
-
-	for _, strategy := range possibleStrategies {
+  for i := 0; i < total; i++ {
+		strategy := make([]byte, numAgents)
+		for j := 0; j < numAgents; j++ {
+			strategy[numAgents-j-1] = byte((i >> j) & 1)
+		}
 		effortValue, networkPrime := Effort(network, strategy)
 		if effortValue <= float64(network.Resources) {
 			extremismValue := Extremism(networkPrime)

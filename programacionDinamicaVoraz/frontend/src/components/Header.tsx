@@ -5,7 +5,7 @@
  *          Juan Sebastián Molina......2224491
  *          Juan Camilo Narváez Tascón.2140112
  * Creation date: 09/10/2024
- * Last modification: 09/22/2024
+ * Last modification: 09/24/2024
  * License: GNU-GPL
  */
 
@@ -19,11 +19,9 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ subject, onFileSelect, selectedFile }) => {
   const [fileList, setFileList] = useState<string[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
   const [errorMessage, setErrorMessage] = useState<string>('');
 
   const fetchFileList = useCallback(async () => {
-    setLoading(true);
     try {
       const response = await fetch('http://localhost:8080/files');
       if (!response.ok) {
@@ -46,9 +44,7 @@ const Header: React.FC<HeaderProps> = ({ subject, onFileSelect, selectedFile }) 
     } catch (error) {
       console.error('Error al obtener la lista de archivos:', error);
       setErrorMessage('Error al obtener la lista de archivos.');
-    } finally {
-      setLoading(false);
-    }
+    } 
   }, [selectedFile, onFileSelect]);
 
   useEffect(() => {
@@ -137,7 +133,6 @@ const Header: React.FC<HeaderProps> = ({ subject, onFileSelect, selectedFile }) 
         />
       </div>
 
-      {loading && <p>Cargando lista de archivos...</p>}
       {errorMessage && <p className="text-red-500">{errorMessage}</p>}
     </header>
   );

@@ -5,7 +5,7 @@
  *          Juan Sebastián Molina......2224491
  *          Juan Camilo Narváez Tascón.2140112
  * Creation date: 09/19/2024
- * Last modification: 09/22/2024
+ * Last modification: 09/24/2024
  * License: GNU-GPL
  */
 import { useState, useEffect } from 'react';
@@ -357,7 +357,7 @@ function App() {
                 <div className="flex flex-col gap-4">
                   <ul className="list-none list-inside space-y-2 properties-list">
                     <li>
-                      Tiempo de cómputo:
+                      Tiempo de cómputo: 
                       <span className="property-value">
                         {algorithmResults.fb.computationTime !== null
                           ? `${algorithmResults.fb.computationTime.toFixed(4)} s`
@@ -365,13 +365,13 @@ function App() {
                       </span>
                     </li>
                     <li>
-                      Extremismo óptimo:
+                      Extremismo óptimo: 
                       <span className="property-value">
                         {algorithmResults.fb.extremism?.toFixed(3) ?? 'Ext'}
                       </span>
                     </li>
                     <li>
-                      Esfuerzo empleado:
+                      Esfuerzo empleado: 
                       <span className="property-value">
                         {algorithmResults.fb.effort?.toFixed(3) ?? 'Esf'}
                       </span>
@@ -430,7 +430,7 @@ function App() {
                 <div className="flex flex-col gap-4">
                   <ul className="list-none list-inside space-y-2 properties-list">
                     <li>
-                      Tiempo de cómputo:
+                      Tiempo de cómputo: 
                       <span className="property-value">
                         {algorithmResults.pd.computationTime !== null
                           ? `${algorithmResults.pd.computationTime.toFixed(4)} s`
@@ -438,13 +438,13 @@ function App() {
                       </span>
                     </li>
                     <li>
-                      Extremismo óptimo:
+                      Extremismo óptimo: 
                       <span className="property-value">
                         {algorithmResults.pd.extremism?.toFixed(3) ?? 'Ext'}
                       </span>
                     </li>
                     <li>
-                      Esfuerzo empleado:
+                      Esfuerzo empleado: 
                       <span className="property-value">
                         {algorithmResults.pd.effort?.toFixed(3) ?? 'Esf'}
                       </span>
@@ -503,7 +503,7 @@ function App() {
                 <div className="flex flex-col gap-4">
                   <ul className="list-none list-inside space-y-2 properties-list">
                     <li>
-                      Tiempo de cómputo:
+                      Tiempo de cómputo: 
                       <span className="property-value">
                         {algorithmResults.v.computationTime !== null
                           ? `${algorithmResults.v.computationTime.toFixed(4)} s`
@@ -511,13 +511,13 @@ function App() {
                       </span>
                     </li>
                     <li>
-                      Extremismo calculado:
+                      Extremismo calculado: 
                       <span className="property-value">
                         {algorithmResults.v.extremism?.toFixed(3) ?? 'Ext'}
                       </span>
                     </li>
                     <li>
-                      Esfuerzo empleado:
+                      Esfuerzo empleado: 
                       <span className="property-value">
                         {algorithmResults.v.effort?.toFixed(3) ?? 'Esf'}
                       </span>
