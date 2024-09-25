@@ -13,6 +13,8 @@
 \usepackage{listings} % Para listados de código
 \usepackage{array}
 \usepackage{pgfplots}
+\usepackage{booktabs}
+\usepackage{colortbl} 
 
 
 \usepackage[margin=1in]{geometry} % Agrega esta línea para establecer los márgenes
@@ -25,6 +27,9 @@
 \definecolor{grisclaro}{rgb}{0.9, 0.9, 0.9}
 \definecolor{crtitle}{RGB}{112,48,160}
 \definecolor{darkgreen}{RGB}{64,154,3}
+\definecolor{sgreen}{RGB}{198, 230, 156}
+\definecolor{syellow}{RGB}{245, 225, 73}
+\definecolor{sred}{RGB}{252, 109, 109}
 \hypersetup{
     colorlinks=true,
     linkcolor=blue,
@@ -313,8 +318,18 @@ Este algoritmo de fuerza bruta genera todas las posibles estrategias de moderaci
 
 \subsection{Complejidad}
 \label{subsec:complejidad_fuerza_bruta}
-Para analizar la complejidad del algoritmo debemos de considerar los dos ciclos \textit{for} que ocurren dentro del código, el primer ciclo (linea 11) hace un recorrido sobre todas las posibles combinaciones de agentes que existen (linea 8 \textit{total = 1 $<<$ numAgents}), y el segundo ciclo (linea 13) hace un recorrido por el total de agentes (linea 2 \textit{numAgents:= len(network.Agents)}).
+Para analizar la complejidad del algoritmo se debe considerar dos ciclos \textit{for} que ocurren dentro del código. El primer ciclo itera un número definido por la linea 8, \textit{total = 1 $<<$ numAgents}, que representa el número de posibles combinaciones para $n$ números de agentes, cada uno con dos posibles valores a tomar. El segundo ciclo, declarado en la linea 13 y dentro del primero,  hace un recorrido por el número total de agentes, determinado en la linea 2 \textit{numAgents:= len(network.Agents)}, aplicando una operación bitwise AND con una máscara donde el bit menos signicativo es 1, y cuyo prósito es aplicar cada bit en 1 a la posición correspondiente de cada agente. Asi, se tiene que la complejidad temporal está dada por
 
+\[
+T(n) = O(2^n)O(n)
+\]
+
+Debido a que los demás cálculos internos realizados son de complejidad \(O(1)\), la complejidad total del algoritmo es \(O(2^n \cdot n)\).
+Por otro lado, la complejidad espacial esta por la definición de la variable strategy en la línea 12, la cual se declara como un slice de tamaño de números de agentes o de $n$; un slice donde se genera mantiene cada estrategia posible. Por tanto, la complejidad espacial es
+\[
+S(n) = O(n)
+\]
+Esto es, la complejidad espacial es lineal en relación al número de agentes  presentes dentro de la red social $RS$.
 \textbf{Entonces tenemos que:}
 \begin{itemize}
   \item El primer ciclo tiene una complejidad de \(O(2^n)\), debido a que $e_i$ puede tomar dos valores ($0$ o $1$) donde \(n\) es el número de agentes en la red social.
@@ -743,124 +758,147 @@ Debido a que el recorrido comienza desde el último agente y se mueve hacia el p
 USAR TABLAS DISEÑAR CASOS DE PRUEBA DOCUMENTAR CÓMO SE DISEÑÓ
 "Desarrolla tablas que permiten comparar la complejidad y la cercanía al óptimo de los diferentes enfoques al problema (Fuerza Bruta, voraz, y programación dinámica)"
 
+Para realizar el proceso de gráficas y tablas comparativas, se utilizó la batería y algunos casos creados por nosotros mismos, con la finalidad de poder hacer las diferentes comparativas y sacar conclusiones de estos. Cabe recalcar que por cada método algoritmico aplicado se utilizaron 100 pruebas unitarias por cada número de prueba correspondiente, la evidencia de estos datos se puede ver en el siguiente \href{https://1drv.ms/x/s!Au19Z890RbcYgYp-EkAe5e8Z_uKeHA?e=RUO2BH}{enlace}.
+\subsection{ModexFB}
+En el caso de ModexFB se tiene una complejidad de \(O(2^n)\), ya que se evalúan todas las posibles combinaciones de agentes y recursos. Pero los experimentos dados o la batería de pruebas no nos daban datos suficientes para nosotros poder representarlos a través de una gráfica y poder comprobar el comportamiento exponencial denotado por la complejidad del algoritmo.
+Para ello se diseñaron casos de prueba con 1 agente hasta 20 agentes, estos casos de prueba se repitieron 100 veces y se sacó un promedio de los tiempos de ejecución, los resultados se muestran en la siguiente tabla.
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{|c|c|}
+      \hline
+      \textbf{Nagentes} & \textbf{TIEMPO (s)} \\
+      \hline
+      1  & 0.000000000 \\
+      2  & 0.000000000 \\
+      3  & 0.000000000 \\
+      4  & 0.000000000 \\
+      5  & 0.000000000 \\
+      6  & 0.000015248 \\
+      7  & 0.000000000 \\
+      8  & 0.000085116 \\
+      9  & 0.000083823 \\
+      10 & 0.000067038 \\
+      11 & 0.000378609 \\
+      12 & 0.000491256 \\
+      13 & 0.001184419 \\
+      14 & 0.002402443 \\
+      15 & 0.005043298 \\
+      16 & 0.010540002 \\
+      17 & 0.022397281 \\
+      18 & 0.042109956 \\
+      19 & 0.096449310 \\
+      20 & 0.197336062 \\
+      \hline
+  \end{tabular}
+  \caption{Resultados de tiempo ModexFB}
+\end{table}  
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}{1\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{Images/modexfb1.png}
+  \end{minipage}
+  \caption{ModexFB exponential} 
+  \label{fig:modexfbcomplexity}
+\end{figure}
+
+Se puede apreciar claramente la tendencia exponencial de ModexFB en la (\ref{fig:modexfbcomplexity} imagen anterior), donde el tiempo de ejecución aumenta de forma exponencial a medida que se incrementa el número de agentes.
+
+\subsection{ModexV}
+Para comprobar la complejidad del ModexV, como en el anterior caso, realizamos 100 ejecuciones de cada prueba pero esta vez utilizando la batería de pruebas proporcionada. 
+
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}{1\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{Images/modexvcomplexity.png}
+  \end{minipage}
+  \caption{ModexV linear} 
+  \label{fig:modexvcomplexity}
+\end{figure}
+Como se puede apreciar en la anterior gráfica, el tiempo respecto va aumentando la cantidad de agentes se puede ver como una distribución de estos pares denotada por la recta $y=8\cdot 10^{-8}x+9\cdot10^{-5}$.
+Comprobando la tendencia a un comportamiento lineal como se dijo anteriormente $\Theta(n)$.
+
+\newpage
+\subsection{ModexPD}
+De igualmanera se tomaron 100 pruebas para luego de la misma forma sacar el promedio de tiempos y tener datos bien estructurados basados en la batería dada.
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}{1\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{Images/modexpdcomplexity.png}
+  \end{minipage}
+  \caption{ModexPD Cuadratic} 
+  \label{fig:modexpdcomplexity}
+\end{figure}
+Se puede apreciar el comportamiento cuadrático de ModexPD en la (\ref{fig:modexpdcomplexity} imagen anterior).
+\subsection{Comparación de Estrategias}
+
+\begin{table}[H]
+  \centering
+  \resizebox{\textwidth}{!}{
+  \begin{tabular}{|c|c|c|c|c|c|c|c|}
+      \hline
+      \textbf{Nagentes} & \textbf{PRUEBA}  & \textbf{t\_modexFB (s)} & \textbf{t\_modexV (s)} & \textbf{t\_modexPD (s)} & \textbf{ModexFB} & \textbf{ModexV} & \textbf{ModexPD} \\ 
+      \hline
+      5    & 1   & \cellcolor{sgreen}0.000000000 & \cellcolor{syellow}0.000009980 & \cellcolor{sred}0.000019923 & \cellcolor{sgreen}5.800  & \cellcolor{sgreen}5.800  & \cellcolor{sgreen}5.800  \\ 
+      5    & 2   & \cellcolor{sgreen}0.000000000 & \cellcolor{syellow}0.000075456 & \cellcolor{sgreen}0.000000000 & \cellcolor{sgreen}21.557 & \cellcolor{sgreen}21.557 & \cellcolor{sgreen}21.557 \\ 
+      10   & 3   & \cellcolor{sred}0.000507500 & \cellcolor{syellow}0.000009971 & \cellcolor{sgreen}0.000000000 & \cellcolor{sgreen}11.724 & \cellcolor{sgreen}11.724 & \cellcolor{sgreen}11.724 \\ 
+      10   & 4   & \cellcolor{sred}0.000801250 & \cellcolor{syellow}0.000065535 & \cellcolor{sgreen}0.000000000 & \cellcolor{sgreen}15.717 & \cellcolor{sgreen}15.717 & \cellcolor{sgreen}15.717 \\ 
+      20   & 5   & \cellcolor{sred}0.213706340 & \cellcolor{sgreen}0.000005488 & \cellcolor{syellow}0.000030224 & \cellcolor{sgreen}9.678  & \cellcolor{sred}9.821  & \cellcolor{sgreen}9.678  \\ 
+      20   & 6   & \cellcolor{sred}0.205994590 & \cellcolor{sgreen}0.000005392 & \cellcolor{syellow}0.000055029 & \cellcolor{sgreen}11.481 & \cellcolor{sred}11.518 & \cellcolor{sgreen}11.481 \\ 
+      35   & 7   & N/A         & \cellcolor{sgreen}0.000050047 & \cellcolor{syellow}0.000153872 & N/A    & \cellcolor{sgreen}0.000  & \cellcolor{sgreen}0.000  \\ 
+      50   & 8   & N/A         & \cellcolor{sgreen}0.000000000 & \cellcolor{syellow}0.000073582 & N/A    & \cellcolor{sgreen}3.652  & \cellcolor{sgreen}3.652  \\ 
+      50   & 9   & N/A         & \cellcolor{syellow}0.000110551 & \cellcolor{sgreen}0.000074285 & N/A    & \cellcolor{sred}5.967  & \cellcolor{sgreen}5.933  \\ 
+      100  & 10  & N/A         & \cellcolor{sgreen}0.000075201 & \cellcolor{syellow}0.000413582 & N/A    & \cellcolor{sgreen}2.419  & \cellcolor{sgreen}2.419  \\ 
+      100  & 11  & N/A         & \cellcolor{sgreen}0.000067890 & \cellcolor{syellow}0.000219154 & N/A    & \cellcolor{sred}5.662  & \cellcolor{sgreen}5.650  \\ 
+      125  & 12  & N/A         & \cellcolor{syellow}0.000261743 & \cellcolor{sgreen}0.000174437 & N/A    & \cellcolor{sred}4.049  & \cellcolor{sgreen}4.037  \\ 
+      125  & 13  & N/A         & \cellcolor{sgreen}0.000165718 & \cellcolor{syellow}0.000380748 & N/A    & \cellcolor{sred}4.461  & \cellcolor{sgreen}4.455  \\ 
+      150  & 14  & N/A         & \cellcolor{syellow}0.000095014 & \cellcolor{sgreen}0.000029860 & N/A    & \cellcolor{sgreen}4.242  & \cellcolor{sgreen}4.242  \\ 
+      200  & 15  & N/A         & \cellcolor{sgreen}0.000015208 & \cellcolor{syellow}0.001814908 & N/A    & \cellcolor{sgreen}1.319  & \cellcolor{sgreen}1.319  \\ 
+      200  & 16  & N/A         & \cellcolor{sgreen}0.000260853 & \cellcolor{syellow}0.000788146 & N/A    & \cellcolor{sred}1.731  & \cellcolor{sgreen}1.727  \\ 
+      300  & 17  & N/A         & \cellcolor{sgreen}0.000110030 & \cellcolor{syellow}0.003513809 & N/A    & \cellcolor{sgreen}1.406  & \cellcolor{sgreen}1.406  \\ 
+      300  & 18  & N/A         & \cellcolor{syellow}0.000187462 & \cellcolor{sgreen}0.000130314 & N/A    & \cellcolor{sgreen}3.955  & \cellcolor{sgreen}3.955  \\ 
+      350  & 19  & N/A         & \cellcolor{sgreen}0.000045127 & \cellcolor{syellow}0.005423791 & N/A    & \cellcolor{sgreen}0.901  & \cellcolor{sgreen}0.901  \\ 
+      400  & 20  & N/A         & \cellcolor{sgreen}0.000005091 & \cellcolor{syellow}0.004903823 & N/A    & \cellcolor{sgreen}1.406  & \cellcolor{sgreen}1.406  \\ 
+      500  & 21  & N/A         & \cellcolor{sgreen}0.000491185 & \cellcolor{syellow}0.001815759 & N/A    & \cellcolor{sgreen}2.629  & \cellcolor{sgreen}2.629  \\ 
+      500  & 22  & N/A         & \cellcolor{sgreen}0.000010491 & \cellcolor{syellow}0.005348267 & N/A    & \cellcolor{sgreen}1.524  & \cellcolor{sgreen}1.524  \\ 
+      750  & 23  & N/A         & \cellcolor{sgreen}0.000175340 & \cellcolor{syellow}0.010262487 & N/A    & \cellcolor{sgreen}1.927  & \cellcolor{sgreen}1.927  \\ 
+      750  & 24  & N/A         & \cellcolor{sgreen}0.000135624 & \cellcolor{syellow}0.017976436 & N/A    & \cellcolor{sgreen}0.973  & \cellcolor{sgreen}0.973  \\ 
+      800  & 25  & N/A         & \cellcolor{sgreen}0.000000000 & \cellcolor{syellow}0.022272548 & N/A    & \cellcolor{sgreen}0.970  & \cellcolor{sgreen}0.970  \\ 
+      1000 & 26  & N/A         & \cellcolor{sgreen}0.000398522 & \cellcolor{syellow}0.035613100 & N/A    & \cellcolor{sgreen}0.779  & \cellcolor{sgreen}0.779  \\ 
+      1500 & 27  & N/A         & \cellcolor{sgreen}0.001097496 & \cellcolor{syellow}0.105018887 & N/A    & \cellcolor{sgreen}0.310  & \cellcolor{sgreen}0.310  \\ 
+      1500 & 28  & N/A         & \cellcolor{sgreen}0.000020817 & \cellcolor{syellow}0.058346513 & N/A    & \cellcolor{sgreen}0.773  & \cellcolor{sgreen}0.773  \\ 
+      2000 & 29  & N/A         & \cellcolor{sgreen}0.000015102 & \cellcolor{syellow}0.010549998 & N/A    & \cellcolor{sgreen}1.152  & \cellcolor{sgreen}1.152  \\ 
+      2500 & 30  & N/A         & \cellcolor{sgreen}0.000548682 & \cellcolor{syellow}0.287446275 & N/A    & \cellcolor{sgreen}0.250  & \cellcolor{sgreen}0.250  \\ 
+      2000 & 31  & N/A         & \cellcolor{sgreen}0.000148322 & \cellcolor{syellow}0.026985399 & N/A    & \cellcolor{sgreen}1.352  & \cellcolor{sgreen}1.352  \\ 
+      2000 & 32  & N/A         & \cellcolor{sgreen}0.000101223 & \cellcolor{syellow}0.154005915 & N/A    & \cellcolor{sgreen}0.872  & \cellcolor{sgreen}0.872  \\ 
+      3000 & 33  & N/A         & \cellcolor{sgreen}0.000510865 & \cellcolor{syellow}0.023409421 & N/A    & \cellcolor{sgreen}1.207  & \cellcolor{sgreen}1.207  \\ 
+      5000 & 34  & N/A         & \cellcolor{sgreen}0.000240238 & \cellcolor{syellow}0.892912334 & N/A    & \cellcolor{sgreen}0.561  & \cellcolor{sgreen}0.561  \\ 
+      7500 & 35  & N/A         & \cellcolor{sgreen}0.000502229 & \cellcolor{syellow}1.909858645 & N/A    & \cellcolor{sgreen}0.449  & \cellcolor{sgreen}0.449  \\ 
+      10000 & 36 & N/A         & \cellcolor{sgreen}0.000518973 & \cellcolor{syellow}0.604409646 & N/A    & \cellcolor{sgreen}0.607  & \cellcolor{sgreen}0.607  \\ 
+      25000 & 37  & N/A        & \cellcolor{sgreen}0.001742644 & N/A & N/A    & \cellcolor{syellow}0.253  & N/A    \\
+      50000 & 38  & N/A        & \cellcolor{sgreen}0.004325101 & N/A & N/A    & \cellcolor{syellow}0.228  & N/A    \\
+      75000 & 39  & N/A        & \cellcolor{sgreen}0.006625507 & N/A & N/A    & \cellcolor{syellow}0.224  & N/A    \\
+      100000 & 40 & N/A        & \cellcolor{sgreen}0.006954457 & N/A & N/A    & \cellcolor{syellow}0.127  & N/A    \\
+      10   & 41   & N/A        & \cellcolor{sgreen}0.000000000 & N/A & N/A    & \cellcolor{syellow}0.000  & N/A    \\
+      15   & 42   & N/A        & \cellcolor{sgreen}0.000095145 & N/A & N/A    & \cellcolor{syellow}0.000  & N/A    \\
+      15   & 43   & N/A        & \cellcolor{sgreen}0.000000000 & N/A & N/A    & \cellcolor{syellow}0.000  & N/A    \\
+      20   & 44   & N/A        & \cellcolor{sgreen}0.000005427 & N/A & N/A    & \cellcolor{syellow}0.000  & N/A    \\
+      25   & 45   & N/A        & \cellcolor{sgreen}0.000000000 & N/A & N/A    & \cellcolor{syellow}0.000  & N/A    \\
+      \hline
+  \end{tabular}
+  }
+  \caption{Comparativa de tiempos y resultados de MODEXFB, MODEXV y MODEXPD}
+  \label{tab:modex_comparativa}
+\end{table}
 \section{Conclusión}
 \label{sec:conclusion}
 CONCLUIR SOBRE LAS VENTAJAS Y DESVENTAJAS DE USAR EN LA PRÁCTICA LOS DIFERENTES ENFOQUES
 "Desarrolla una sección de conclusiones donde concluye coherentemente, a partir de sus datos, qué ventajas y desventajas encontró al usar diferentes estrategias de diseño."
-\section{EJEMPLOS TABLAS CODIGO ETC... BORRAR AL FINAL}
-\begin{lstlisting}[caption={Algoritmo de búsqueda binaria en Go}, label={lst:binary_search}]
-    package main
-    
-    import (
-      "fmt"
-    )
-    func binarySearch(arr []int, target int) int {
-      left, right := 0, len(arr)-1
-      
-      for left <= right {
-        mid := left + (right-left)/2
-        if arr[mid] == target {
-          return mid
-        }
-        
-        // Si el target es mayor, ignora la mitad izquierda
-        if arr[mid] < target {
-          left = mid + 1
-        } else {
-          // Si el target es menor, ignora la mitad derecha
-          right = mid - 1
-        }
-      }
-      
-      // Si no encuentra el target
-      return -1
-    }
-    
-    func main() {
-      arr := []int{2, 3, 4, 10, 40}
-      target := 10
-      result := binarySearch(arr, target)
-      
-      if result != -1 {
-        fmt.Printf("Elemento encontrado en el indice %d\n", result)
-      } else {
-        fmt.Println("Elemento no encontrado en el arreglo")
-      }
-    }
-\end{lstlisting}
 
-% "c" se usa para que este centrado
-% "l" se usa para que este a la izquierda
-% "r" se usa para que este a la derecha
-\begin{table}[H]
-    \centering
-    \begin{tabular}{|c|l|r|}
-      \hline
-      \textbf{ID} & \textbf{Nombre} & \textbf{Calificación} \\ \hline
-      1 & Ana Gómez & 95 \\ \hline
-      2 & Carlos Pérez & 88 \\ \hline
-      3 & Laura Rodríguez & 76 \\ \hline
-      4 & José Martínez & 84 \\ \hline
-      5 & María Fernández & 91 \\ \hline
-    \end{tabular}
-    \caption{Tabla de ejemplo}
-    \label{tab:ejemplo}
-\end{table}
-
-\begin{table}[H]
-    \centering
-    \begin{minipage}{0.45\textwidth}
-        \centering
-        \begin{tabular}{|c|l|r|}
-            \hline
-            \textbf{ID} & \textbf{Nombre} & \textbf{Calificación} \\ \hline
-            1 & Ana Gómez & 95 \\ \hline
-            2 & Carlos Pérez & 88 \\ \hline
-            3 & Laura Rodríguez & 76 \\ \hline
-        \end{tabular}
-        \caption{Estudiantes del Grupo A}
-        \label{tab:grupoA}
-    \end{minipage}%
-    \hfill
-    \begin{minipage}{0.45\textwidth}
-        \centering
-        \begin{tabular}{|c|l|r|}
-            \hline
-            \textbf{ID} & \textbf{Nombre} & \textbf{Calificación} \\ \hline
-            1 & José Martínez & 84 \\ \hline
-            2 & María Fernández & 91 \\ \hline
-            3 & Pedro Ramírez & 87 \\ \hline
-        \end{tabular}
-        \caption{Estudiantes del Grupo B}
-        \label{tab:grupoB}
-    \end{minipage}
-    \caption{EJEMPLO 2 TABLAS LADO A LADO}
-\end{table}
-\begin{figure}[h]
-    \centering
-    \begin{tikzpicture}
-        \begin{axis}[
-            title={Gráfica basada en datos tabulados},
-            xlabel={X},
-            ylabel={Y},
-            grid=major, % Añade una cuadrícula mayor
-            width=10cm, % Ancho de la gráfica
-            height=6cm, % Altura de la gráfica
-        ]
-        % Datos tabulados para la gráfica
-        \addplot table[row sep=\\, y index=1] {
-            x y  \\
-            0 0  \\
-            1 1  \\
-            2 4  \\
-            3 9  \\
-            4 16 \\
-            5 25 \\
-        };
-        \end{axis}
-    \end{tikzpicture}
-    \caption{Ejemplo de gráfica creada a partir de una tabla de datos}
-    \label{fig:tabla_grafica}
-\end{figure}
-\textbf{\large{\href{https://youtu.be/dQw4w9WgXcQ?si=jGf-LdN459y-xefY}{EJEMPLO DE URL (LINK)}}}
 \end{document}
