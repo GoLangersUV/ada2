@@ -481,7 +481,7 @@ func ModexFB(network *Network) (bestStrategy []byte, bestEffort float64, minExtr
   }
 
   endTime := time.Now()
-  computationTime = endTime.Sub(startTime).Seconds() // Tiempo en segundos
+  computationTime = endTime.Sub(startTime).Seconds() 
 
   return bestStrategy, bestEffort, minExtremism, computationTime, nil
 }
@@ -630,8 +630,8 @@ Analizar la complejidad de la implementación del algoritmo voraz implica descom
   \therefore T(n) &= \Theta(n)
 \end{align*}
 
-Prosiguiendo con el análisis, en la línea 13 se localiza una ciclo $for$ que itera sobre $rankedAgents$, un slide con la misma cantidad $n$ de agentes de la red social original, pero reordenados. Este instrucción aporta $\Theta(n)$ a la complejidad temporal total. Si se observa la definición de la función $effort$ en la línea 25, se encuentra que compone por otro ciclo for que itera sobre la cantidad n de agentes dentro de la red. Asím la determinación del esfuerzo implica la determinación de n esfuerzon individuales, resultando en un aporte de $\Theta$ a la complejidad temporal analizada hasta el momento. Por último, se encuentra un llamado a la función $extremism$, que si se examina cuidadosamente su declaración se encuentra nuevamente una iteración sobre los n agentes de la red social, lo que nuevamente implicauna cuntribución de $\Theta(n)$ a la complejidad temporal total.
-Entonces, sumando todos estos aportes individuales, se tiene que la complejidad temporal esta dada por
+Prosiguiendo con el análisis, en la línea 13 se localiza una ciclo $for$ que itera sobre $rankedAgents$, un slice con la misma cantidad $n$ de agentes de la red social original, pero reordenados. Este instrucción aporta $\Theta(n)$ a la complejidad temporal total. Si se observa la definición de la función $effort$ en la línea 25, se encuentra que compone por otro ciclo for que itera sobre la cantidad n de agentes dentro de la red. Así la determinación del esfuerzo implica la determinación de n esfuerzon individuales, resultando en un aporte de $\Theta$ a la complejidad temporal analizada hasta el momento. Por último, se encuentra un llamado a la función $extremism$, que si se examina cuidadosamente su declaración se encuentra nuevamente una iteración sobre los n agentes de la red social, lo que nuevamente implica una contribución de $\Theta(n)$ a la complejidad temporal total.
+Entonces, sumando todos estos aportes individuales, se tiene que la complejidad temporal esta dada por:
 
 \begin{align*}
   T(n) &= \Theta(n) + \Theta(n) + \Theta(n) + \Theta(n),\\
@@ -799,7 +799,7 @@ return strategy, effort, extremism, nil
 \end{itemize}
 
 \subsection{Complejidad}
-\subsubsection{Complejidad Temporal: O(n * R)}
+\subsubsection{Complejidad Temporal: $O(n^2)$}
 \begin{itemize}
     \item \textbf{Descripción:} El algoritmo utiliza programación dinámica con una matriz de dimensiones \(n \times (R + 1)\), donde:
     \begin{itemize}
@@ -809,14 +809,15 @@ return strategy, effort, extremism, nil
     
     \item \textbf{Análisis:}
     \begin{itemize}
+        \item Nótese que el esfuerzo máximo por cada agente es de $100$ por lo que con unos recursos $R \geqslant n \cdot 100$ podríamos moderarlos a todos. Rediciendo la complejidad a $100n^2$ es decir $O(n^2)$
         \item Los bucles anidados recorren todos los agentes y todos los posibles valores de recursos.
         \item Cada celda de la matriz se calcula en tiempo constante.
     \end{itemize}
     
-    \item \textbf{Conclusión:} Debido a que se realizan operaciones para cada combinación de agente y recurso, la complejidad temporal es \(O(n * R)\).
+    \item \textbf{Conclusión:} Debido a que se realizan operaciones para cada combinación de agente y recurso, la complejidad temporal es \(O(n^2)\).
 \end{itemize}
 
-\subsubsection{Complejidad Espacial: O(n * R)}
+\subsubsection{Complejidad Espacial: $O(n^2)$}
 \begin{itemize}
     \item \textbf{Descripción:} El espacio principal utilizado es la matriz de subproblemas (\textit{svMatrix}).
     
@@ -824,35 +825,12 @@ return strategy, effort, extremism, nil
     \begin{itemize}
         \item La matriz \textit{svMatrix} tiene un tamaño de \(n \times (R + 1)\), ocupando \(O(n * R)\) espacio.
         \item Las variables adicionales y el arreglo de estrategia (\textit{strategy}) utilizan espacio lineal \(O(n)\).
-    \end{itemize}
+        \item Dado el bucle, siempre se recorre $n\cdot R$ si $R\leqslant 100n$ llevando a la misma complejidad que la temporal.
+      \end{itemize}
     
-    \item \textbf{Conclusión:} La complejidad espacial está dominada por la matriz de subproblemas, resultando en \(O(n * R)\).
+    \item \textbf{Conclusión:} La complejidad espacial está dominada por la matriz de subproblemas, resultando en \(O(n^2)\).
 \end{itemize}
 \label{subsec:complejidad_programacion_dinamica}
-\subsection{Complejidad}
-Para determinar la complejidad de este algoritmo, implica reconocer varias lineas dentro de la función donde es expresado un ciclo $for$. En la línea 115, el ciclo $for$, que tiene como intención crear un slice para cada entrada i de la matriz $svMatrix$, itera $n$ veces, correspondiente esto último al número de agentes. Continuo a este primer $for$, se encuentra otro $for$, que a su vez itera el valor de $resources$ veces, para llenar los recursos correspondientes al prrimer agente. La parte que más contribuye a la complejidad espacial esta dada por que comienza en línea 8 de $Listing~11$. Aquí se puede apreciar que el $for$ externo itera sobre el número de agentes de dicah red social, y que, para cada agente, un $for$ itera sobre la cantidad entera de recursos asignados a la red social. La complejida en esta parte del código se expresa de la siguiente manera
-
-\begin{align*}
-  O(n) = O(n*resources)
-\end{align*}
-
-Esto es, el producto de la cantidad de agentes y la cantidad de recursos $R.max$ asignada a la red social $RS$.\\
-La resolución del valor óptimo involucra otra iteración sobre los $n$ agentes. De igual modo, para la solución completa del problema, son necesarias otras dos iteraciones para hallar el esfuerzo, mediante la función $Effort$, y el extremismo, a través de la función $Extremism$. Estos $for$ mencionados estan implícitosen la definición de susodichas funciones.
-Dada esta caracterización, se tiene entonces que la complejidad temporal es
-
-\begin{align*}
-  O(n) = O(n*resources) + 4O(n) + O(resources)
-\end{align*}
-
-donde se aprecia el aporte a la complejidad temporal dado por recorrer la matrix, la cantidad de agentes en la diferentes calculos, y el recorrido por la cantidad de recursos, que sucede particularmente para el primer agente.
-
-Con respecto a la complejidad espacial, se tiene que es dada por la linea 114 y 145 del código. Se aprecia la definición de una matriz de tamaño $n*resourses$ y a creación de un vector de tamaño $n=numAgents$. Si se suma estos dos requerimientos de espacio en tiempo de ejecución, se tiene  
-
-\begin{align*}
-  S(n) = O(n*resources) + O(n)
-\end{align*}
-
-representa la complejidad espacial para el algoritmo de programción dinámica.
 \section{Comparación de Estrategias}
 \label{sec:comparacion_estrategias}
 
@@ -865,7 +843,7 @@ Para realizar el proceso de gráficas y tablas comparativas, se utilizó la bate
   \resizebox{\textwidth}{!}{
   \begin{tabular}{|c|c|c|c|c|c|c|c|}
       \hline
-      \textbf{Nagentes} & \textbf{PRUEBA}  & \textbf{t\_modexFB (s)} & \textbf{t\_modexV (s)} & \textbf{t\_modexPD (s)} & \textbf{ModexFB} & \textbf{ModexV} & \textbf{ModexPD} \\ 
+      \textbf{Nagentes} & \textbf{PRUEBA}  & \textbf{t\_modexFB (s)} & \textbf{t\_modexV (s)} & \textbf{t\_modexPD (s)} & \textbf{SolucionFB} & \textbf{SolucionV} & \textbf{SolucionPD} \\ 
       \hline
       5    & 1   & \cellcolor{sgreen}0.000000000 & \cellcolor{syellow}0.000009980 & \cellcolor{sred}0.000019923 & \cellcolor{sgreen}5.800  & \cellcolor{sgreen}5.800  & \cellcolor{sgreen}5.800  \\ 
       5    & 2   & \cellcolor{sgreen}0.000000000 & \cellcolor{syellow}0.000075456 & \cellcolor{sgreen}0.000000000 & \cellcolor{sgreen}21.557 & \cellcolor{sgreen}21.557 & \cellcolor{sgreen}21.557 \\ 
@@ -919,7 +897,7 @@ Para realizar el proceso de gráficas y tablas comparativas, se utilizó la bate
   \label{tab:modex_comparativa}
 \end{table}
 
-Teniendo en cuenta la tabla anterior, se puede observar la evolución de cada estrategia utilizada en función del tiempo, así como el valor de la solución obtenido. En particular, \textbf{ModexV} presentó 7 casos en los que sus resultados (valor de la solución) no fueron correctos (esto se mencionará más adelante). Los tiempos de ejecución fueron, en su mayoría, significativamente menores para la estrategia Voraz, debido a su naturaleza lineal. El algoritmo de fuerza bruta mostró un incremento exponencial en los tiempos de ejecución, pero después de la prueba 6 se quedó sin suficiente memoria para continuar, deteniendo su ejecución. Algo similar ocurrió con el algoritmo dinámico, ya que este también requiere memoria RAM para su ejecución, y después de la prueba 36 se necesitaron más de 128 GB de RAM para poder correrlo. Procedemos, entonces, a las comparativas de valor de la solución.
+Teniendo en cuenta la tabla anterior, se puede observar la evolución de cada estrategia utilizada en función del tiempo, así como el valor de la solución obtenido. En particular, \textbf{ModexV} presentó 7 casos en los que sus resultados (valor de la solución) no fueron correctos (esto se mencionará más adelante). Los tiempos de ejecución fueron, en su mayoría, significativamente menores para la estrategia Voraz, debido a su naturaleza lineal. El algoritmo de fuerza bruta mostró un incremento exponencial en los tiempos de ejecución, pero después de la prueba 6 se quedó ocupa demasiados recursos como memoria RAM y CPU, entonces el lenguaje de programación mata el proceso automáticamente, deteniendo su ejecución. Algo similar ocurrió con el algoritmo dinámico, ya que este también requiere memoria RAM para su ejecución, y después de la prueba 36 se necesitaron más de 128 GB de RAM para poder correrlo. Procedemos, entonces, a las comparativas de valor de la solución.
 
 \subsubsection{ModexFB vs ModexV vs ModexPD (pruebas 1 a 6)}
 
