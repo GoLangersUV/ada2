@@ -151,7 +151,7 @@ type Agent struct {
 }
 \end{lstlisting}
 Donde un agente $a_i$ es una pareja: $<{o_i}{^{\mathcal{R} \mathcal{S}}}, {r_i}{^{\mathcal{R} \mathcal{S}}}>$.
-\newpage
+
 \subsubsection*{Extremismo de una red $\mathcal{R}\mathcal{S}$}
 \begin{equation}
   Ext(\mathcal{R}\mathcal{S}) = \frac{\sqrt{\sum_{i=0}^{n-1}{({o_i}{^{\mathcal{R} \mathcal{S}}})^2}}}{n}
@@ -199,7 +199,7 @@ func moderation(network *Network, strategy []byte) *Network {
 	return &networkPrime
 }
 \end{lstlisting}
-\newpage
+
 \subsubsection*{Esfuerzo}
 El valor de esfuerzo a modelar la red $\mathcal{R}\mathcal{S}$.
 \begin{equation}
@@ -436,41 +436,58 @@ Dado que el algoritmo recorre todas las estrategias en $\mathcal{E}$ sin excepci
 
 \subsubsection*{ModexFB mejorado}
 
-Debido a que el ciclo realizado en la función \textit{ModexFB} (\ref{lst:modexfb}) recorre todas las estrategias posibles, además de en la línea 18 llamar a \textit{strategyGenerator} (\ref{lst:strategy_generator}) pero para evitar la exploración de estrategias inecesarias y además en el mismo recorrido calcular el esfuerzo y el extremismo de la red, se puede mejorar el algoritmo de la siguiente manera:
+Debido a que el ciclo realizado en la función \textit{ModexFB} (\ref{lst:modexfb}) recorre todas las estrategias posibles, además de en la línea 18 llamar a \textit{strategyGenerator} (\ref{lst:strategy_generator}) pero para evitar la exploración de estrategias inecesarias, además en el mismo recorrido calcular el esfuerzo y el extremismo de la red y por otro lado teniendo en cuenta que si los recursos superan al número de agentes multiplicado cien, no hay necesidad de hacer todos los calculos, se puede mejorar el algoritmo de la siguiente manera:
 \begin{lstlisting}[caption={ModexFB mejorado}, label={lst:modexfb_mejorado}]
-func ModexFB(network *Network) (bestStrategy []byte, bestEffort float64, minExtremism float64, err error) {
-	numAgents := len(network.Agents)
+func ModexFB(network *Network) (bestStrategy []byte, bestEffort float64, minExtremism float64, computationTime float64, err error) {
+  numAgents := len(network.Agents)
 
-	if numAgents > 25 {
-		return nil, 0, 0, errors.New("In ModexFB the number of agents must be less than or equal to 25")
-	}
+  if numAgents > 25 {
+    return nil, 0, 0, 0, errors.New("In ModexFB the number of agents must be less than or equal to 25")
+  }
 
-	total := 1 << numAgents
-	minExtremism = math.Inf(1)
+  if network.Resources >= uint64(numAgents*100) {
+    strategy := make([]byte, numAgents)
+    for i := 0; i < numAgents; i++ {
+      strategy[i] = 1
+    }
 
-	for i := 0; i < total; i++ {
-		strategy := make([]byte, numAgents)
-		for j := 0; j < numAgents; j++ {
-			strategy[numAgents-j-1] = byte((i >> j) & 1)
-		}
-		effortValue, networkPrime := effort(network, strategy)
-		if effortValue <= float64(network.Resources) {
-			extremismValue := extremism(networkPrime)
-			if extremismValue < minExtremism {
-				minExtremism = extremismValue
-				bestEffort = effortValue
-				bestStrategy = strategy
-			}
-		}
-	}
+    startTime := time.Now()
+    Effort, networkPrime := Effort(network, strategy)
+    Extremism := Extremism(networkPrime)
+    computationTime := time.Since(startTime).Seconds()
 
-	return bestStrategy, bestEffort, minExtremism, nil
+    return strategy, Effort, Extremism, computationTime, nil
+  }
+
+  total := 1 << numAgents
+  minExtremism = math.Inf(1)
+
+  startTime := time.Now()
+
+  for i := 0; i < total; i++ {
+    strategy := make([]byte, numAgents)
+    for j := 0; j < numAgents; j++ {
+      strategy[numAgents-j-1] = byte((i >> j) & 1)
+    }
+    effortValue, networkPrime := Effort(network, strategy)
+    if effortValue <= float64(network.Resources) {
+      extremismValue := Extremism(networkPrime)
+      if extremismValue < minExtremism {
+        minExtremism = extremismValue
+        bestEffort = effortValue
+        bestStrategy = strategy
+      }
+    }
+  }
+
+  endTime := time.Now()
+  computationTime = endTime.Sub(startTime).Seconds() // Tiempo en segundos
+
+  return bestStrategy, bestEffort, minExtremism, computationTime, nil
 }
 \end{lstlisting}
 \section{Solución con Algoritmo Voraz}
 \label{sec:algoritmo_voraz}
-"Describen correctamente un algoritmo voraz para resolver el problema, calcula correctamente su complejidad y la justifica, y analiza acertadamente si el algoritmo da siempre la respuesta correcta y lo justifica. El algoritmo quedó clasificado en el grupo de los mejores voraces del curso."
-
 Para la realización de este algoritmo, se consideró la relación que hay entre el $extremismoParcial$ $(O_i\mathcal{R} \mathcal{S})^2$ y el $esfuerzoParcial = \left\lceil  |o_i^{\mathcal{R}\mathcal{S}} - o_i^{\mathcal{R}\mathcal{S}'}| \times (1 - r_i^{\mathcal{R}\mathcal{S}}) \right\rceil$ para cada agente $a_i$ en la red social $\mathcal{R}\mathcal{S}$.
 
 Sea:
@@ -551,45 +568,51 @@ Pero ello tiene un problema, si la red social, no está ordenada en función de 
 Por ello se implementó la función \textit{rankAgents} que ordena los agentes en función de \eqref{eq:voraz2} de la siguiente manera:
 \begin{lstlisting}[caption={Rank Agents}, label={lst:rank_agents}]
 func rankAgents(network *Network) []AgentRatio {
-  agentRatios := make([]AgentRatio, len(network.Agents))
+  count := make([][]AgentRatio, 10002)
 
+  // Populate the agentRatios slice and sort by ratio
   for i, agent := range network.Agents {
-    extremism := float64(partialExtremism(agent))
-    effort := partialEffort(agent)
-    var ratio float64
-    if effort == 0 {
-      ratio = math.Inf(1) // Assign infinite ratio to agents with zero effort.
+    Extremism := float64(partialExtremism(agent))
+    Effort := partialEffort(agent)
+    var ratio int
+    if Effort == 0 {
+      ratio = 10001
     } else {
-      ratio = extremism / effort
+      ratio = int(Extremism / Effort)
     }
 
-    agentRatios[i] = AgentRatio{
+    agentRatio := AgentRatio{
       Index:   i,
-      Ratio:   ratio,
-      Effort:  effort,
-      Benefit: extremism,
+      Ratio:   float64(ratio),
+      Effort:  Effort,
+      Benefit: Extremism,
+    }
+    // Place agent into the appropriate bucket based on ratio
+    count[ratio] = append(count[ratio], agentRatio)
+  }
+
+  // Collect sorted agent ratios
+  sortedAgentRatios := []AgentRatio{}
+  for ratio := 10001; ratio >= 0; ratio-- {
+    if len(count[ratio]) > 0 {
+      sortedAgentRatios = append(sortedAgentRatios, count[ratio]...)
     }
   }
 
-  // Sort agents by descending ratio.
-  sort.Slice(agentRatios, func(i, j int) bool {
-    return agentRatios[i].Ratio > agentRatios[j].Ratio
-  })
-
-  return agentRatios
+  return sortedAgentRatios
 }
 \end{lstlisting}
 \textbf{Explicación del código:}
 \begin{itemize}
-  \item Se inicializa un arreglo \textit{agentRatios} de tamaño igual al número de agentes en la red.
-  \item El ciclo \textit{for} recorre todos los agentes de la red. Para cada agente:
+  \item Se inicializa un arreglo \textit{count} de tamaño 10002. Este arreglo representa "buckets" que agrupan a los agentes por su relación entre extremismo y esfuerzo.
+  \item El ciclo \textit{for} recorre cada agente en la red. Para cada agente:
   \begin{itemize}
-    \item Se calcula el extremismo parcial del agente (\textit{partialExtremism}) y el esfuerzo necesario para moderarlo (\textit{partialEffort}).
-    \item Se determina la relación (\textit{ratio}) entre el extremismo y el esfuerzo. Si el esfuerzo es cero, se asigna una relación infinita (\textit{math.Inf(1)}), ya que moderar a este agente no requiere esfuerzo.
-    \item La relación calculada, junto con el índice del agente, el esfuerzo y el extremismo, se almacena en el arreglo \textit{agentRatios}.
+    \item Se calcula el extremismo parcial y el esfuerzo necesario para moderarlo.
+    \item Se determina la relación (\textit{ratio}) entre extremismo y esfuerzo. Si el esfuerzo es 0, se asigna un valor máximo (10001) para evitar divisiones por cero.
+    \item El agente se coloca en el "bucket" correspondiente dentro de \textit{count} según su \textit{ratio}.
   \end{itemize}
-  \item Una vez que se ha calculado la relación para todos los agentes, se ordenan por su relación de extremismo sobre esfuerzo en orden descendente usando la función \textit{sort.Slice}.
-  \item El algoritmo retorna el arreglo \textit{agentRatios}, que ahora contiene a los agentes clasificados en función de la mayor relación $\frac{extremismoParcial}{esfuerzoParcial}$.
+  \item Luego, se recorren los "buckets" en orden descendente, recolectando los agentes clasificados por su \textit{ratio}.
+  \item El arreglo final, \textit{sortedAgentRatios}, contiene los agentes ordenados según su relación extremismo/esfuerzo de mayor a menor.
 \end{itemize}
 \textbf{¿Garantiza solución óptima?}
 
@@ -599,7 +622,31 @@ Debido a que no se evalúa las combinaciones posibles de agentes y recursos, sin
 
 \subsection{Complejidad}
 \label{subsec:complejidad_algoritmo_voraz}
-Para determinar la complejidad del algoritmo voraz, se considera tres partes. La primera, donde la función \textit{rankAgents} (\ref{lst:rank_agents}), que recorre n agentes en un solo ciclo para determinar el ratio, dando su complejidad de ejecución de \(O(n)\). La segunda, esta dado por la función \textit{sort.Slice}, una función del paquetede sort de Go, cuya complejidad, según la documentación es \(O(log(n))\). Y la tercera parte, la aplicación de la decisión local del algoritmo voraz, la cual determina si incluir o no un determinado agente, en un recorrido para los n agentes, lo cual, nuevamente, representa una complejidad de \(O(n)\). Por lo tanto, la complejidad total del algoritmo voraz, considerando todas las partes, deviene a \(O(2n + log(n))\) .
+Analizar la complejidad de la implementación del algoritmo voraz implica descomponer la función $ModexV$ en varias partes que consiste en puntos de llamados a otras funciones auxiliares. En la línea $11$ de $Listing~9$ se encuentra un llamado a la función $rankAgents$. Si se inspeciona la definición de dicha función, se encuentra una instrución $for$ en la línea 4 que itera n número de agentes dentro de la red social. Luego, dentro de la misma función se encuentra otro $for$ que itera $10001$ veces. En consecuencia, se tiene que la complejidad de la función $rankAgents$ es dada por
+
+\begin{align*}
+  T(n) &= \Theta(n) + 10001,\\
+  &= \Theta(n) + O(1)\\
+  \therefore T(n) &= \Theta(n)
+\end{align*}
+
+Prosiguiendo con el análisis, en la línea 13 se localiza una ciclo $for$ que itera sobre $rankedAgents$, un slide con la misma cantidad $n$ de agentes de la red social original, pero reordenados. Este instrucción aporta $\Theta(n)$ a la complejidad temporal total. Si se observa la definición de la función $effort$ en la línea 25, se encuentra que compone por otro ciclo for que itera sobre la cantidad n de agentes dentro de la red. Asím la determinación del esfuerzo implica la determinación de n esfuerzon individuales, resultando en un aporte de $\Theta$ a la complejidad temporal analizada hasta el momento. Por último, se encuentra un llamado a la función $extremism$, que si se examina cuidadosamente su declaración se encuentra nuevamente una iteración sobre los n agentes de la red social, lo que nuevamente implicauna cuntribución de $\Theta(n)$ a la complejidad temporal total.
+Entonces, sumando todos estos aportes individuales, se tiene que la complejidad temporal esta dada por
+
+\begin{align*}
+  T(n) &= \Theta(n) + \Theta(n) + \Theta(n) + \Theta(n),\\
+  &= 4\Theta(n)\\
+  \therefore T(n) &= \Theta(n)
+\end{align*}
+
+Por consiguiente, la complejidad espacial depende linealmente del numero presente dento de la red social.
+Por otro lado, la complejidad espacial esta determinada por la declaración del slice en la linea 8 de $Listing~9$. Allí se crea un vector donde tamaño es definido por el número de agentes de $RS$. De este modo tenemos que la complejidad espacial para el algoritmo voraz es 
+\begin{align*}
+  S(n) &= \Theta(n) 
+\end{align*}
+
+En suma, se tiene un algoritmo donde la complejidad temporal y espacial se reduce a $\Theta(n)$, lo cual representa una ganancia de eficiencia realmente extraordinaria.
+\label{subsec:complejidad_algoritmo_voraz}
 \subsection{Corrección}
 \label{subsec:correccion_algoritmo_voraz}
 El algoritmo voraz propuesto \ref{lst:ModexV} no garantiza solución óptima global, como se mensionó anteriormente. 
@@ -642,7 +689,6 @@ Este ejemplo demuestra que el algoritmo voraz (\texttt{ModexV}) prioriza a los a
 
 \section{Solución con Programación Dinámica}
 \label{sec:programacion_dinamica}
-"Usa la programación dinámica correctamente, lo que significa: (1) Caracteriza correctamente la estructura de una solución óptima, (2) Define recursivamente y de forma correcta el costo de una solución óptima para cada subproblema, (3) Implementa correctamente el cálculo del costo de una solución óptima, (4) Implementa correctamente el cálculo de una solución de costo óptimo, (5) Calcula correctamente la complejidad en tiempo de la solución, (6) Calcula correctamente la complejidad en espacio de la solución, y (7) Analiza correctamente si la solución provista es útil en la práctica."
 \subsection{Caracterización de la Estructura de una Solución Óptima}
 \label{subsec:caracterizacion_solucion_optima}
 El problema puede resolverse como se vio anteriormente, utilizando fuerza bruta (\ref{sec:fuerza_bruta}), pero este problema puede resolverse de forma más óptima identificando su subestructura óptima y utilizando programación dinámica.
@@ -668,11 +714,13 @@ Sea:
   (O_i\mathcal{R} \mathcal{S})^2 = n^2Ext^2(\mathcal{R} \mathcal{S})
 \]
 Sea $VS_i$($Recursos$) el valor de la solución óptima del problema $ModEx(1,j,Recursos)$, por la subestructura óptima se puede decir que:
+
+\textit{(esfuerzoParcial = esfParcial)}
 \begin{equation}
   VS_i(Recursos) =
   \begin{cases}
-    \text{Si } esfuerzoParcial \leq Recursos \rightarrow \max(VS_{i-1}(Recursos), VS_{i-1}(Recursos - esfuerzoParcial) + (O_i\mathcal{R} \mathcal{S})^2),\\
-    \text{Si } i=1 \land Recursos \geq esfuerzoParcial \rightarrow (O_i\mathcal{R} \mathcal{S})^2, \\
+    \text{Si } esfParcial \leq Recursos \rightarrow \max(VS_{i-1}(Recursos), VS_{i-1}(Recursos - esfParcial) + (O_i\mathcal{R} \mathcal{S})^2),\\
+    \text{Si } i=1 \land Recursos \geq esfParcial \rightarrow (O_i\mathcal{R} \mathcal{S})^2, \\
     \text{De lo contrario } \rightarrow VS_{i-1}
   \end{cases}
   \label{eq:valor_solucion}
@@ -751,91 +799,41 @@ return strategy, effort, extremism, nil
 \end{itemize}
 
 \subsection{Complejidad}
-Debido a que el recorrido comienza desde el último agente y se mueve hacia el primero, la complejidad del algoritmo es $O(n)$ para $n$ agentes.
+\subsubsection{Complejidad Temporal: O(n * R)}
+\begin{itemize}
+    \item \textbf{Descripción:} El algoritmo utiliza programación dinámica con una matriz de dimensiones \(n \times (R + 1)\), donde:
+    \begin{itemize}
+        \item \(n\) es el número de agentes.
+        \item \(R\) es la cantidad total de recursos disponibles.
+    \end{itemize}
+    
+    \item \textbf{Análisis:}
+    \begin{itemize}
+        \item Los bucles anidados recorren todos los agentes y todos los posibles valores de recursos.
+        \item Cada celda de la matriz se calcula en tiempo constante.
+    \end{itemize}
+    
+    \item \textbf{Conclusión:} Debido a que se realizan operaciones para cada combinación de agente y recurso, la complejidad temporal es \(O(n * R)\).
+\end{itemize}
+
+\subsubsection{Complejidad Espacial: O(n * R)}
+\begin{itemize}
+    \item \textbf{Descripción:} El espacio principal utilizado es la matriz de subproblemas (\textit{svMatrix}).
+    
+    \item \textbf{Análisis:}
+    \begin{itemize}
+        \item La matriz \textit{svMatrix} tiene un tamaño de \(n \times (R + 1)\), ocupando \(O(n * R)\) espacio.
+        \item Las variables adicionales y el arreglo de estrategia (\textit{strategy}) utilizan espacio lineal \(O(n)\).
+    \end{itemize}
+    
+    \item \textbf{Conclusión:} La complejidad espacial está dominada por la matriz de subproblemas, resultando en \(O(n * R)\).
+\end{itemize}
 \label{subsec:complejidad_programacion_dinamica}
 \section{Comparación de Estrategias}
 \label{sec:comparacion_estrategias}
-USAR TABLAS DISEÑAR CASOS DE PRUEBA DOCUMENTAR CÓMO SE DISEÑÓ
-"Desarrolla tablas que permiten comparar la complejidad y la cercanía al óptimo de los diferentes enfoques al problema (Fuerza Bruta, voraz, y programación dinámica)"
 
-Para realizar el proceso de gráficas y tablas comparativas, se utilizó la batería y algunos casos creados por nosotros mismos, con la finalidad de poder hacer las diferentes comparativas y sacar conclusiones de estos. Cabe recalcar que por cada método algoritmico aplicado se utilizaron 100 pruebas unitarias por cada número de prueba correspondiente, la evidencia de estos datos se puede ver en el siguiente \href{https://1drv.ms/x/s!Au19Z890RbcYgYp-EkAe5e8Z_uKeHA?e=RUO2BH}{enlace}.
-\subsection{ModexFB}
-En el caso de ModexFB se tiene una complejidad de \(O(2^n)\), ya que se evalúan todas las posibles combinaciones de agentes y recursos. Pero los experimentos dados o la batería de pruebas no nos daban datos suficientes para nosotros poder representarlos a través de una gráfica y poder comprobar el comportamiento exponencial denotado por la complejidad del algoritmo.
-Para ello se diseñaron casos de prueba con 1 agente hasta 20 agentes, estos casos de prueba se repitieron 100 veces y se sacó un promedio de los tiempos de ejecución, los resultados se muestran en la siguiente tabla.
+Para realizar el proceso de gráficas y tablas comparativas, se utilizó la batería y algunos casos creados por nosotros mismos, con la finalidad de poder hacer las diferentes comparaciones y sacar conclusiones de estos. Cabe recalcar que por cada método algoritmico aplicado se utilizaron 100 pruebas unitarias por cada número de prueba correspondiente, la evidencia de estos datos se puede ver en el siguiente \href{https://1drv.ms/x/s!Au19Z890RbcYgYp-EkAe5e8Z_uKeHA?e=RUO2BH}{enlace.}
 
-\begin{table}[H]
-  \centering
-  \begin{tabular}{|c|c|}
-      \hline
-      \textbf{Nagentes} & \textbf{TIEMPO (s)} \\
-      \hline
-      1  & 0.000000000 \\
-      2  & 0.000000000 \\
-      3  & 0.000000000 \\
-      4  & 0.000000000 \\
-      5  & 0.000000000 \\
-      6  & 0.000015248 \\
-      7  & 0.000000000 \\
-      8  & 0.000085116 \\
-      9  & 0.000083823 \\
-      10 & 0.000067038 \\
-      11 & 0.000378609 \\
-      12 & 0.000491256 \\
-      13 & 0.001184419 \\
-      14 & 0.002402443 \\
-      15 & 0.005043298 \\
-      16 & 0.010540002 \\
-      17 & 0.022397281 \\
-      18 & 0.042109956 \\
-      19 & 0.096449310 \\
-      20 & 0.197336062 \\
-      \hline
-  \end{tabular}
-  \caption{Resultados de tiempo ModexFB}
-\end{table}  
-
-\begin{figure}[H]
-  \centering
-  \begin{minipage}{1\textwidth}
-    \centering
-    \includegraphics[width=\textwidth]{Images/modexfb1.png}
-  \end{minipage}
-  \caption{ModexFB exponential} 
-  \label{fig:modexfbcomplexity}
-\end{figure}
-
-Se puede apreciar claramente la tendencia exponencial de ModexFB en la (\ref{fig:modexfbcomplexity} imagen anterior), donde el tiempo de ejecución aumenta de forma exponencial a medida que se incrementa el número de agentes.
-
-\subsection{ModexV}
-Para comprobar la complejidad del ModexV, como en el anterior caso, realizamos 100 ejecuciones de cada prueba pero esta vez utilizando la batería de pruebas proporcionada. 
-
-
-\begin{figure}[H]
-  \centering
-  \begin{minipage}{1\textwidth}
-    \centering
-    \includegraphics[width=\textwidth]{Images/modexvcomplexity.png}
-  \end{minipage}
-  \caption{ModexV linear} 
-  \label{fig:modexvcomplexity}
-\end{figure}
-Como se puede apreciar en la anterior gráfica, el tiempo respecto va aumentando la cantidad de agentes se puede ver como una distribución de estos pares denotada por la recta $y=8\cdot 10^{-8}x+9\cdot10^{-5}$.
-Comprobando la tendencia a un comportamiento lineal como se dijo anteriormente $\Theta(n)$.
-
-\newpage
-\subsection{ModexPD}
-De igualmanera se tomaron 100 pruebas para luego de la misma forma sacar el promedio de tiempos y tener datos bien estructurados basados en la batería dada.
-
-\begin{figure}[H]
-  \centering
-  \begin{minipage}{1\textwidth}
-    \centering
-    \includegraphics[width=\textwidth]{Images/modexpdcomplexity.png}
-  \end{minipage}
-  \caption{ModexPD Cuadratic} 
-  \label{fig:modexpdcomplexity}
-\end{figure}
-Se puede apreciar el comportamiento cuadrático de ModexPD en la (\ref{fig:modexpdcomplexity} imagen anterior).
 \subsection{Comparación de Estrategias}
 
 \begin{table}[H]
@@ -896,9 +894,159 @@ Se puede apreciar el comportamiento cuadrático de ModexPD en la (\ref{fig:modex
   \caption{Comparativa de tiempos y resultados de MODEXFB, MODEXV y MODEXPD}
   \label{tab:modex_comparativa}
 \end{table}
+
+Teniendo en cuenta la tabla anterior, se puede observar la evolución de cada estrategia utilizada en función del tiempo, así como el valor de la solución obtenido. En particular, \textbf{ModexV} presentó 7 casos en los que sus resultados (valor de la solución) no fueron correctos (esto se mencionará más adelante). Los tiempos de ejecución fueron, en su mayoría, significativamente menores para la estrategia Voraz, debido a su naturaleza lineal. El algoritmo de fuerza bruta mostró un incremento exponencial en los tiempos de ejecución, pero después de la prueba 6 se quedó sin suficiente memoria para continuar, deteniendo su ejecución. Algo similar ocurrió con el algoritmo dinámico, ya que este también requiere memoria RAM para su ejecución, y después de la prueba 36 se necesitaron más de 128 GB de RAM para poder correrlo. Procedemos, entonces, a las comparativas de valor de la solución.
+
+\subsubsection{ModexFB vs ModexV vs ModexPD (pruebas 1 a 6)}
+
+Para los tiempos de ejecución mostrados en la tabla \ref{tab:modex_comparativa}, de la prueba 1 a la 6, quizás no se aprecie mucha diferencia, excepto en el caso de ModexFB. Sin embargo, lo que sí se puede notar es la diferencia en su valor de solución. Como se demostró anteriormente, la corrección de la estrategia Voraz \ref{lst:ModexV} no está garantizada, y en las pruebas 5 y 6 no logra los valores correctos para el truncamiento a 3 decimales. Los valores correctos (dados por \textbf{ModexFB} y \textbf{ModexPD}) son \textit{\textbf{prueba\_5 = 9.678, prueba\_6 = 11.481}}, mientras que los valores de \textbf{ModexV} son \textit{\textbf{prueba\_5 = 9.821, prueba\_6 = 11.518}}.
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{|c|c|c|c|}
+    \hline
+    \textbf{PRUEBA} & \textbf{ModexV} & \textbf{Valor Solución} & \textbf{ModexV/Valor Solución - 1} \\
+    \hline
+    5 & 9.821 & 9.678 & 1.478\% \\
+    6 & 11.518 & 11.481 & 0.322\% \\
+    \hline    
+  \end{tabular}  
+\end{table}
+
+Se pueden observar variaciones en torno al 1\% en los valores de la solución, específicamente 1.478\% y 0.322\% respectivamente, lo que indica que la estrategia Voraz es una buena aproximación a la solución óptima en estos casos. Sin embargo, no resulta recomendable debido a la cantidad de agentes, lo cual se refleja en los tiempos de ejecución. De hecho, dado que los tiempos de ejecución fueron tan pequeños, es indiferente cuál de las dos estrategias (Fuerza Bruta o Programación Dinámica) se aplique, ya que en ambas está garantizada la correctitud.
+
+\subsubsection{ModexV vs ModexPD}
+A partir de la prueba 6 \textbf{ModexFB} no podía completarlas debido a la falta de memoria, así que se siguió con las pruebas 7 a 36, donde particularmente el valor solución para las pruebas 9, 11, 12, 13 y 16 no fueron iguales, es decir, la estrategía voraz no encontró la correcta solución.
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{|c|c|c|c|}
+    \hline
+    \textbf{PRUEBA} & \textbf{ModexV} & \textbf{Valor Solución} & \textbf{ModexV/Valor Solución - 1} \\
+    \hline
+    9 & 5.967 & 5.933 & 0.573\% \\
+    11 & 5.662 & 5.650 & 0.212\% \\
+    12 & 4.049 & 4.037 & 0.297\% \\
+    13 & 4.461 & 4.455 & 0.135\% \\
+    16 & 1.731 & 1.727 & 0.232\% \\
+    \hline    
+  \end{tabular}  
+\end{table}
+Esta vez la diferencia porcentual entre la estrategia voraz y la dinámica fue estrictamente menor al 0.6\%, para ser más exactos, en promedio, para las pruebas 9, 11, 12, 13 y 16, la diferencia fue de 0.2898\%. A pesar de que la estrategia voraz no garantiza la correctitud de la solución, en estos casos, la diferencia fue mínima. Sin embargo, la estrategia voraz no es recomendable para la cantidad de agentes que se están manejando, ya que los tiempos de ejecución son en promedio menores a la milésima de segundo.
+\subsection{Caso particular (ModexFB)}
+En el caso de ModexFB se tiene una complejidad de \(O(2^n)\), ya que se evalúan todas las posibles combinaciones de agentes y recursos. Pero los experimentos dados o la batería de pruebas no nos daban datos suficientes para nosotros poder representarlos a través de una gráfica y poder comprobar el comportamiento exponencial denotado por la complejidad del algoritmo.
+Para ello se diseñaron casos de prueba con 1 agente hasta 20 agentes, estos casos de prueba se repitieron 100 veces y se sacó un promedio de los tiempos de ejecución, los resultados se muestran en la siguiente tabla y se puede evidenciar los 100 datos tomados en la siguiente \href{https://1drv.ms/x/s!Au19Z890RbcYgYp-EkAe5e8Z_uKeHA?e=RUO2BH}{hoja de calculo}.
+
+\begin{table}[H]
+  \centering
+  \begin{tabular}{|c|c|}
+      \hline
+      \textbf{Nagentes} & \textbf{TIEMPO (s)} \\
+      \hline
+      1  & 0.000000000 \\
+      2  & 0.000000000 \\
+      3  & 0.000000000 \\
+      4  & 0.000000000 \\
+      5  & 0.000000000 \\
+      6  & 0.000015248 \\
+      7  & 0.000000000 \\
+      8  & 0.000085116 \\
+      9  & 0.000083823 \\
+      10 & 0.000067038 \\
+      11 & 0.000378609 \\
+      12 & 0.000491256 \\
+      13 & 0.001184419 \\
+      14 & 0.002402443 \\
+      15 & 0.005043298 \\
+      16 & 0.010540002 \\
+      17 & 0.022397281 \\
+      18 & 0.042109956 \\
+      19 & 0.096449310 \\
+      20 & 0.197336062 \\
+      \hline
+  \end{tabular}
+  \caption{Resultados de tiempo ModexFB}
+\end{table}  
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}{1\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{Images/modexfb1.png}
+  \end{minipage}
+  \caption{ModexFB exponential} 
+  \label{fig:modexfbcomplexity}
+\end{figure}
+
+Se puede apreciar claramente la tendencia exponencial de ModexFB en la imagen anterior, donde el tiempo de ejecución aumenta de forma exponencial a medida que se incrementa el número de agentes.
+
+\subsection{Gráfica complejidad  ModexV}
+Para comprobar la complejidad del ModexV, como en el anterior caso, realizamos 100 ejecuciones de cada prueba pero esta vez utilizando la batería de pruebas proporcionada. 
+
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}{1\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{Images/modexvcomplexity.png}
+  \end{minipage}
+  \caption{ModexV linear} 
+  \label{fig:modexvcomplexity}
+\end{figure}
+Como se puede apreciar en la anterior gráfica, el tiempo respecto va aumentando la cantidad de agentes se puede ver como una distribución de estos pares denotada por la recta $y=8\cdot 10^{-8}x+9\cdot10^{-5}$.
+Comprobando la tendencia a un comportamiento lineal como se dijo anteriormente $\Theta(n)$.
+
+
+\subsection{Gráfica complejidad ModexPD}
+De igualmanera se tomaron 100 pruebas para luego de la misma forma sacar el promedio de tiempos y tener datos bien estructurados basados en la batería dada.
+
+\begin{figure}[H]
+  \centering
+  \begin{minipage}{1\textwidth}
+    \centering
+    \includegraphics[width=\textwidth]{Images/modexpdcomplexity.png}
+  \end{minipage}
+  \caption{ModexPD Cuadratic} 
+  \label{fig:modexpdcomplexity}
+\end{figure}
+Se puede apreciar el comportamiento cuadrático de ModexPD en la (\ref{fig:modexpdcomplexity} imagen anterior).
+
 \section{Conclusión}
 \label{sec:conclusion}
-CONCLUIR SOBRE LAS VENTAJAS Y DESVENTAJAS DE USAR EN LA PRÁCTICA LOS DIFERENTES ENFOQUES
-"Desarrolla una sección de conclusiones donde concluye coherentemente, a partir de sus datos, qué ventajas y desventajas encontró al usar diferentes estrategias de diseño."
 
+A partir del análisis realizado de las tres estrategias de diseño implementadas—\textbf{ModexFB} (Fuerza Bruta), \textbf{ModexV} (Voraz) y \textbf{ModexPD} (Programación Dinámica)—se pudieron identificar ventajas y desventajas específicas en cada una, basadas en los datos obtenidos de las pruebas ejecutadas.
+
+\subsection{Ventajas y Desventajas de ModexFB}
+
+La principal ventaja de la estrategia \textbf{ModexFB} radica en su capacidad para encontrar la solución óptima en todos los casos, garantizando la correctitud del resultado. Esto se debe a que evalúa todas las posibles combinaciones de agentes y recursos, asegurando que no se omita ninguna solución potencialmente mejor.
+
+Sin embargo, su desventaja más significativa es su complejidad temporal exponencial $O(2^n)$, lo que la hace impracticable para problemas con un número moderado a grande de agentes. Como se observó en las pruebas, después de la prueba 6, el algoritmo no pudo completarse debido a limitaciones de memoria, ya que requería más recursos de los disponibles (más de 128 GB de RAM). Esto limita su uso a casos muy pequeños y lo hace ineficiente en la práctica para problemas de tamaño real.
+
+\subsection{Ventajas y Desventajas de ModexV}
+
+La estrategia \textbf{ModexV} presenta como principal ventaja su rapidez y eficiencia en términos de tiempo de ejecución. Con una complejidad lineal $\Theta(n)$, es capaz de manejar grandes cantidades de agentes sin un incremento significativo en el tiempo de procesamiento, como se evidenció en las pruebas realizadas donde los tiempos fueron generalmente inferiores a una milésima de segundo.
+
+No obstante, su desventaja radica en que no garantiza la obtención de la solución óptima. Aunque en las pruebas realizadas las diferencias con la solución óptima fueron mínimas (en promedio, una variación porcentual de 0.2898\%), hubo casos en los que no se alcanzó el valor correcto de la solución. Esto implica que, si bien es una buena aproximación y puede ser útil cuando se requiere rapidez, no es recomendable en situaciones donde la exactitud del resultado es crítica.
+
+\subsection{Ventajas y Desventajas de ModexPD}
+
+La estrategia \textbf{ModexPD} combina algunas de las ventajas de las dos anteriores. Por un lado, garantiza la correctitud de la solución, al igual que \textbf{ModexFB}. Por otro lado, es más eficiente que la fuerza bruta, ya que su complejidad es cuadrática $O(n^2)$, lo que permite manejar problemas de tamaño moderado con tiempos de ejecución aceptables.
+
+Sin embargo, su desventaja se manifiesta en problemas de gran escala. Al igual que con la fuerza bruta, \textbf{ModexPD} también enfrentó limitaciones de memoria en pruebas más allá de la número 36, donde se requería más de 128 GB de RAM para su ejecución. Esto limita su aplicabilidad en problemas muy grandes, donde los recursos computacionales necesarios superan las capacidades habituales.
+\subsection{Lenguaje de programación escogido}
+
+Algo muy importante a recalcar es el lenguaje de programación, en nuestro caso utilizamos Golang (\href{https://go.dev/}{Go}) un lenguaje compilado que es muy útil para algoritmos con alta complejidad temporal, en este caso progrmación dinámica o algoritmos de búsqueda y cálculos combinatorios, por ejemplo.
+
+Una de las limitantes que vimos fue la falta de memoria, pero esto no se debió al lenguaje de programación, sino a la capacidad de la máquina en la que se ejecutaba el programa. En este caso, se utilizó una máquina con 32 GB de RAM y capacidad de 128 GB de \textit{swap}, lo que limitó la cantidad de agentes que se podían manejar en las pruebas. Sin embargo, el lenguaje de programación en sí no presentó problemas de rendimiento y permitió implementar los algoritmos de manera eficiente y sencilla. De hecho estamos conformes con todos los tiempos de ejecución obtenidos ya que no fueron significativamente altos y se pudieron manejar sin problemas.
+\subsection{Recomendaciones}
+
+En función de las ventajas y desventajas identificadas, se puede concluir que:
+
+Para problemas de pequeña escala, donde el número de agentes es reducido, \textbf{ModexFB} es una opción viable si se busca obtener la solución óptima sin importar el tiempo de ejecución.
+
+Para problemas de gran escala, donde la rapidez es esencial y una aproximación cercana a la óptima es aceptable, \textbf{ModexV} es la estrategia más adecuada debido a su eficiencia temporal.
+
+Para problemas de tamaño moderado, donde se requiere exactitud pero el número de agentes no es excesivamente grande, \textbf{ModexPD} ofrece un equilibrio entre eficiencia y correctitud.
+
+Es importante considerar las limitaciones de cada estrategia en función de los recursos disponibles y los requisitos específicos del problema a resolver. La elección de la estrategia debe basarse en un balance entre la necesidad de precisión y la eficiencia computacional.
 \end{document}
