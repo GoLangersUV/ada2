@@ -116,7 +116,7 @@ El presente informe tiene como objetivo abordar el problema de moderar el extrem
 
 Se realizará una comparación entre estas estrategias basándose en su complejidad y optimalidad.
 
-Para la implementación del proyecto, se ha seleccionado el lenguaje de programación \href{https://go.dev/}{Golang}. Esperamos que este informe sea de su agrado y cumpla con las expectativas del curso.
+Para la implementación del proyecto, se ha seleccionado el lenguaje de programación \href{https://go.dev/}{Go}. Esperamos que este informe sea de su agrado y cumpla con las expectativas del curso.
 \section{Definición de estructuras y funciones útiles}
 A continuación se presentan las funciones auxiliares y tipos de datos utilizados para implementar las soluciones al problema de moderar el extremismo de opiniones en la red social.
 \subsection*{Tipos de datos}
@@ -829,6 +829,30 @@ return strategy, effort, extremism, nil
     \item \textbf{Conclusión:} La complejidad espacial está dominada por la matriz de subproblemas, resultando en \(O(n * R)\).
 \end{itemize}
 \label{subsec:complejidad_programacion_dinamica}
+\subsection{Complejidad}
+Para determinar la complejidad de este algoritmo, implica reconocer varias lineas dentro de la función donde es expresado un ciclo $for$. En la línea 115, el ciclo $for$, que tiene como intención crear un slice para cada entrada i de la matriz $svMatrix$, itera $n$ veces, correspondiente esto último al número de agentes. Continuo a este primer $for$, se encuentra otro $for$, que a su vez itera el valor de $resources$ veces, para llenar los recursos correspondientes al prrimer agente. La parte que más contribuye a la complejidad espacial esta dada por que comienza en línea 8 de $Listing~11$. Aquí se puede apreciar que el $for$ externo itera sobre el número de agentes de dicah red social, y que, para cada agente, un $for$ itera sobre la cantidad entera de recursos asignados a la red social. La complejida en esta parte del código se expresa de la siguiente manera
+
+\begin{align*}
+  O(n) = O(n*resources)
+\end{align*}
+
+Esto es, el producto de la cantidad de agentes y la cantidad de recursos $R.max$ asignada a la red social $RS$.\\
+La resolución del valor óptimo involucra otra iteración sobre los $n$ agentes. De igual modo, para la solución completa del problema, son necesarias otras dos iteraciones para hallar el esfuerzo, mediante la función $Effort$, y el extremismo, a través de la función $Extremism$. Estos $for$ mencionados estan implícitosen la definición de susodichas funciones.
+Dada esta caracterización, se tiene entonces que la complejidad temporal es
+
+\begin{align*}
+  O(n) = O(n*resources) + 4O(n) + O(resources)
+\end{align*}
+
+donde se aprecia el aporte a la complejidad temporal dado por recorrer la matrix, la cantidad de agentes en la diferentes calculos, y el recorrido por la cantidad de recursos, que sucede particularmente para el primer agente.
+
+Con respecto a la complejidad espacial, se tiene que es dada por la linea 114 y 145 del código. Se aprecia la definición de una matriz de tamaño $n*resourses$ y a creación de un vector de tamaño $n=numAgents$. Si se suma estos dos requerimientos de espacio en tiempo de ejecución, se tiene  
+
+\begin{align*}
+  S(n) = O(n*resources) + O(n)
+\end{align*}
+
+representa la complejidad espacial para el algoritmo de programción dinámica.
 \section{Comparación de Estrategias}
 \label{sec:comparacion_estrategias}
 
@@ -1035,7 +1059,7 @@ La estrategia \textbf{ModexPD} combina algunas de las ventajas de las dos anteri
 Sin embargo, su desventaja se manifiesta en problemas de gran escala. Al igual que con la fuerza bruta, \textbf{ModexPD} también enfrentó limitaciones de memoria en pruebas más allá de la número 36, donde se requería más de 128 GB de RAM para su ejecución. Esto limita su aplicabilidad en problemas muy grandes, donde los recursos computacionales necesarios superan las capacidades habituales.
 \subsection{Lenguaje de programación escogido}
 
-Algo muy importante a recalcar es el lenguaje de programación, en nuestro caso utilizamos Golang (\href{https://go.dev/}{Go}) un lenguaje compilado que es muy útil para algoritmos con alta complejidad temporal, en este caso progrmación dinámica o algoritmos de búsqueda y cálculos combinatorios, por ejemplo.
+Algo muy importante a recalcar es el lenguaje de programación, en nuestro caso utilizamos (\href{https://go.dev/}{Go}) un lenguaje compilado que es muy útil para algoritmos con alta complejidad temporal, en este caso progrmación dinámica o algoritmos de búsqueda y cálculos combinatorios, por ejemplo.
 
 Una de las limitantes que vimos fue la falta de memoria, pero esto no se debió al lenguaje de programación, sino a la capacidad de la máquina en la que se ejecutaba el programa. En este caso, se utilizó una máquina con 32 GB de RAM y capacidad de 128 GB de \textit{swap}, lo que limitó la cantidad de agentes que se podían manejar en las pruebas. Sin embargo, el lenguaje de programación en sí no presentó problemas de rendimiento y permitió implementar los algoritmos de manera eficiente y sencilla. De hecho estamos conformes con todos los tiempos de ejecución obtenidos ya que no fueron significativamente altos y se pudieron manejar sin problemas.
 \subsection{Recomendaciones}
