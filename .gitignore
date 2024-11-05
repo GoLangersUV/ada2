@@ -22,6 +22,8 @@
 
 # Ignore the node_modules for the the MinPOl Project
 /MinPol/node_modules
+/MinPol/dist
+/MinPol/build
 
 # Ignorar compilados de LaTeX
 *.aux
