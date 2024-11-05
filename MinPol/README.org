@@ -2,12 +2,12 @@
 This is the second project for the  analysis and design of algorithms.
 
 ** Running up
- *** First, build the vite project
+*** First, build the vite project
   #+begin_src shell
 	  run npm build:web
   #+end_src
   
-  *** Then, launch the electron app
+*** Then, launch the electron app
   #+begin_src shell
 	npm run electron
   #+end_src
