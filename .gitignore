@@ -20,6 +20,9 @@
 /pkg/
 **/*.test
 
+# Ignore the node_modules for the the MinPOl Project
+/MinPol/node_modules
+
 # Ignorar compilados de LaTeX
 *.aux
 *.bbl
