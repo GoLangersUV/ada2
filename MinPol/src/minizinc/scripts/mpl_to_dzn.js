@@ -25,15 +25,15 @@ function convertMplToDzn(inputFilePath, outputFilePath) {
   const ce = lines[currentLine++].split(',').map(Number);
 
   // Leer c_{i,j}
-  const c = [];
+  const C = [];
   for (let i = 0; i < m; i++) {
     const cRow = lines[currentLine++].split(',').map(Number);
-    c.push(cRow);
+    C.push(cRow);
   }
 
-  // Leer ct y maxM
-  const ct = parseFloat(lines[currentLine++]);
-  const maxM = parseInt(lines[currentLine++], 10);
+  // Leer C_max y M_max
+  const C_max = parseFloat(lines[currentLine++]);
+  const M_max = parseInt(lines[currentLine++], 10);
 
   // Generar el contenido del archivo .dzn
   let dznContent = '';
@@ -54,10 +54,10 @@ function convertMplToDzn(inputFilePath, outputFilePath) {
   dznContent += `ce = [${ce.map(num => num.toFixed(3)).join(', ')}];\n\n`;
 
   dznContent += `% Matriz de costos de mover de una opinión a otra\n`;
-  dznContent += `c = array2d(1..${m}, 1..${m},\n  [\n`;
+  dznContent += `C = array2d(1..${m}, 1..${m},\n  [\n`;
 
-  // Aplanar la matriz c y agregarla al contenido
-  const cFlat = c.flat();
+  // Aplanar la matriz C y agregarla al contenido
+  const cFlat = C.flat();
   for (let i = 0; i < cFlat.length; i++) {
     dznContent += `    ${cFlat[i].toFixed(3)}`;
     if (i < cFlat.length - 1) {
@@ -70,10 +70,10 @@ function convertMplToDzn(inputFilePath, outputFilePath) {
   dznContent += '\n  ]);\n\n';
 
   dznContent += `% Costo total máximo permitido\n`;
-  dznContent += `ct = ${ct.toFixed(3)};\n\n`;
+  dznContent += `C_max = ${C_max.toFixed(3)};\n\n`;
 
   dznContent += `% Número máximo de movimientos permitidos\n`;
-  dznContent += `maxM = ${maxM};\n`;
+  dznContent += `M_max = ${M_max};\n`;
 
   // Escribir el contenido al archivo de salida .dzn
   fs.writeFileSync(outputFilePath, dznContent);

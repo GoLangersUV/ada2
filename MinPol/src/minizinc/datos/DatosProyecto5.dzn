@@ -14,7 +14,7 @@ v = [0.011, 0.214, 0.290, 0.829, 0.944];
 ce = [5.590, 5.501, 9.646, 2.293, 9.309];
 
 % Matriz de costos de mover de una opinión a otra
-c = array2d(1..5, 1..5,
+C = array2d(1..5, 1..5,
   [
     0.000,    0.604,    0.052,    4.814,    4.611,
     2.146,    0.000,    0.381,    2.747,    4.802,
@@ -24,7 +24,7 @@ c = array2d(1..5, 1..5,
   ]);
 
 % Costo total máximo permitido
-ct = 29.350;
+C_max = 29.350;
 
 % Número máximo de movimientos permitidos
-maxM = 9;
+M_max = 9;

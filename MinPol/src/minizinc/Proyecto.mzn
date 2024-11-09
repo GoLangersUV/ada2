@@ -1,70 +1,84 @@
-% Parámetros
-int: n; % Número total de personas
-int: m; % Número de opiniones posibles
+%-------------------------------------------------------------------------------
+% File: Proyecto.mzn
+% Authors: Julián Ernesto Puyo Mora...2226905
+%          Cristian David Pacheco.....2227437
+%          Juan Sebastián Molina......2224491
+%          Juan Camilo Narváez Tascón.2140112
+% Creation date: 05/10/2024
+% Last modification: 09/10/2024
+% License: GNU-GPL
+%-------------------------------------------------------------------------------
+% Warning: Consulte el informe técnico para una descripción detallada del modelo.
 
-array[1..m] of int: p; % Distribución inicial de personas (sorted)
-array[1..m] of float: v; % Valores de las opiniones (sorted)
+%-------------------------------------------------------------------------------
+% Parámetros generales del modelo
+%-------------------------------------------------------------------------------
+% Definición 1.1
+int: n; 
+int: m;
+array[1..m] of float: v;
+array[1..m] of int: p;
 
-array[1..m, 1..m] of float: c; % Costos base de mover de i a j
-array[1..m] of float: ce; % Costos extra al mover a opiniones vacías
+% Definición 1.5
+array[1..m, 1..m] of float: C;
+array[1..m] of float: ce;
 
-float: ct; % Costo total máximo permitido
-int: maxM; % Número máximo de movimientos
-
-% Precompute array indicating positions with people (1 if empty, 0 if has people)
+% Definición 1.6
 array[1..m] of 0..1: is_empty = [if p[j] == 0 then 1 else 0 endif | j in 1..m];
 
-% Variables de decisión
-array[1..m, 1..m] of var 0..n: x; % Personas movidas de i a j
+%-------------------------------------------------------------------------------
+% 1.1 Variables del modelo
+%-------------------------------------------------------------------------------
+% Definición 1.8
+array[1..m, 1..m] of var 0..n: X;
+array[1..m] of var 0..n: p_prime;
 
-% Variables auxiliares
-array[1..m] of var 0..n: p_prime; % Distribución final de personas
+% Definición 1.9
+array[1..m] of var 0..1: is_median = [if (i = 1 \/ sum(j in 1..i-1)(p_prime[j]) < n/2.0) /\ sum(j in 1..i)(p_prime[j]) >= n/2.0 then 1 else 0 endif | i in 1..m];
 
-% Cálculo de p_prime
-constraint forall(i in 1..m)(
-    p_prime[i] = p[i] + sum(k in 1..m)(x[k,i]) - sum(k in 1..m)(x[i,k])
-);
-
-% Restricción de capacidad de movimiento
-constraint forall(i in 1..m)(
-    sum(j in 1..m)(x[i,j]) <= p[i]
-);
-
-% Cálculo del costo total (optimizado)
-var float: total_cost = sum(i in 1..m, j in 1..m)(
-    (c[i,j] * (1 + p[i]/n) + ce[j] * is_empty[j]) * x[i,j]
-);
-
-constraint total_cost <= ct;
-
-% Número total de movimientos
-constraint sum(i in 1..m, j in 1..m)(
-    abs(j - i) * x[i,j]
-) <= maxM;
-
-% Variables para encontrar la mediana
-array[1..m] of var 0..1: is_median;
-
-% Solo una posición puede ser la mediana
-constraint sum(i in 1..m)(is_median[i]) = 1;
-
-% La posición de la mediana debe cumplir las condiciones necesarias
-constraint forall(i in 1..m)(
-    is_median[i] = 1 -> (
-        (i = 1 \/ sum(j in 1..i-1)(p_prime[j]) < n/2.0) /\
-        sum(j in 1..i)(p_prime[j]) >= n/2.0
-    )
-);
-
-% La mediana es el producto punto entre los valores y los indicadores
+% Definición 1.11
 var float: median_v = sum(i in 1..m)(v[i] * is_median[i]);
-
-% Cálculo de la polarización
+var float: total_cost = sum(i in 1..m, j in 1..m)(
+    (C[i,j] * (1 + p[i]/n) + ce[j] * is_empty[j]) * X[i,j]
+);
 var float: polarization = sum(i in 1..m)(
     p_prime[i] * abs(v[i] - median_v)
 );
 
+%-------------------------------------------------------------------------------
+% 1.2 Sistema de restricciones
+%-------------------------------------------------------------------------------
+% Restricción 1.12
+constraint forall(i in 1..m)(
+    p_prime[i] = p[i] + sum(k in 1..m)(X[k,i]) - sum(k in 1..m)(X[i,k])
+);
+
+% Restricción 1.13
+constraint forall(i in 1..m)(
+    sum(j in 1..m)(X[i,j]) <= p[i]
+);
+
+% Restricción 1.14
+int: M_max;
+constraint sum(i in 1..m, j in 1..m)(
+    abs(j - i) * X[i,j]
+) <= M_max;
+
+% Restricción 1.15
+float: C_max; 
+constraint total_cost <= C_max;
+
+% Restricción 1.16
+constraint sum(i in 1..m)(is_median[i]) = 1;
+
+%-------------------------------------------------------------------------------
+% 1.3 Formulación del modelo
+%-------------------------------------------------------------------------------
+solve minimize polarization;
+
+%-------------------------------------------------------------------------------
 % Output formatting
+%-------------------------------------------------------------------------------
 output [
   "Optimal Solution:\n",
   "---------------\n",
@@ -73,8 +87,8 @@ output [
   "Movements (from -> to : amount):\n"
 ] ++
 [
-  if fix(x[i,j]) > 0 then
-    "  \(i) -> \(j) : \(x[i,j])\n"
+  if fix(X[i,j]) > 0 then
+    "  \(i) -> \(j) : \(X[i,j])\n"
   else ""
   endif
   | i,j in 1..m
@@ -89,10 +103,5 @@ output [
 ] ++
 [
   "\nTotal cost: \(total_cost)\n",
-  "Total movements: \(sum(i,j in 1..m)(x[i,j]))\n"
-] ++
-[
-  "\nOptimal Solution = \(polarization)\n",
-];
-
-solve minimize polarization;
+  "Total movements: \(sum(i,j in 1..m)(X[i,j]))\n"
+]
