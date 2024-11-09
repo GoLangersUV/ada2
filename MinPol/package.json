@@ -16,7 +16,9 @@
   },
   "dependencies": {
     "@files-ui/react": "^1.2.4",
+    "chalk": "^5.3.0",
     "express": "^4.21.1",
+    "progress": "^2.0.3",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"
   },

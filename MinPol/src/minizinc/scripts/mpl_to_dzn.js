@@ -1,4 +1,5 @@
-const fs = require('fs');
+import fs from 'fs';
+
 
 // Función para leer el archivo .mpl y generar el contenido del .dzn
 function convertMplToDzn(inputFilePath, outputFilePath) {

@@ -1,0 +1,23 @@
+Optimal Solution:
+---------------
+Polarization = 9.687000000000001
+Median = 0.105
+
+Movements (from -> to : amount):
+  4 -> 3 : 1
+  5 -> 3 : 2
+
+Final distribution:
+Opinion	Value	Population	Initially Empty?
+1	0.064	15	"No"
+2	0.105	11	"No"
+3	0.143	8	"No"
+4	0.58	0	"No"
+5	0.653	16	"No"
+
+Total cost: 5.59266
+Total movements: 3
+
+Optimal Solution = 9.687000000000001
+----------
+==========
