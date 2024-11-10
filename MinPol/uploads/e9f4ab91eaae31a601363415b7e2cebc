@@ -1,0 +1,122 @@
+* Emacs_Cheat-_Sheet_by_Linuxsimply
+:PROPERTIES:
+:NOTER_DOCUMENT: Emacs_Cheat-_Sheet_by_Linuxsimply.pdf
+:END:
+
+ 
+** a
+:PROPERTIES:
+:NOTER_PAGE: [[pdf:~/Desktop/Emacs_Cheat-_Sheet_by_Linuxsimply.pdf::5++0.00;;annot-5-4]]
+:ID:       Emacs_Cheat-_Sheet_by_Linuxsimply.pdf-annot-5-4
+:HIGHLIGHT: #s(pdf-highlight 5 ((0.48837209302325585 0.6184640522875817 0.5021141649048626 0.6184640522875817)))
+:END:
+``CTRL''
+
+** notes 2
+:PROPERTIES:
+:NOTER_PAGE: [[pdf:~/Desktop/Emacs_Cheat-_Sheet_by_Linuxsimply.pdf::6++2.34;;annot-6-3]]
+:ID:       Emacs_Cheat-_Sheet_by_Linuxsimply.pdf-annot-6-3
+:END:
+``ALT + X build-tags''
+
+** dfdgdgdf
+:PROPERTIES:
+:NOTER_PAGE: [[pdf:~/Desktop/Emacs_Cheat-_Sheet_by_Linuxsimply.pdf::6++2.34;;annot-6-5]]
+:ID:       Emacs_Cheat-_Sheet_by_Linuxsimply.pdf-annot-6-5
+:HIGHLIGHT: #s(pdf-highlight 6 ((0.5625 0.41489361702127664 0.4777542372881356 0.38461538461538464)))
+:END:
+``ALT + X tags-
+apropos''
+** eeee
+:PROPERTIES:
+:NOTER_PAGE: [[pdf:~/Desktop/Emacs_Cheat-_Sheet_by_Linuxsimply.pdf::7++5.86;;annot-7-2]]
+:ID:       Emacs_Cheat-_Sheet_by_Linuxsimply.pdf-annot-7-2
+:END:
+``ALT''
+
+** klkfdf
+
+
+
+
+* es mi proximo link [[pdf:~/Desktop/Emacs_Cheat-_Sheet_by_Linuxsimply.pdf::3++0.00;;annot-3-3][Una super description]]
+
+[[pdf:~/Desktop/Emacs_Cheat-_Sheet_by_Linuxsimply.pdf::3++0.00;;annot-3-5][eeee]]
+
+** hj
+
+** bss
+:PROPERTIES:
+:NOTER_PAGE: [[pdf:~/Desktop/Emacs_Cheat-_Sheet_by_Linuxsimply.pdf::1++0.00;;annot-1-4]]
+:ID:       Emacs_Cheat-_Sheet_by_Linuxsimply.pdf-annot-1-4
+:HIGHLIGHT: #s(pdf-highlight 1 ((0.3644957983193277 0.15056818181818182 0.2510504201680672 0.14853896103896105)))
+:END:
+``Suspend Emacs''
+
+
+** dbfhsb
+[[pdf:~/Desktop/Emacs_Cheat-_Sheet_by_Linuxsimply.pdf::1++20.71;;annot-1-7][Emacs_Cheat]]
+
+[[pdf:~/Desktop/Emacs_Cheat-_Sheet_by_Linuxsimply.pdf::5++11.57;;annot-5-3][Emacs_Cheat]]
+
+\begin{document}
+\begin{description}
+\item[]
+\begin{center}
+\\
+\begin{deflist}{width-text}
+\item
+
+ \begin{enumerate}
+\item\label{item:1}
+ \begin{equation}
+\label{eq:1}
+\begin{itemize}
+\begin{thebibliography}{}
+
+\begin{align*}
+math & \sim \\
+\end{align*}
+\bibitem[]{}
+
+\end{thebibliography}
+\item 
+\end{itemize}
+\end{equation}
+\end{enumerate}
+\end{deflist}
+\end{center}
+\end{description}
+\end{document}
+
+\begin{equation}
+\label{eq:2}
+\frac{}{}
+\sum\limits_{
+}^{}\int\limits_{}^{}
+\sqrt{}
+\left(  \right)
+\left[  \right]
+\left|  \right|
+\left\{ 
+\begin{array}{l@{\quad:\quad}l}
+ & \\
+ & 
+\end{array}\right.
+\end{equation}
+
+\begin{equation}
+\label{eq:3}
+\text{\forall} 
+\end{equation}
+
+(\pageref{eq:3})
+
+\begin{enumerate}
+\item\label{item:2} 
+\end{enumerate}
+
+\subsection{fn}
+
+\footnote{}
+
