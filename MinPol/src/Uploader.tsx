@@ -1,10 +1,13 @@
 import { Dropzone, ExtFile, FileMosaic, ValidateFileResponse } from "@files-ui/react";
 import { useState } from "react";
 
-const DropzoneFileLoader = () => {
+interface DropzoneFileLoaderProp {
+	solver: string
+}
 
-  const [files, setFiles] = useState<ExtFile[]>([]);
-  const [solver, setSolver] = useState<string>("gecode");
+const DropzoneFileLoader = ({ solver }: DropzoneFileLoaderProp) => {
+
+	const [files, setFiles] = useState<ExtFile[]>([]);
 	const updateFiles = (incommingFiles: ExtFile[]) => {
 		//do something with the files
 		setFiles(incommingFiles);
@@ -24,7 +27,7 @@ const DropzoneFileLoader = () => {
 	const myOwnDataValidation = (file: File): ValidateFileResponse => {
 		let errorList: string[] = [];
 		let validResult: boolean = true;
-		const regExPrefix: RegExp = /^[\w,\s-]+\.(imp|Imp)$/i;
+		const regExPrefix: RegExp = /^[\w,\s-]+\.(mpl|Mpl)$/i;
 		if (!file.name.match(regExPrefix)) {
 			validResult = false;
 			errorList.push('Prefix "test_file" was not present in the file name');
@@ -46,10 +49,10 @@ const DropzoneFileLoader = () => {
 				onChange={updateFiles}
 				value={files}
 				validator={myOwnDataValidation}
-				footerConfig={{ customMessage: "Allow files in format txt" }}
+				footerConfig={{ customMessage: "Allow format: mpl" }}
 				onUploadFinish={onUploadFinish}
 				uploadConfig={{
-				  url: `http://localhost:3000/run-minizinc?solver=${solver}`,
+					url: `http://localhost:3000/run-minizinc?solver=${solver}`,
 					method: "POST",
 					headers: {
 						Authorization:
@@ -58,7 +61,7 @@ const DropzoneFileLoader = () => {
 					autoUpload: true,
 					cleanOnUpload: true,
 				}}
-			> {(files.length == 0) ? "Drag and drop a mnz file" :
+			> {(files.length == 0) ? "Drag and drop a mpl file" :
 				files.map((file: ExtFile) => (
 					<FileMosaic key={file.id} {...file} onDelete={removeFile} info={true} />
 				))}

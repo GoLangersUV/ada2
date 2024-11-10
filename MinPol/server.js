@@ -3,7 +3,7 @@ import express from 'express';
 import { exec } from 'child_process';
 import multer from 'multer';
 import cors from 'cors';
-import { convertDefaultImpFiles2ToDzn  } from './src/minizinc/scripts/mpl_to_dzn.js';
+import { convertMplToDzn  } from './src/minizinc/scripts/mpl_to_dzn.js';
 import { runMiniZinc } from './src/minizinc/scripts/run_minizinc_storing.js';
 
 const app = express();
@@ -15,24 +15,23 @@ app.use(express.json());
 
 app.post('/run-minizinc', upload.single('file'), (req, res) => {
 
+	const file = req.file;
+	
 	if (file) {
 		console.log(file);
-		// const convertedFilePath = convertDefaultImpFiles2ToDz("", "");
-        // if (convertedFilePath) {
-		// 	runMiniZinc(convertedFilePath);
-		// }
-	}
-	
-	receivedFile = req.file;
-    if (!req.file) {
-        return res.status(400).json({ error: 'No file uploaded' });
-    }
-    res.json({ message: 'File uploaded successfully', file: req.file });
+		const { fileName } = file.originalname;
+		const uploadedFilePath = file.path;
+		const convertedFilePath = convertMplToDzn(uploadedFilePath, `${uploadedFilePath}.dzn`);
+        console.log(`convertedFilePath ${convertedFilePath}`);
+		if (convertedFilePath) {
+		 	runMiniZinc(convertedFilePath);
+		} 
+	} else {
+		return res.status(400).json({ error: 'No file uploaded' });
+	}   
+    
+   
 
-
-    // Save the model and data to temporary files
-    // const modelFile = 'model.mzn';
-    // const dataFile = 'data.dzn';
 
     // require('fs').writeFileSync(modelFile, model);
     // require('fs').writeFileSync(dataFile, data);
