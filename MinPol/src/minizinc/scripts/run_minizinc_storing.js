@@ -46,12 +46,13 @@ function saveResults(filename, result, isError = false) {
     };
 
     fs.writeFileSync(jsonPath, JSON.stringify(consolidated, null, 2));
+	return jsonPath;
 }
 
 // Function to execute MiniZinc for a single data file
 export function runMiniZinc(dataFile) {
     return new Promise((resolve, reject) => {
-        const dataPath = path.join(DATA_DIR, dataFile);
+        const dataPath = dataFile
         console.log(chalk.blue(`\nExecuting with data file: ${dataFile}`));
 
         const timeLimitSeconds = TIMEOUT-10000;
@@ -77,8 +78,8 @@ export function runMiniZinc(dataFile) {
                 saveResults(dataFile, timeoutMsg, true);
                 resolve(timeoutMsg);
             } else if (code === 0) {
-                saveResults(dataFile, output);
-                resolve(output);
+                const jsonResultPath = saveResults(dataFile, output);
+                resolve(jsonResultPath);
             } else {
                 const errorMsg = `Process exited with code ${code}: ${errorOutput}`;
                 saveResults(dataFile, errorMsg, true);
