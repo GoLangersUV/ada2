@@ -17,7 +17,7 @@ function App() {
 	return (
 		<>
 			<div className='flex justify-center'>
-				<img src="/logo.png" className="logo" alt="Vite logo" />
+				<img src="logo.png" className="logo" alt="Vite logo" />
 			</div>
 			<h1 className='my-4'>MinPol</h1>
 			<DropzoneFileLoader  solver={solver}/>
@@ -40,7 +40,7 @@ function App() {
 				</Select>
 			</div>
 			<p className="read-the-docs mt-8">
-				<p>© {currentYear} Grupo 2; Ada 2; Ingenieria es sistemas. Todos los derechos reservados.</p>
+		<p>© {currentYear} Grupo I; Ada 2; Ingeniería en sistemas; EISC; Todos los derechos reservados.</p>
 			</p>
 		</>
 	)
