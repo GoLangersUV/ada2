@@ -15,7 +15,7 @@ const MODEL_PATH = path.join(__dirname, '..', 'Proyecto.mzn');
 const DATA_DIR = path.join(__dirname, '..', 'datos');
 const RESULTS_DIR = path.join(__dirname, '..', 'results');
 const SOLVER = 'gecode';
-const TIMEOUT = 20000;
+const TIMEOUT = 30000;
 
 // Ensure results directory exists
 if (!fs.existsSync(RESULTS_DIR)) {

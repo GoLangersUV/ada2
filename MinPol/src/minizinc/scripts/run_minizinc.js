@@ -16,7 +16,7 @@ const __dirname = dirname(__filename);
 const MODEL_PATH = path.join(__dirname, '..', 'Proyecto.mzn');
 const DATA_DIR = path.join(__dirname, '..', 'datos');
 const SOLVER = 'gecode'; // You can change the solver if needed
-const TIMEOUT = 20000; // 5 minutes in milliseconds
+const TIMEOUT = 30000; // 5 minutes in milliseconds
 
 // Function to execute MiniZinc for a single data file
 function runMiniZinc(dataFile) {
