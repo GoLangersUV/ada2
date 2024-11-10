@@ -3,7 +3,8 @@ import { useState } from "react";
 
 const DropzoneFileLoader = () => {
 
-	const [files, setFiles] = useState<ExtFile[]>([]);
+  const [files, setFiles] = useState<ExtFile[]>([]);
+  const [solver, setSolver] = useState<string>("gecode");
 	const updateFiles = (incommingFiles: ExtFile[]) => {
 		//do something with the files
 		setFiles(incommingFiles);
@@ -23,7 +24,7 @@ const DropzoneFileLoader = () => {
 	const myOwnDataValidation = (file: File): ValidateFileResponse => {
 		let errorList: string[] = [];
 		let validResult: boolean = true;
-		const regExPrefix: RegExp = /^[\w,\s-]+\.(org|txt|csv|log|text|md)$/i;
+		const regExPrefix: RegExp = /^[\w,\s-]+\.(imp|Imp)$/i;
 		if (!file.name.match(regExPrefix)) {
 			validResult = false;
 			errorList.push('Prefix "test_file" was not present in the file name');
@@ -48,7 +49,7 @@ const DropzoneFileLoader = () => {
 				footerConfig={{ customMessage: "Allow files in format txt" }}
 				onUploadFinish={onUploadFinish}
 				uploadConfig={{
-					url: "http://localhost:3000/run-minizinc",
+				  url: `http://localhost:3000/run-minizinc?solver=${solver}`,
 					method: "POST",
 					headers: {
 						Authorization:

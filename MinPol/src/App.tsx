@@ -1,4 +1,4 @@
-import './App.css'
+import './output.css'
 import DropzoneFileLoader from './Uploader.jsx'
 
 function App() {

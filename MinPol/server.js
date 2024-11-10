@@ -14,19 +14,22 @@ app.use(cors());
 app.use(express.json());
 
 app.post('/run-minizinc', upload.single('file'), (req, res) => {
-    const { model, data } = req.body;
-    console.log(req);
+
+	if (file) {
+		console.log(file);
+		// const convertedFilePath = convertDefaultImpFiles2ToDz("", "");
+        // if (convertedFilePath) {
+		// 	runMiniZinc(convertedFilePath);
+		// }
+	}
+	
+	receivedFile = req.file;
     if (!req.file) {
         return res.status(400).json({ error: 'No file uploaded' });
     }
     res.json({ message: 'File uploaded successfully', file: req.file });
 
-	if (false) {
-		const convertedFilePath = convertDefaultImpFiles2ToDz("", "");
-        if (convertedFilePath) {
-			runMiniZinc(convertedFilePath);
-		}
-	}
+
     // Save the model and data to temporary files
     // const modelFile = 'model.mzn';
     // const dataFile = 'data.dzn';

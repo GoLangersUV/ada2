@@ -1,7 +1,7 @@
 import fs from 'fs';
 
 // Función para leer el archivo .mpl y generar el contenido del .dzn
-export function convertMplToDzn(inputFilePath: string, outputFilePath: string): string | null {
+export function convertMplToDzn(inputFilePath, outputFilePath) {
   // Leer el archivo .mpl
   const mplData = fs.readFileSync(inputFilePath, 'utf8');
 
@@ -84,7 +84,7 @@ export function convertMplToDzn(inputFilePath: string, outputFilePath: string): 
 // Ejecutar la conversión
 // bucle para iterar sobre los archivos de entrada
 // y generar los archivos de salida
-export function convertDefaultImpFiles2ToDzn(): void {
+export function convertDefaultImpFiles2ToDzn() {
 	for (let i = 1; i <= 30; i++) {
 		convertMplToDzn(`./src/minizinc/mpl/MinPol${i}.mpl`, `./src/minizinc/datos/DatosProyecto${i}.dzn`);
 	}
