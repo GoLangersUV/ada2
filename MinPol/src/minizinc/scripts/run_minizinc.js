@@ -19,7 +19,7 @@ const SOLVER = 'gecode'; // You can change the solver if needed
 const TIMEOUT = 30000; // 5 minutes in milliseconds
 
 // Function to execute MiniZinc for a single data file
-function runMiniZinc(dataFile) {
+export function runMiniZinc(dataFile) {
     return new Promise((resolve, reject) => {
         const dataPath = path.join(DATA_DIR, dataFile);
         console.log(chalk.blue(`\nExecuting with data file: ${dataFile}`));
@@ -96,4 +96,4 @@ async function main() {
     }
 }
 
-main();
+// main();

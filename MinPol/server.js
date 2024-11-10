@@ -3,6 +3,8 @@ import express from 'express';
 import { exec } from 'child_process';
 import multer from 'multer';
 import cors from 'cors';
+import { convertDefaultImpFiles2ToDzn  } from './src/minizinc/scripts/mpl_to_dzn.js';
+import { runMiniZinc } from './src/minizinc/scripts/run_minizinc_storing.js';
 
 const app = express();
 const port = 3000;
@@ -17,7 +19,14 @@ app.post('/run-minizinc', upload.single('file'), (req, res) => {
     if (!req.file) {
         return res.status(400).json({ error: 'No file uploaded' });
     }
-    res.json({ message: 'File uploaded successfully', file: req.file });	
+    res.json({ message: 'File uploaded successfully', file: req.file });
+
+	if (false) {
+		const convertedFilePath = convertDefaultImpFiles2ToDz("", "");
+        if (convertedFilePath) {
+			runMiniZinc(convertedFilePath);
+		}
+	}
     // Save the model and data to temporary files
     // const modelFile = 'model.mzn';
     // const dataFile = 'data.dzn';

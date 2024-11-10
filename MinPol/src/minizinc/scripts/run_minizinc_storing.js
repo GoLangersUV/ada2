@@ -49,7 +49,7 @@ function saveResults(filename, result, isError = false) {
 }
 
 // Function to execute MiniZinc for a single data file
-function runMiniZinc(dataFile) {
+export function runMiniZinc(dataFile) {
     return new Promise((resolve, reject) => {
         const dataPath = path.join(DATA_DIR, dataFile);
         console.log(chalk.blue(`\nExecuting with data file: ${dataFile}`));
