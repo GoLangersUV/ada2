@@ -24,7 +24,7 @@ function createWindow() {
     mainWindow.loadFile(path.join(__dirname, 'dist', 'index.html'));
 
     // Open the DevTools (optional)
-    //mainWindow.webContents.openDevTools();
+    mainWindow.webContents.openDevTools();
 }
 
 app.whenReady().then(() => {
@@ -46,4 +46,12 @@ app.whenReady().then(() => {
 
 app.on('window-all-closed', () => {
     if (process.platform !== 'darwin') app.quit();
+    exec('kill -9 $(lsof -t -i :3000)', (error, stdout, stderr) => {
+        if (error) {
+            console.error(`Error closing server`);
+            return;
+        }
+        console.log(`Server close: ${stdout}`);
+    });
+
 });

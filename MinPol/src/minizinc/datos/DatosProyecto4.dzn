@@ -1,0 +1,30 @@
+% Número total de personas
+n = 10;
+
+% Número de opiniones posibles
+m = 5;
+
+% Distribución inicial de personas por opinión
+p = [2, 1, 1, 4, 2];
+
+% Valores de las opiniones
+v = [0.135, 0.141, 0.704, 0.956, 0.982];
+
+% Costos extras al mover a opiniones vacías
+ce = [12.017, 14.916, 13.803, 6.312, 0.621];
+
+% Matriz de costos de mover de una opinión a otra
+C = array2d(1..5, 1..5,
+  [
+    0.000,    2.138,    2.742,    3.666,    4.079,
+    2.622,    0.000,    1.032,    4.815,    1.037,
+    1.336,    3.523,    0.000,    3.978,    3.051,
+    3.683,    0.391,    2.619,    0.000,    4.516,
+    4.816,    0.927,    1.162,    2.256,    0.000
+  ]);
+
+% Costo total máximo permitido
+C_max = 38.740;
+
+% Número máximo de movimientos permitidos
+M_max = 19;
