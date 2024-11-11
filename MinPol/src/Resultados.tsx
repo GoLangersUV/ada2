@@ -97,7 +97,7 @@ const Resultados: React.FC<ResultadosProps> = ({ selectedResult }) => {
             } else if (line.startsWith('Final distribution:')) {
                 parsingFinalDistributionTable = true;
                 // Skip the header lines
-                i += 2; // Assuming next two lines are headers
+                i += 1; 
             } else if (parsingFinalDistributionTable && line.trim() === '') {
                 parsingFinalDistributionTable = false;
             } else if (parsingFinalDistributionTable) {
@@ -151,13 +151,13 @@ const Resultados: React.FC<ResultadosProps> = ({ selectedResult }) => {
             <p>Movimiento máximo: {parsedData.maxMov}</p>
 
             <h3>Movimientos</h3>
-            <table>
+            <table className="centered-table">
                 <thead>
                     <tr>
-                        <th>De</th>
-                        <th>A</th>
-                        <th>Cantidad</th>
-                        <th>Costo</th>
+                        <th>From</th>
+                        <th>To</th>
+                        <th>Amount</th>
+                        <th>Partial Cost</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -172,14 +172,14 @@ const Resultados: React.FC<ResultadosProps> = ({ selectedResult }) => {
                 </tbody>
             </table>
 
-            <h3>Distribución Final</h3>
-            <table>
+            <h3 className="seccion-subtitulo">Final distribution</h3>
+            <table className="centered-table">
                 <thead>
                     <tr>
-                        <th>Opinión</th>
-                        <th>Valor</th>
-                        <th>Población</th>
-                        <th>Inicialmente Vacío</th>
+                        <th>Opinion</th>
+                        <th>Value</th>
+                        <th>Population</th>
+                        <th>Initially empty?</th>
                     </tr>
                 </thead>
                 <tbody>

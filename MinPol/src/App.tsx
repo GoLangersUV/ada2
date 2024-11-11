@@ -49,27 +49,6 @@ function App() {
             </div>
             <h1 className='my-4'>MinPol</h1>
 
-            {results.length > 0 && (
-                <div className='m-auto w-fit my-4'>
-                    <Select
-                        onValueChange={(e: string) => {
-                            setSelectedResult(e);
-                        }}
-                    >
-                        <SelectTrigger className="w-[180px]">
-                            <SelectValue placeholder="Selecciona un resultado" />
-                        </SelectTrigger>
-                        <SelectContent>
-                            {results.map((result, index) => (
-                                <SelectItem key={index} value={result}>
-                                    {result}
-                                </SelectItem>
-                            ))}
-                        </SelectContent>
-                    </Select>
-                </div>
-            )}
-
             <DropzoneFileLoader solver={solver} onFileResponse={onFileResponse} />
 
             <div className='flex flex-col justify-center w-fit m-auto'>
@@ -87,7 +66,26 @@ function App() {
                     </SelectContent>
                 </Select>
             </div>
-
+            {results.length > 0 && (
+                <div className='m-auto w-fit my-4'>
+                    <Select
+                        onValueChange={(e: string) => {
+                            setSelectedResult(e);
+                        }}
+                    >
+                        <SelectTrigger className="w-[180px]">
+                            <SelectValue placeholder="Select a result" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {results.map((result, index) => (
+                                <SelectItem key={index} value={result}>
+                                    {result}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                </div>
+            )}
             {selectedResult && <Resultados selectedResult={selectedResult} />}
 
             <p className="read-the-docs mt-8">
