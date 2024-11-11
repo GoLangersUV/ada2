@@ -35,7 +35,6 @@ app.post('/run-minizinc', upload.single('file'), async (req, res) => {
             const result = await runMiniZinc(convertedFilePath, originalname);
             console.log(`result ${result}`);
 
-            // Asegúrate de que inputFile está incluido en la respuesta
             res.json({
                 success: true,
                 message: "Upload complete!",

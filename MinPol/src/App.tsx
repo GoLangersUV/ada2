@@ -57,7 +57,7 @@ function App() {
 
         if (payload && payload.fileName && payload.inputFile) {
             setResults((prevResults) => {
-                // Verificar si ya existe el fileName para evitar duplicados
+
                 const exists = prevResults.some(item => item.fileName === payload.fileName);
                 if (!exists) {
                     const newResult: ResultItem = {
@@ -76,9 +76,6 @@ function App() {
         }
     }
 
-
-
-    // Crear una constante para almacenar el nombre (inputFile) correspondiente al selectedResult
     const selectedName = selectedResult 
         ? results.find(result => result.fileName === selectedResult)?.inputFile ?? null
         : null;
