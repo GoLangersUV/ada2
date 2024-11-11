@@ -23,9 +23,9 @@ if (!fs.existsSync(RESULTS_DIR)) {
 }
 
 // Function to save results to files
-function saveResults(filename, result, isError = false) {
+function saveResults(filePath, result, isError = false, fileName) {
     const timestamp = new Date().toISOString().replace(/[:.]/g, '-');
-    const baseFilename = path.parse(filename).name;
+    const baseFilename = path.parse(filePath).name;
     
     // Save individual result as text file
     const txtFilename = path.join(RESULTS_DIR, `${baseFilename}_${timestamp}.txt`);
@@ -42,7 +42,7 @@ function saveResults(filename, result, isError = false) {
         timestamp: new Date().toISOString(),
         result: result,
         isError: isError,
-        inputFile: filename
+        inputFile: fileName,
     };
 
     fs.writeFileSync(jsonPath, JSON.stringify(consolidated, null, 2));
@@ -50,7 +50,7 @@ function saveResults(filename, result, isError = false) {
 }
 
 // Function to execute MiniZinc for a single data file
-export function runMiniZinc(dataFile) {
+export function runMiniZinc(dataFile, fileName) {
     return new Promise((resolve, reject) => {
         const dataPath = dataFile
         console.log(chalk.blue(`\nExecuting with data file: ${dataFile}`));
@@ -75,14 +75,14 @@ export function runMiniZinc(dataFile) {
             clearTimeout(timer);
             if (timedOut) {
                 const timeoutMsg = `Execution timed out after ${TIMEOUT}ms\nPartial output: ${output}`;
-                saveResults(dataFile, timeoutMsg, true);
+                saveResults(dataFile, timeoutMsg, true, fileName);
                 resolve(timeoutMsg);
             } else if (code === 0) {
-                const jsonResultPath = saveResults(dataFile, output);
+                const jsonResultPath = saveResults(dataFile, output, fileName);
                 resolve(jsonResultPath);
             } else {
                 const errorMsg = `Process exited with code ${code}: ${errorOutput}`;
-                saveResults(dataFile, errorMsg, true);
+                saveResults(dataFile, errorMsg, true, fileName);
                 reject(new Error(errorMsg));
             }
         });

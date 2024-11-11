@@ -31,7 +31,7 @@ app.post('/run-minizinc', upload.single('file'), async (req, res) => {
 		const convertedFilePath = convertMplToDzn(uploadedFilePath, `${uploadedFilePath}.dzn`);
         console.log(`convertedFilePath ${convertedFilePath}`);
 		if (convertedFilePath) {
-		 	const result = await runMiniZinc(convertedFilePath);
+		 	const result = await runMiniZinc(convertedFilePath, fileName);
 			console.log(`result ${result}`);
 
 			fs.readFile(result, 'utf8', (err, data) => {
@@ -41,12 +41,7 @@ app.post('/run-minizinc', upload.single('file'), async (req, res) => {
 				}
 				try {
 					const jsonData = JSON.parse(data);
-					res.json(
-						{ 
-							...jsonData, 
-							fileName 
-						}
-					); // Send the JSON data to the client
+					res.json(jsonData); 
 				} catch (parseError) {
 					console.error('Error parsing JSON:', parseError);
 					res.status(500).json({ error: 'Failed to parse data' });
