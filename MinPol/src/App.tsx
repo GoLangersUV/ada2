@@ -17,10 +17,15 @@ function App() {
 	const [selectedResult, setSelectedResult] = useState<string | null>(null);
 
 
-	const onFileResponse = (response: any) => {
-		for (const key in response) {
-			if (response[key].fileName) setResults([...results, response[key].fileName]);
+  const onFileResponse = (response: any) => {
+	  let filesNames: string[] = []
+	  for (const key in response) {
+		console.log(response[key])
+		if (response[key].inputFile) {
+		  filesNames = [...filesNames, response[key].inputFile]
 		}
+	  }
+	setResults(filesNames);
 	}
 
 	return (
@@ -38,7 +43,7 @@ function App() {
 						}}
 					>
 						<SelectTrigger className="w-[180px]">
-							<SelectValue placeholder="Select a results" />
+							<SelectValue placeholder="Select a result" />
 						</SelectTrigger>
 						<SelectContent>
 							{
