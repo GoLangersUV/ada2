@@ -26,12 +26,12 @@ app.post('/run-minizinc', upload.single('file'), async (req, res) => {
 	const file = req.file;
 	
 	if (file) {
-		const { fileName } = file.originalname;
+		const { originalname } = file;
 		const uploadedFilePath = file.path;
 		const convertedFilePath = convertMplToDzn(uploadedFilePath, `${uploadedFilePath}.dzn`);
         console.log(`convertedFilePath ${convertedFilePath}`);
 		if (convertedFilePath) {
-		 	const result = await runMiniZinc(convertedFilePath, fileName);
+		 	const result = await runMiniZinc(convertedFilePath, originalname);
 			console.log(`result ${result}`);
 
 			fs.readFile(result, 'utf8', (err, data) => {
