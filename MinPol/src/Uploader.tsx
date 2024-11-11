@@ -19,7 +19,8 @@ const DropzoneFileLoader = ({ solver, onFileResponse }: DropzoneFileLoaderProp) 
 	};
 
 	const onUploadFinish = (uploadedFiles: ExtFile[]) => {
-		const response = uploadedFiles[0].serverResponse?.payload
+		const response = uploadedFiles[0].serverResponse;
+		console.log("Respuesta completa del servidor en Uploader:", response);
 		if (response) {
 			if(onFileResponse) onFileResponse(response);
 		}

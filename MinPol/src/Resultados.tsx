@@ -5,6 +5,7 @@ import './App.css'; // Asegúrate de que el CSS esté importado correctamente
 
 interface ResultadosProps {
     selectedResult: string | null;
+    name: string | null;
 }
 
 interface ResultData {
@@ -14,7 +15,7 @@ interface ResultData {
     inputFile: string;
 }
 
-const Resultados: React.FC<ResultadosProps> = ({ selectedResult }) => {
+const Resultados: React.FC<ResultadosProps> = ({ selectedResult, name }) => {
     const [resultsData, setResultsData] = useState<{ [key: string]: ResultData }>({});
     const [parsedData, setParsedData] = useState<any>(null);
 
@@ -174,16 +175,16 @@ const Resultados: React.FC<ResultadosProps> = ({ selectedResult }) => {
 
     return (
         <div>
-            <h2 className="resultado-titulo">Results for: {selectedResult}</h2>
+            <h2 className="resultado-titulo">Results for: {name}</h2>
             <h2 className="resultado-titulo">Polarization: {parsedData.polarization}</h2>
             <p className="texto-parrafo">Population: {parsedData.population}</p>
             <p className="texto-parrafo">Median: {parsedData.median}</p>
             <p className="texto-parrafo">
-                Total cost: {parsedData.totalCost} {parsedData.totalCost < parsedData.maxCost && <span role="img" aria-label="checkmark">✔️</span>}
+                Total cost: {parsedData.totalCost} {parsedData.totalCost < parsedData.maxCost && <span role="img" aria-label="checkmark">✅ </span>}
             </p>
             <p className="texto-parrafo">Max cost: {parsedData.maxCost}</p>
             <p className="texto-parrafo">
-                Total movements: {parsedData.totalMovements} {parsedData.totalMovements < parsedData.maxMov && <span role="img" aria-label="checkmark">✔️</span>}
+                Total movements: {parsedData.totalMovements} {parsedData.totalMovements < parsedData.maxMov && <span role="img" aria-label="checkmark">✅ </span>}
             </p>
             <p className="texto-parrafo">Max movement: {parsedData.maxMov}</p>
 

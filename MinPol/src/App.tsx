@@ -1,46 +1,87 @@
+// App.tsx
 import { useState, useEffect } from 'react';
-import './App.css'
-import DropzoneFileLoader from './Uploader.jsx'
+import './App.css';
+import DropzoneFileLoader from './Uploader.jsx';
 import {
     Select,
     SelectContent,
     SelectItem,
     SelectTrigger,
     SelectValue,
-} from './components/Selector'
+} from './components/Selector';
 import Resultados from './Resultados';
+
+interface ResultItem {
+    fileName: string;
+    inputFile: string;
+}
 
 function App() {
 
     const currentYear = new Date().getFullYear();
     const [solver, setSolver] = useState<string>("gecode");
-    const [results, setResults] = useState<string[]>([]);
+    const [results, setResults] = useState<ResultItem[]>([]);
     const [selectedResult, setSelectedResult] = useState<string | null>(null);
 
     // Fetch existing results when the component mounts
     useEffect(() => {
         fetch('http://localhost:3000/results')
             .then(response => response.json())
-            .then(data => {
-                const fileNames = Object.keys(data);
-                setResults(fileNames);
+            .then((data: Record<string, any>) => {
+                const resultItems: ResultItem[] = Object.entries(data).map(([fileName, item]: [string, any]) => ({
+                    fileName,
+                    inputFile: item.inputFile
+                }));
+                setResults(resultItems);
             })
             .catch(error => {
                 console.error('Error fetching results data:', error);
             });
     }, []);
 
-    const onFileResponse = (response: any) => {
+
+    interface FileResponse {
+        success: boolean;
+        message: string;
+        payload: {
+            fileName: string;
+            inputFile: string;
+        };
+    }
+
+
+    
+    const onFileResponse = (response: FileResponse) => {
         console.log("Respuesta del servidor:", response);
-        const { fileName } = response;
-        if (fileName) {
+        const { payload } = response;
+
+        if (payload && payload.fileName && payload.inputFile) {
             setResults((prevResults) => {
-                const newResults = [...prevResults, fileName];
-                console.log("Nuevo estado de results:", newResults);
-                return newResults;
+                // Verificar si ya existe el fileName para evitar duplicados
+                const exists = prevResults.some(item => item.fileName === payload.fileName);
+                if (!exists) {
+                    const newResult: ResultItem = {
+                        fileName: payload.fileName,
+                        inputFile: payload.inputFile
+                    };
+                    const newResults = [...prevResults, newResult];
+                    console.log("Nuevo estado de results:", newResults);
+                    return newResults;
+                }
+                console.log("El archivo ya existe en los resultados.");
+                return prevResults;
             });
+        } else {
+            console.error("Respuesta inválida del servidor:", response);
         }
     }
+
+
+
+    // Crear una constante para almacenar el nombre (inputFile) correspondiente al selectedResult
+    const selectedName = selectedResult 
+        ? results.find(result => result.fileName === selectedResult)?.inputFile ?? null
+        : null;
 
     return (
         <>
@@ -69,24 +110,29 @@ function App() {
             {results.length > 0 && (
                 <div className='m-auto w-fit my-4'>
                     <Select
-                        onValueChange={(e: string) => {
-                            setSelectedResult(e);
+                        onValueChange={(selectedFileName: string) => {
+                            setSelectedResult(selectedFileName);
                         }}
                     >
                         <SelectTrigger className="w-[180px]">
                             <SelectValue placeholder="Select a result" />
                         </SelectTrigger>
                         <SelectContent>
-                            {results.map((result, index) => (
-                                <SelectItem key={index} value={result}>
-                                    {result}
+                            {results.map((result) => (
+                                <SelectItem key={result.fileName} value={result.fileName}>
+                                    {result.inputFile}
                                 </SelectItem>
                             ))}
                         </SelectContent>
                     </Select>
                 </div>
             )}
-            {selectedResult && <Resultados selectedResult={selectedResult} />}
+            {selectedResult && (
+                <Resultados 
+                    selectedResult={selectedResult} 
+                    name={selectedName} 
+                />
+            )}
 
             <p className="read-the-docs mt-8">
                 © {currentYear} Grupo I; Ada 2; Ingeniería en sistemas; EISC; Todos los derechos reservados.
