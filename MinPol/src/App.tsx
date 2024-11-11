@@ -8,6 +8,7 @@ import {
 	SelectTrigger,
 	SelectValue,
 } from './components/Selector'
+import { Chart } from "react-google-charts";
 
 function App() {
 
@@ -15,8 +16,16 @@ function App() {
 	const [solver, setSolver] = useState<string>("gecode");
 	const [results, setResults] = useState<string[]>([]);
 	const [selectedResult, setSelectedResult] = useState<string | null>(null);
-
-
+	const data = [
+		["From", "To", "Weight"],
+		["A", "X", 5],
+		["A", "Y", 7],
+		["A", "Z", 6],
+		["B", "X", 2],
+		["B", "Y", 9],
+		["B", "Z", 4],
+	  ];
+	const options = {};
 	const onFileResponse = (response: any) => {
 		for (const key in response) {
 			if (response[key].fileName) setResults([...results, response[key].fileName]);
@@ -68,6 +77,13 @@ function App() {
 					</SelectContent>
 				</Select>
 			</div>
+			<Chart
+			chartType="Sankey"
+			width="100%"
+			height="100%"
+			data={data}
+			options={options}
+			/>
 			<p className="read-the-docs mt-8">
 				<p>© {currentYear} Grupo I; Ada 2; Ingeniería en sistemas; EISC; Todos los derechos reservados.</p>
 			</p>
