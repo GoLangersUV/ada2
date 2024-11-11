@@ -89,9 +89,10 @@ output [
   "Optimal Solution:\n",
   "---------------\n",
   "Polarization = \(polarization)\n",
+  "Population = \(n)\n",
   "Median = \(median_v)\n",
   "Values = \(v)\n",
-  "Initial distribution = \(p)\n\n",
+  "Initial distribution = \(p)\n",
   "Final distribution = \(p_prime)\n\n",
   "Movements (from -> to : amount, Cost):\n"
 ] ++
