@@ -17,6 +17,9 @@ const __dirname = dirname(__filename);
 const app = express();
 const port = 3000;
 const upload = multer({ dest: 'uploads/' });
+const RESULTS_DIR = path.join(__dirname, 'src', 'minizinc', 'results');
+
+
 
 app.use(cors());
 app.use(express.json());
@@ -52,6 +55,37 @@ app.post('/run-minizinc', upload.single('file'), async (req, res) => {
 		return res.status(400).json({ error: 'No file uploaded' });
 	}   
     
+    if (file) {
+        const originalFileName = file.originalname;
+        const uploadedFilePath = file.path;
+        const baseFilename = path.parse(uploadedFilePath).name;
+        const convertedFilePath = convertMplToDzn(uploadedFilePath, `${uploadedFilePath}.dzn`);
+        console.log(`convertedFilePath ${convertedFilePath}`);
+        if (convertedFilePath) {
+            const result = await runMiniZinc(convertedFilePath);
+            console.log(`result ${result}`);
+
+            res.json(
+                { 
+                    fileName: baseFilename 
+                }
+            );
+        } 
+    } else {
+        return res.status(400).json({ error: 'No file uploaded' });
+    }   
+});
+
+
+//End point to get the results
+app.get('/results', (req, res) => {
+    const jsonPath = path.join(RESULTS_DIR, 'consolidated_results.json');
+    if (fs.existsSync(jsonPath)) {
+        const jsonData = JSON.parse(fs.readFileSync(jsonPath, 'utf8'));
+        res.json(jsonData);
+    } else {
+        res.status(404).json({ error: 'No results found' });
+    }
 });
 
 app.listen(port, () => {

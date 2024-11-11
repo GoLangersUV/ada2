@@ -34,7 +34,30 @@ h1 {
   font-size: 3.2em;
   line-height: 1.1;
 }
+h2 {
+  font-size: 2em; /* Tamaño de fuente más grande */
+  font-weight: bold; /* Negrita */
+  margin-top: 20px;
+  margin-bottom: 10px;
+  color: #333; /* Color de texto */
+}
 
+/* Estilos para h3 */
+h3 {
+  font-size: 1.5em; /* Tamaño de fuente medio */
+  font-weight: bold; /* Negrita */
+  margin-top: 15px;
+  margin-bottom: 8px;
+  color: #555; /* Color de texto */
+}
+
+/* Estilos para párrafos */
+p {
+  font-size: 1em; /* Tamaño de fuente estándar */
+  line-height: 1.6; /* Altura de línea */
+  margin-bottom: 10px;
+  color: #666; /* Color de texto */
+}
 button {
   border-radius: 8px;
   border: 1px solid transparent;
@@ -53,7 +76,26 @@ button:focus,
 button:focus-visible {
   outline: 4px auto -webkit-focus-ring-color;
 }
+.centered-table {
+  margin-left: auto;
+  margin-right: auto;
+  margin-bottom: 30px; /* Espacio inferior entre tablas */
+  width: 80%; /* Ancho de la tabla, ajusta según sea necesario */
+  border-collapse: collapse; /* Opcional: para unir los bordes de las celdas */
+}
 
+/* Opcional: Estilos adicionales para mejorar la apariencia de las tablas */
+.centered-table th, .centered-table td {
+  border: 1px solid #ddd;
+  padding: 12px;
+  text-align: center; /* Centrar el texto dentro de las celdas */
+}
+
+.centered-table th {
+  background-color: #f2f2f2;
+  font-weight: bold;
+  color: #333;
+}
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;

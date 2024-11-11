@@ -1,7 +1,12 @@
 import fs from 'fs';
 
+function roundToInt(num) {
+  // Multiply by 1000 and round to nearest integer
+  return Math.round(num * 1000);
+}
+
 // Función para leer el archivo .mpl y generar el contenido del .dzn
-export function convertMplToDzn(inputFilePath, outputFilePath) {
+function convertMplToDzn(inputFilePath, outputFilePath) {
   // Leer el archivo .mpl
   const mplData = fs.readFileSync(inputFilePath, 'utf8');
 
@@ -47,10 +52,10 @@ export function convertMplToDzn(inputFilePath, outputFilePath) {
   dznContent += `p = [${p.join(', ')}];\n\n`;
 
   dznContent += `% Valores de las opiniones\n`;
-  dznContent += `v = [${v.map(num => num.toFixed(3)).join(', ')}];\n\n`;
+  dznContent += `v = [${v.map(num => roundToInt(num)).join(', ')}];\n\n`;
 
   dznContent += `% Costos extras al mover a opiniones vacías\n`;
-  dznContent += `ce = [${ce.map(num => num.toFixed(3)).join(', ')}];\n\n`;
+  dznContent += `ce = [${ce.map(num => roundToInt(num)).join(', ')}];\n\n`;
 
   dznContent += `% Matriz de costos de mover de una opinión a otra\n`;
   dznContent += `C = array2d(1..${m}, 1..${m},\n  [\n`;
@@ -58,7 +63,7 @@ export function convertMplToDzn(inputFilePath, outputFilePath) {
   // Aplanar la matriz C y agregarla al contenido
   const cFlat = C.flat();
   for (let i = 0; i < cFlat.length; i++) {
-    dznContent += `    ${cFlat[i].toFixed(3)}`;
+    dznContent += `    ${roundToInt(cFlat[i])}`;
     if (i < cFlat.length - 1) {
       dznContent += ',';
     }
@@ -69,7 +74,7 @@ export function convertMplToDzn(inputFilePath, outputFilePath) {
   dznContent += '\n  ]);\n\n';
 
   dznContent += `% Costo total máximo permitido\n`;
-  dznContent += `C_max = ${C_max.toFixed(3)};\n\n`;
+  dznContent += `C_max = ${roundToInt(C_max)};\n\n`;
 
   dznContent += `% Número máximo de movimientos permitidos\n`;
   dznContent += `M_max = ${M_max};\n`;
@@ -78,18 +83,12 @@ export function convertMplToDzn(inputFilePath, outputFilePath) {
   fs.writeFileSync(outputFilePath, dznContent);
 
   console.log(`Archivo .dzn generado correctamente: ${outputFilePath}`);
-  return outputFilePath;
 }
 
 // Ejecutar la conversión
 // bucle para iterar sobre los archivos de entrada
 // y generar los archivos de salida
-
-export function convertDefaultImpFiles2ToDzn() {
-	for (let i = 1; i <= 30; i++) {
-		convertMplToDzn(`./src/minizinc/mpl/MinPol${i}.mpl`, `./src/minizinc/datos/DatosProyecto${i}.dzn`);
-	}
-	// convertMplToDzn(inputFilePath, outputFilePath);	
+for (let i = 1; i <= 30; i++) {
+  convertMplToDzn(`./src/minizinc/mpl/MinPol${i}.mpl`, `./src/minizinc/datos/DatosProyectoInt${i}.dzn`);
 }
-
-
+// convertMplToDzn(inputFilePath, outputFilePath);

@@ -75,3 +75,9 @@ programacionDinamicaVoraz/latex/Informe-grupo01-ADA2.pdf
 *.tmp
 .DS_Store
 Thumbs.db
+
+
+
+MinPol/src/minizinc/results/
+MinPol/uploads/*.dzn
+MinPol/uploads/*
