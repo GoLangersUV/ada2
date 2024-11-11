@@ -32,7 +32,6 @@ array[1..m] of 0..1: is_empty = [if p[j] == 0 then 1 else 0 endif | j in 1..m];
 % Definición 1.8
 array[1..m, 1..m] of var 0..n: X;
 array[1..m] of var 0..n: p_prime;
-
 % Definición 1.9
 array[1..m] of var 0..1: is_median = [if (i = 1 \/ sum(j in 1..i-1)(p_prime[j]) < n/2.0) /\ sum(j in 1..i)(p_prime[j]) >= n/2.0 then 1 else 0 endif | i in 1..m];
 

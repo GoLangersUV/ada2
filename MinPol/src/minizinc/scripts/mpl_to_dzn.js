@@ -85,6 +85,6 @@ function convertMplToDzn(inputFilePath, outputFilePath) {
 // bucle para iterar sobre los archivos de entrada
 // y generar los archivos de salida
 for (let i = 1; i <= 30; i++) {
-  convertMplToDzn(`./src/minizinc/mpl/MinPol${i}.mpl`, `./src/minizinc/datos/DatosProyecto${i}.dzn`);
+  convertMplToDzn(`./mpl/MinPol${i}.mpl`, `./datos/DatosProyecto${i}.dzn`);
 }
 // convertMplToDzn(inputFilePath, outputFilePath);
