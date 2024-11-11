@@ -32,10 +32,9 @@ array[1..m] of 0..1: is_empty = [if p[j] == 0 then 1 else 0 endif | j in 1..m];
 % Definición 1.8
 array[1..m, 1..m] of var 0..n: X;
 array[1..m] of var 0..n: p_prime;
-% Definición 1.9
-array[1..m] of var 0..1: is_median = [if (i = 1 \/ sum(j in 1..i-1)(p_prime[j]) < n/2.0) /\ sum(j in 1..i)(p_prime[j]) >= n/2.0 then 1 else 0 endif | i in 1..m];
+array[1..m] of var 0..1: is_median;
 
-% Definición 1.11
+% Definición 1.9
 var float: median_v = sum(i in 1..m)(v[i] * is_median[i]);
 var float: total_cost = sum(i in 1..m, j in 1..m)(
     (C[i,j] * (1 + p[i]/n) + ce[j] * is_empty[j]) * X[i,j]
@@ -69,6 +68,12 @@ constraint total_cost <= C_max;
 
 % Restricción 1.16
 constraint sum(i in 1..m)(is_median[i]) = 1;
+constraint forall(i in 1..m)(
+    is_median[i] = 1 -> (
+        (i = 1 \/ sum(j in 1..i-1)(p_prime[j]) < n/2.0) /\
+        sum(j in 1..i)(p_prime[j]) >= n/2.0
+    )
+);
 
 %-------------------------------------------------------------------------------
 % 1.3 Formulación del modelo
