@@ -2,10 +2,11 @@ import { Dropzone, ExtFile, FileMosaic, ValidateFileResponse } from "@files-ui/r
 import { useState } from "react";
 
 interface DropzoneFileLoaderProp {
-	solver: string
+	solver: string,
+	onFileResponse?: (response: any) => void
 }
 
-const DropzoneFileLoader = ({ solver }: DropzoneFileLoaderProp) => {
+const DropzoneFileLoader = ({ solver, onFileResponse }: DropzoneFileLoaderProp) => {
 
 	const [files, setFiles] = useState<ExtFile[]>([]);
 	const updateFiles = (incommingFiles: ExtFile[]) => {
@@ -20,7 +21,7 @@ const DropzoneFileLoader = ({ solver }: DropzoneFileLoaderProp) => {
 	const onUploadFinish = (uploadedFiles: ExtFile[]) => {
 		const response = uploadedFiles[0].serverResponse?.payload
 		if (response) {
-			console.log(response)
+			if(onFileResponse) onFileResponse(response);
 		}
 	}
 

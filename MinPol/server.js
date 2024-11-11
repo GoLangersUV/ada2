@@ -41,7 +41,12 @@ app.post('/run-minizinc', upload.single('file'), async (req, res) => {
 				}
 				try {
 					const jsonData = JSON.parse(data);
-					res.json(jsonData); // Send the JSON data to the client
+					res.json(
+						{ 
+							...jsonData, 
+							fileName 
+						}
+					); // Send the JSON data to the client
 				} catch (parseError) {
 					console.error('Error parsing JSON:', parseError);
 					res.status(500).json({ error: 'Failed to parse data' });
