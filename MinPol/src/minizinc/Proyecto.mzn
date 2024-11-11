@@ -71,6 +71,13 @@ constraint total_cost <= C_max;
 constraint sum(i in 1..m)(is_median[i]) = 1;
 
 %-------------------------------------------------------------------------------
+% Variables adicionales para costos parciales
+%-------------------------------------------------------------------------------
+array[1..m, 1..m] of var float: partial_cost = array2d(1..m, 1..m,
+  [ (C[i,j] * (1 + p[i]/n) + ce[j] * is_empty[j]) * X[i,j]
+    | i in 1..m, j in 1..m ]);
+
+%-------------------------------------------------------------------------------
 % 1.3 Formulación del modelo
 %-------------------------------------------------------------------------------
 solve minimize polarization;
@@ -82,12 +89,13 @@ output [
   "Optimal Solution:\n",
   "---------------\n",
   "Polarization = \(polarization)\n",
-  "Median = \(median_v)\n\n",
-  "Movements (from -> to : amount):\n"
+  "Median = \(median_v)\n",
+  "Initial distribution = \(p)\n\n",
+  "Movements (from -> to : amount, Cost):\n"
 ] ++
 [
   if fix(X[i,j]) > 0 then
-    "  \(i) -> \(j) : \(X[i,j])\n"
+    "  \(i) -> \(j) : \(X[i,j]) , \(partial_cost[i,j])\n"
   else ""
   endif
   | i,j in 1..m
@@ -102,5 +110,7 @@ output [
 ] ++
 [
   "\nTotal cost: \(total_cost)\n",
-  "Total movements: \(sum(i,j in 1..m)(X[i,j]))\n"
+  "Max cost: \(C_max)\n",
+  "Total movements: \(sum(i,j in 1..m)(X[i,j]))\n",
+  "Max mov: \(M_max)\n"
 ]
