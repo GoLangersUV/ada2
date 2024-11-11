@@ -90,7 +90,9 @@ output [
   "---------------\n",
   "Polarization = \(polarization)\n",
   "Median = \(median_v)\n",
+  "Values = \(v)\n",
   "Initial distribution = \(p)\n\n",
+  "Final distribution = \(p_prime)\n\n",
   "Movements (from -> to : amount, Cost):\n"
 ] ++
 [
