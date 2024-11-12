@@ -24,7 +24,7 @@ array[1..m, 1..m] of float: C;
 array[1..m] of float: ce;
 
 % Definición 1.6
-array[1..m] of 0..1: is_empty = [if p[j] == 0 then 1 else 0 endif | j in 1..m];
+array[1..m] of {0,1}: is_empty = [p[j] == 0|j in 1..m];
 
 %-------------------------------------------------------------------------------
 % 1.1 Variables del modelo
@@ -33,7 +33,7 @@ array[1..m] of 0..1: is_empty = [if p[j] == 0 then 1 else 0 endif | j in 1..m];
 array[1..m, 1..m] of var 0..n: X;
 array[1..m] of var 0..n: p_prime;
 % Definición 1.9
-array[1..m] of var 0..1: is_median = [if (i = 1 \/ sum(j in 1..i-1)(p_prime[j]) < n/2.0) /\ sum(j in 1..i)(p_prime[j]) >= n/2.0 then 1 else 0 endif | i in 1..m];
+array[1..m] of var {0,1}: is_median = [(i = 1 \/ sum(j in 1..i-1)(p_prime[j]) < n/2.0) /\ sum(j in 1..i)(p_prime[j]) >= n/2.0|i in 1..m];
 
 % Definición 1.11
 var float: median_v = sum(i in 1..m)(v[i] * is_median[i]);
@@ -69,6 +69,14 @@ constraint total_cost <= C_max;
 
 % Restricción 1.16
 constraint sum(i in 1..m)(is_median[i]) = 1;
+
+% Restricción 1.17
+% constraint forall(i in 1..m)(
+%     is_median[i] = (
+%         (i = 1 \/ sum(j in 1..i-1)(p_prime[j]) < n/2.0) /\
+%         sum(j in 1..i)(p_prime[j]) >= n/2.0
+%     )
+% );
 
 %-------------------------------------------------------------------------------
 % Variables adicionales para costos parciales
