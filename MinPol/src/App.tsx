@@ -16,6 +16,15 @@ interface ResultItem {
     inputFile: string;
 }
 
+interface FileResponse {
+    success: boolean;
+    message: string;
+    payload: {
+        fileName: string;
+        inputFile: string;
+    };
+}
+
 function App() {
 
     const currentYear = new Date().getFullYear();
@@ -40,24 +49,12 @@ function App() {
     }, []);
 
 
-    interface FileResponse {
-        success: boolean;
-        message: string;
-        payload: {
-            fileName: string;
-            inputFile: string;
-        };
-    }
-
-
-    
     const onFileResponse = (response: FileResponse) => {
         console.log("Respuesta del servidor:", response);
         const { payload } = response;
 
         if (payload && payload.fileName && payload.inputFile) {
             setResults((prevResults) => {
-
                 const exists = prevResults.some(item => item.fileName === payload.fileName);
                 if (!exists) {
                     const newResult: ResultItem = {
@@ -71,6 +68,7 @@ function App() {
                 console.log("El archivo ya existe en los resultados.");
                 return prevResults;
             });
+            setSelectedResult(payload.fileName); // Seleccionar automáticamente el nuevo archivo
         } else {
             console.error("Respuesta inválida del servidor:", response);
         }
@@ -89,21 +87,7 @@ function App() {
 
             <DropzoneFileLoader solver={solver} onFileResponse={onFileResponse} />
 
-            <div className='flex flex-col justify-center w-fit m-auto'>
-                <Select
-                    onValueChange={(e: string) => {
-                        setSolver(e);
-                    }}
-                >
-                    <SelectTrigger className="w-[180px]">
-                        <SelectValue placeholder="Solver" />
-                    </SelectTrigger>
-                    <SelectContent>
-                        <SelectItem value="Gecode">Gecode</SelectItem>
-                        <SelectItem value="Chuffed">Chuffed</SelectItem>
-                    </SelectContent>
-                </Select>
-            </div>
+            <h3 className='my-4'>Please select a result in the select below</h3>
             {results.length > 0 && (
                 <div className='m-auto w-fit my-4'>
                     <Select
@@ -124,6 +108,7 @@ function App() {
                     </Select>
                 </div>
             )}
+
             {selectedResult && (
                 <Resultados 
                     selectedResult={selectedResult} 
@@ -136,6 +121,7 @@ function App() {
             </p>
         </>
     );
+
 }
 
 export default App;
