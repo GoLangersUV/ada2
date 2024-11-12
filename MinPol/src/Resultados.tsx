@@ -5,6 +5,7 @@ import './App.css'; // Asegúrate de que el CSS esté importado correctamente
 
 interface ResultadosProps {
     selectedResult: string | null;
+    name: string | null;
 }
 
 interface ResultData {
@@ -12,23 +13,30 @@ interface ResultData {
     result: string;
     isError: boolean;
     inputFile: string;
+    path: string;
 }
 
-const Resultados: React.FC<ResultadosProps> = ({ selectedResult }) => {
+const Resultados: React.FC<ResultadosProps> = ({ selectedResult, name }) => {
     const [resultsData, setResultsData] = useState<{ [key: string]: ResultData }>({});
     const [parsedData, setParsedData] = useState<any>(null);
+    const [loading, setLoading] = useState<boolean>(true);
 
     useEffect(() => {
-        // Fetch results data from the backend
-        fetch('http://localhost:3000/results')
-            .then(response => response.json())
-            .then(data => {
-                setResultsData(data);
-            })
-            .catch(error => {
-                console.error('Error fetching results data:', error);
-            });
-    }, []);
+        if (selectedResult) {
+            setLoading(true);
+            // Fetch results data from the backend each time selectedResult changes
+            fetch('http://localhost:3000/results')
+                .then(response => response.json())
+                .then(data => {
+                    setResultsData(data);
+                    setLoading(false);
+                })
+                .catch(error => {
+                    console.error('Error fetching results data:', error);
+                    setLoading(false);
+                });
+        }
+    }, [selectedResult]);
 
     useEffect(() => {
         if (selectedResult && resultsData[selectedResult]) {
@@ -92,7 +100,7 @@ const Resultados: React.FC<ResultadosProps> = ({ selectedResult }) => {
             } else if (parsingFinalDistributionTable && line === '') {
                 parsingFinalDistributionTable = false;
             } else if (parsingFinalDistributionTable) {
-                const parts = line.split('\t');
+                const parts = line.split(/\s+/); // Cambiado a cualquier espacio en blanco
                 if (parts.length >= 4) {
                     data.finalDistributionTable.push({
                         opinion: parseInt(parts[0]),
@@ -100,6 +108,8 @@ const Resultados: React.FC<ResultadosProps> = ({ selectedResult }) => {
                         population: parseInt(parts[2]),
                         initiallyEmpty: parts[3].replace(/\"/g, '')
                     });
+                } else {
+                    console.warn(`Línea no válida en Final distribution: "${line}"`);
                 }
             } else if (line.startsWith('Movements (from -> to : amount, Cost):')) {
                 parsingMovements = true;
@@ -137,8 +147,12 @@ const Resultados: React.FC<ResultadosProps> = ({ selectedResult }) => {
         return <div>Por favor, selecciona un resultado.</div>;
     }
 
-    if (!parsedData) {
+    if (loading) {
         return <div>Cargando datos del resultado...</div>;
+    }
+
+    if (!parsedData) {
+        return <div>No se pudieron parsear los datos del resultado.</div>;
     }
 
     // Preparar los datos para la gráfica de comparación
@@ -174,16 +188,16 @@ const Resultados: React.FC<ResultadosProps> = ({ selectedResult }) => {
 
     return (
         <div>
-            <h2 className="resultado-titulo">Results for: {selectedResult}</h2>
-            <h2 className="resultado-titulo">Polarization: {parsedData.polarization}</h2>
+            <h2 className="resultado-titulo">Results for: {name}</h2>
+            <h2 className="resultado-titulo">Polarization: {parsedData.polarization.toFixed(3)}</h2>
             <p className="texto-parrafo">Population: {parsedData.population}</p>
             <p className="texto-parrafo">Median: {parsedData.median}</p>
             <p className="texto-parrafo">
-                Total cost: {parsedData.totalCost} {parsedData.totalCost < parsedData.maxCost && <span role="img" aria-label="checkmark">✔️</span>}
+                Total cost: {parsedData.totalCost} {parsedData.totalCost < parsedData.maxCost && <span role="img" aria-label="checkmark">✅ </span>}
             </p>
             <p className="texto-parrafo">Max cost: {parsedData.maxCost}</p>
             <p className="texto-parrafo">
-                Total movements: {parsedData.totalMovements} {parsedData.totalMovements < parsedData.maxMov && <span role="img" aria-label="checkmark">✔️</span>}
+                Total movements: {parsedData.totalMovements} {parsedData.totalMovements < parsedData.maxMov && <span role="img" aria-label="checkmark">✅ </span>}
             </p>
             <p className="texto-parrafo">Max movement: {parsedData.maxMov}</p>
 
