@@ -1,5 +1,4 @@
 import { exec } from "child_process";
-import open from "open";
 
 // Ejecuta comandos en una terminal
 function runCommand(command, options = {}) {
@@ -39,8 +38,6 @@ runCommand("npm i").on("close", () => {
       if (match) {
         localhostUrl = match[0];
         console.log(`Servidor de desarrollo en: ${localhostUrl}`);
-        // Abre el navegador inmediatamente después de detectar la URL
-        open(localhostUrl);
       }
     }
   });
