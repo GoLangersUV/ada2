@@ -1,0 +1,799 @@
+DatosProyecto1.dzn
+Optimal Solution:
+---------------
+Polarization = 0.08999999999999997
+Median = 0.481
+
+Movements (from -> to : amount):
+  1 -> 3 : 1
+  4 -> 3 : 1
+  5 -> 3 : 1
+
+Final distribution:
+Opinion Value   Population      Initially Empty?
+1       0.109   0       "No"
+2       0.391   1       "No"
+3       0.481   4       "No"
+4       0.789   0       "No"
+5       0.976   0       "No"
+
+Total cost: 6.5988
+Total movements: 3
+----------
+==========
+
+
+DatosProyecto2.dzn
+Optimal Solution:
+---------------
+Polarization = 0.0
+Median = 0.756
+
+Movements (from -> to : amount):
+  2 -> 4 : 1
+  5 -> 4 : 3
+
+Final distribution:
+Opinion Value   Population      Initially Empty?
+1       0.436   0       "Yes"
+2       0.462   0       "No"
+3       0.5659999999999999      0       "Yes"
+4       0.756   5       "No"
+5       0.819   0       "No"
+
+Total cost: 29.628
+Total movements: 4
+----------
+==========
+
+
+DatosProyecto3.dzn
+Optimal Solution:
+---------------
+Polarization = 0.0
+Median = 0.785
+
+Movements (from -> to : amount):
+  1 -> 7 : 1
+  3 -> 7 : 1
+  5 -> 7 : 1
+  6 -> 7 : 1
+
+Final distribution:
+Opinion Value   Population      Initially Empty?
+1       0.079   0       "No"
+2       0.51    0       "Yes"
+3       0.518   0       "No"
+4       0.527   0       "Yes"
+5       0.592   0       "No"
+6       0.653   0       "No"
+7       0.785   5       "No"
+8       0.8179999999999999      0       "Yes"
+9       0.852   0       "Yes"
+10      0.864   0       "Yes"
+
+Total cost: 12.2328
+Total movements: 4
+----------
+==========
+
+
+DatosProyecto4.dzn
+Optimal Solution:
+---------------
+Polarization = 0.0
+Median = 0.704
+
+Movements (from -> to : amount):
+  1 -> 3 : 2
+  2 -> 3 : 1
+  4 -> 3 : 4
+  5 -> 3 : 2
+
+Final distribution:
+Opinion Value   Population      Initially Empty?
+1       0.135   0       "No"
+2       0.141   0       "No"
+3       0.704   10      "No"
+4       0.956   0       "No"
+5       0.982   0       "No"
+
+Total cost: 25.1712
+Total movements: 9
+----------
+==========
+
+
+DatosProyecto5.dzn
+Optimal Solution:
+---------------
+Polarization = 0.482
+Median = 0.011
+
+Movements (from -> to : amount):
+  4 -> 3 : 1
+  5 -> 1 : 2
+
+Final distribution:
+Opinion Value   Population      Initially Empty?
+1       0.011   8       "No"
+2       0.214   1       "No"
+3       0.29    1       "Yes"
+4       0.829   0       "No"
+5       0.944   0       "No"
+
+Total cost: 20.1217
+Total movements: 3
+----------
+==========
+
+
+DatosProyecto6.dzn
+Optimal Solution:
+---------------
+Polarization = 0.003000000000000003
+Median = 0.368
+
+Movements (from -> to : amount):
+  1 -> 2 : 1
+  3 -> 2 : 1
+  4 -> 2 : 7
+  5 -> 2 : 2
+
+Final distribution:
+Opinion Value   Population      Initially Empty?
+1       0.219   0       "No"
+2       0.368   17      "No"
+3       0.369   3       "No"
+4       0.763   0       "No"
+5       0.8139999999999999      0       "No"
+
+Total cost: 20.5868
+Total movements: 11
+----------
+==========
+
+
+DatosProyecto7.dzn
+Optimal Solution:
+---------------
+Polarization = 3.085
+Median = 0.188
+
+Movements (from -> to : amount):
+  1 -> 3 : 2
+  5 -> 3 : 3
+  5 -> 4 : 1
+
+Final distribution:
+Opinion Value   Population      Initially Empty?
+1       0.013   11      "No"
+2       0.162   1       "No"
+3       0.188   14      "No"
+4       0.314   9       "No"
+5       0.711   0       "No"
+
+Total cost: 7.93962857142858
+Total movements: 6
+----------
+==========
+
+
+DatosProyecto8.dzn
+Optimal Solution:
+---------------
+Polarization = 4.323
+Median = 0.35
+
+Movements (from -> to : amount):
+  1 -> 3 : 1
+  5 -> 3 : 5
+
+Final distribution:
+Opinion Value   Population      Initially Empty?
+1       0.027   9       "No"
+2       0.218   5       "No"
+3       0.35    18      "No"
+4       0.602   3       "No"
+5       0.605   0       "No"
+
+Total cost: 2.90857142857143
+Total movements: 6
+----------
+==========
+
+
+DatosProyecto9.dzn
+Optimal Solution:
+---------------
+Polarization = 5.373000000000001
+Median = 0.323
+
+Movements (from -> to : amount):
+  3 -> 2 : 1
+  5 -> 2 : 2
+
+Final distribution:
+Opinion Value   Population      Initially Empty?
+1       0.235   15      "No"
+2       0.323   18      "No"
+3       0.545   16      "No"
+4       0.726   0       "Yes"
+5       0.824   1       "No"
+
+Total cost: 7.94814000000001
+Total movements: 3
+----------
+==========
+
+
+DatosProyecto10.dzn
+Optimal Solution:
+---------------
+Polarization = 9.687000000000001
+Median = 0.105
+
+Movements (from -> to : amount):
+  4 -> 3 : 1
+  5 -> 3 : 2
+
+Final distribution:
+Opinion Value   Population      Initially Empty?
+1       0.064   15      "No"
+2       0.105   11      "No"
+3       0.143   8       "No"
+4       0.58    0       "No"
+5       0.653   16      "No"
+
+Total cost: 5.59266
+Total movements: 3
+----------
+==========
+
+
+Proyecto11.dzn
+Optimal Solution:
+---------------
+Polarization = 10.349
+Median = 0.325
+
+Movements (from -> to : amount):
+  6 -> 5 : 6
+  7 -> 5 : 2
+  8 -> 5 : 5
+
+Final distribution:
+Opinion	Value	Population	Initially Empty?
+1	0.012	7	"No"
+2	0.068	11	"No"
+3	0.145	0	"Yes"
+4	0.325	10	"No"
+5	0.392	15	"No"
+6	0.646	0	"No"
+7	0.894	0	"No"
+8	0.908	2	"No"
+9	0.951	4	"No"
+10	0.981	1	"No"
+
+Total cost: 25.93028
+Total movements: 13
+==========
+
+Proyecto12.dzn
+Optimal Solution:
+---------------
+Polarization = 3.721
+Population = 50
+Median = 0.375
+Values = [0.143, 0.185, 0.226, 0.298, 0.351, 0.375, 0.54, 0.631, 0.637, 0.871]
+Initial distribution = [0, 7, 7, 9, 0, 10, 4, 6, 1, 6]
+Final distribution = [0, 6, 7, 8, 0, 24, 4, 0, 1, 0]
+
+Movements (from -> to : amount, Cost):
+  2 -> 4 : 1 , 1.20726
+  4 -> 6 : 2 , 0.2714
+  8 -> 6 : 6 , 15.36192
+  10 -> 6 : 6 , 1.93536
+
+Final distribution:
+Opinion	Value	Population	Initially Empty?
+1	0.143	0	"Yes"
+2	0.185	6	"No"
+3	0.226	7	"No"
+4	0.298	8	"No"
+5	0.351	0	"Yes"
+6	0.375	24	"No"
+7	0.54	4	"No"
+8	0.631	0	"No"
+9	0.637	1	"No"
+10	0.871	0	"No"
+
+Total cost: 18.77594
+Total movements: 15
+==========
+
+
+Proyecto13.dzn
+Optimal Solution:
+---------------
+Polarization = 12.417
+Population = 75
+Median = 0.8159999999999999
+Values = [0.081, 0.124, 0.286, 0.5610000000000001, 0.637, 0.8159999999999999, 0.899, 0.908, 0.952, 0.98]
+Initial distribution = [5, 14, 9, 0, 9, 1, 2, 14, 9, 12]
+Final distribution = [5, 0, 3, 0, 14, 16, 2, 14, 9, 12]
+
+Movements (from -> to : amount, Cost):
+  2 -> 5 : 14 , 22.64397333333334
+  3 -> 6 : 6 , 35.09184
+  5 -> 6 : 9 , 10.55376
+
+Final distribution:
+Opinion	Value	Population	Initially Empty?
+1	0.081	5	"No"
+2	0.124	0	"No"
+3	0.286	3	"No"
+4	0.5610000000000001	0	"Yes"
+5	0.637	14	"No"
+6	0.8159999999999999	16	"No"
+7	0.899	2	"No"
+8	0.908	14	"No"
+9	0.952	9	"No"
+10	0.98	12	"No"
+
+Total cost: 68.28957333333334
+Total movements: 29
+==========
+
+
+Proyecto14.dzn
+Optimal Solution:
+---------------
+Polarization = 6.550000000000001
+Population = 75
+Median = 0.339
+Values = [0.076, 0.08799999999999999, 0.249, 0.298, 0.339, 0.373, 0.376, 0.8080000000000001, 0.91, 0.969]
+Initial distribution = [3, 8, 4, 12, 11, 6, 6, 13, 6, 6]
+Final distribution = [2, 8, 4, 15, 23, 7, 12, 1, 0, 3]
+
+Movements (from -> to : amount, Cost):
+  1 -> 6 : 1 , 0.3952
+  8 -> 5 : 12 , 11.99616
+  8 -> 7 : 1 , 1.160426666666667
+  9 -> 7 : 5 , 7.398000000000001
+  9 -> 8 : 1 , 0.05508
+  10 -> 4 : 3 , 5.2164
+
+Final distribution:
+Opinion	Value	Population	Initially Empty?
+1	0.076	2	"No"
+2	0.08799999999999999	8	"No"
+3	0.249	4	"No"
+4	0.298	15	"No"
+5	0.339	23	"No"
+6	0.373	7	"No"
+7	0.376	12	"No"
+8	0.8080000000000001	1	"No"
+9	0.91	0	"No"
+10	0.969	3	"No"
+
+Total cost: 26.22126666666667
+Total movements: 23
+==========
+
+
+DatosProyecto15.dzn
+Optimal Solution:
+---------------
+Polarization = 10.313
+Median = 0.251
+
+Movements (from -> to : amount):
+  1 -> 2 : 7
+  4 -> 2 : 11
+  4 -> 3 : 2
+  5 -> 3 : 2
+
+Final distribution:
+Opinion Value   Population      Initially Empty?
+1       0.051   23      "No"
+2       0.251   48      "No"
+3       0.448   29      "No"
+4       0.834   0       "No"
+5       0.877   0       "No"
+
+Total cost: 47.67069
+Total movements: 22
+----------
+==========
+
+
+DatosProyecto16.dzn
+Optimal Solution:
+---------------
+Polarization = 18.786
+Median = 0.347
+
+Movements (from -> to : amount):
+  3 -> 2 : 30
+  5 -> 1 : 2
+
+Final distribution:
+Opinion Value   Population      Initially Empty?
+1       0.315   16      "No"
+2       0.347   53      "No"
+3       0.5669999999999999      1       "No"
+4       0.946   28      "No"
+5       0.988   2       "No"
+
+Total cost: 2.7312
+Total movements: 32
+----------
+==========
+
+
+DatosProyecto17.dzn
+Optimal Solution:
+---------------
+Polarization = 14.172
+Median = 0.598
+
+Movements (from -> to : amount):
+  1 -> 3 : 2
+  9 -> 6 : 13
+
+Final distribution:
+Opinion Value   Population      Initially Empty?
+1       0.139   0       "No"
+2       0.364   27      "No"
+3       0.381   15      "No"
+4       0.532   6       "No"
+5       0.598   19      "No"
+6       0.628   16      "No"
+7       0.709   3       "No"
+8       0.735   6       "No"
+9       0.881   4       "No"
+10      0.957   4       "No"
+
+Total cost: 4.81794
+Total movements: 15
+----------
+==========
+
+
+DatosProyecto18.dzn
+Optimal Solution:
+---------------
+Polarization = 17.897999999999996
+Population = 100
+Median = 0.406
+Values = [0.026, 0.228, 0.304, 0.406, 0.413, 0.608, 0.616, 0.732, 0.834, 0.89]
+Initial distribution = [16, 2, 15, 17, 6, 17, 9, 0, 9, 9]
+Final distribution = [16, 2, 15, 25, 6, 17, 10, 0, 0, 9]
+
+Movements (from -> to : amount, Cost):
+  7 -> 4 : 1 , 1.3080
+  9 -> 4 : 7 , 4.3872
+  9 -> 7 : 2 , 2.2934
+
+Final distribution:
+Opinion	Value	Population	Initially Empty?
+1	0.026	16	No
+2	0.228	2	No
+3	0.304	15	No
+4	0.406	25	No
+5	0.413	6	No
+6	0.608	17	No
+7	0.616	10	No
+8	0.732	0	Yes
+9	0.834	0	No
+10	0.89	9	No
+
+Total cost: 7.9886099999999995
+Total movements: 10
+----------
+==========
+
+
+DatosProyecto19.dzn
+Optimal Solution:
+---------------
+Polarization = 19.603
+Median = 0.467
+
+Movements (from -> to : amount):
+  6 -> 7 : 1
+  15 -> 14 : 2
+  16 -> 14 : 1
+  17 -> 14 : 3
+
+Final distribution:
+Opinion	Value	Population	Initially Empty?
+1	0.08699999999999999	12	"No"
+2	0.08799999999999999	3	"No"
+3	0.172	10	"No"
+4	0.246	7	"No"
+5	0.25	1	"No"
+6	0.256	0	"No"
+7	0.341	2	"No"
+8	0.394	4	"No"
+9	0.4	4	"No"
+10	0.467	8	"No"
+11	0.484	5	"No"
+12	0.508	11	"No"
+13	0.51	10	"No"
+14	0.529	9	"No"
+15	0.649	0	"No"
+16	0.819	0	"No"
+17	0.905	0	"No"
+18	0.9399999999999999	3	"No"
+19	0.954	9	"No"
+20	0.994	2	"No"
+
+Total cost: 13.92211
+Total movements: 7
+============
+
+
+DatosProyecto20.dzn *********
+Optimal Solution:
+---------------
+Polarization = 23.657
+Median = 0.419
+
+Movements (from -> to : amount):
+  1 -> 5 : 1
+
+Final distribution:
+Opinion Value   Population      Initially Empty?
+1       0.041   5       "No"
+2       0.163   3       "No"
+3       0.244   4       "No"
+4       0.254   7       "No"
+5       0.294   10      "No"
+6       0.307   9       "No"
+7       0.335   5       "No"
+8       0.408   3       "No"
+9       0.419   4       "No"
+10      0.499   1       "No"
+11      0.511   2       "No"
+12      0.516   0       "Yes"
+13      0.615   2       "No"
+14      0.632   5       "No"
+15      0.636   11      "No"
+16      0.71    12      "No"
+17      0.822   4       "No"
+18      0.969   2       "No"
+19      0.974   3       "No"
+20      0.976   8       "No"
+
+Total cost: 0.240620000000001
+Total movements: 1
+----------
+
+
+DatosProyecto21.dzn
+Optimal Solution:
+---------------
+Polarization = 24.176
+Median = 0.008
+
+Movements (from -> to : amount):
+  2 -> 1 : 4
+  3 -> 1 : 20
+
+Final distribution:
+Opinion Value   Population      Initially Empty?
+1       0.008   83      "No"
+2       0.58    25      "No"
+3       0.831   12      "No"
+
+Total cost: 32.6682666666667
+Total movements: 24
+----------
+==========
+
+
+DatosProyecto22.dzn
+Optimal Solution:
+---------------
+Polarization = 31.135
+Median = 0.153
+
+Movements (from -> to : amount):
+  2 -> 1 : 5
+  3 -> 1 : 2
+
+Final distribution:
+Opinion Value   Population      Initially Empty?
+1       0.153   85      "No"
+2       0.398   0       "No"
+3       0.632   65      "No"
+
+Total cost: 12.8098200000001
+Total movements: 7
+----------
+==========
+
+
+DatosProyecto23.dzn
+Optimal Solution:
+---------------
+Polarization = 3.822
+Median = 0.122
+
+Movements (from -> to : amount):
+  2 -> 1 : 6
+  3 -> 2 : 11
+
+Final distribution:
+Opinion Value   Population      Initially Empty?
+1       0.122   136     "No"
+2       0.395   14      "No"
+3       0.999   0       "No"
+
+Total cost: 5.9138
+Total movements: 17
+----------
+==========
+
+
+DatosProyecto24.dzn
+Optimal Solution:
+---------------
+Polarization = 29.902
+Median = 0.897
+
+Movements (from -> to : amount):
+  2 -> 3 : 1
+
+Final distribution:
+Opinion Value   Population      Initially Empty?
+1       0.351   52      "No"
+2       0.595   5       "No"
+3       0.897   143     "No"
+
+Total cost: 2.26497
+Total movements: 1
+----------
+==========
+
+
+DatosProyecto25.dzn
+Optimal Solution:
+---------------
+Polarization = 24.775
+Median = 0.836
+
+Movements (from -> to : amount):
+  1 -> 3 : 10
+
+Final distribution:
+Opinion Value   Population      Initially Empty?
+1       0.023   30      "No"
+2       0.829   55      "No"
+3       0.836   95      "No"
+
+Total cost: 15.0211111111112
+Total movements: 10
+----------
+==========
+
+
+DatosProyecto26.dzn
+Optimal Solution:
+---------------
+Polarization = 30.748
+Median = 0.949
+
+Movements (from -> to : amount):
+  1 -> 3 : 4
+  1 -> 5 : 3
+
+Final distribution:
+Opinion Value   Population      Initially Empty?
+1       0.261   43      "No"
+2       0.508   0       "Yes"
+3       0.658   4       "Yes"
+4       0.742   0       "Yes"
+5       0.949   53      "No"
+
+Total cost: 70.02500000000001
+Total movements: 7
+----------
+==========
+
+
+DatosProyecto27.dzn
+Optimal Solution:
+---------------
+Polarization = 25.021
+Median = 0.843
+
+Movements (from -> to : amount):
+  1 -> 3 : 1
+  1 -> 5 : 7
+
+Final distribution:
+Opinion Value   Population      Initially Empty?
+1       0.249   42      "No"
+2       0.256   0       "Yes"
+3       0.77    1       "Yes"
+4       0.797   0       "Yes"
+5       0.843   57      "No"
+
+Total cost: 63.049
+Total movements: 8
+----------
+==========
+
+
+DatosProyecto28.dzn
+Optimal Solution:
+---------------
+Polarization = 14.683
+Median = 0.6830000000000001
+
+Movements (from -> to : amount):
+  1 -> 3 : 13
+  5 -> 4 : 5
+
+Final distribution:
+Opinion Value   Population      Initially Empty?
+1       0.289   12      "No"
+2       0.51    25      "No"
+3       0.6830000000000001      38      "No"
+4       0.694   30      "No"
+5       0.948   20      "No"
+
+Total cost: 36.89625
+Total movements: 18
+----------
+==========
+
+
+DatosProyecto29.dzn
+Optimal Solution:
+---------------
+Polarization = 30.0
+Median = 0.5
+
+Movements (from -> to : amount):
+  1 -> 2 : 20
+  1 -> 3 : 5
+
+Final distribution:
+Opinion Value   Population      Initially Empty?
+1       0.0     0       "No"
+2       0.25    45      "No"
+3       0.5     30      "No"
+4       0.75    25      "No"
+5       1.0     25      "No"
+
+Total cost: 20.2875
+Total movements: 25
+----------
+==========
+
+
+DatosProyecto30.dzn
+Optimal Solution:
+---------------
+Polarization = 0.0
+Median = 0.0
+
+Movements (from -> to : amount):
+  5 -> 1 : 50
+
+Final distribution:
+Opinion Value   Population      Initially Empty?
+1       0.0     100     "No"
+2       0.25    0       "Yes"
+3       0.5     0       "Yes"
+4       0.75    0       "Yes"
+5       1.0     0       "No"
+
+Total cost: 255.825
+Total movements: 50
+----------
+==========
