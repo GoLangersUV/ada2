@@ -28,7 +28,7 @@ interface FileResponse {
 function App() {
 
     const currentYear = new Date().getFullYear();
-    const [solver, setSolver] = useState<string>("gecode");
+    const [solver, _] = useState<string>("gecode");
     const [results, setResults] = useState<ResultItem[]>([]);
     const [selectedResult, setSelectedResult] = useState<string | null>(null);
 

@@ -9,7 +9,7 @@ interface DropzoneFileLoaderProp {
     onFileResponse?: (response: any) => void
 }
 
-const DropzoneFileLoader = ({ solver, onFileResponse }: DropzoneFileLoaderProp) => {
+const DropzoneFileLoader = ({ onFileResponse }: DropzoneFileLoaderProp) => {
 
     const [files, setFiles] = useState<ExtFile[]>([]);
 
